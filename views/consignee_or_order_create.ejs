@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Create Order</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 550px;
+            margin: 40px auto;
+            padding: 25px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        h3 {
+            margin-top: 25px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        input[readonly],
+        textarea[readonly] {
+            background-color: #eeeeee;
+            cursor: not-allowed;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h2>Create Order</h2>
+
+
+    <form action="/orders/create" method="POST">
+
+
+        <h3>Customer Details</h3>
+
+
+        <label>
+            Customer Name
+        </label>
+
+        <input
+            type="text"
+            name="name"
+            required
+        >
+
+
+        <label>
+            Mobile Number
+        </label>
+
+        <input
+            type="tel"
+            name="mobile_number"
+            maxlength="10"
+            minlength="10"
+            required
+        >
+
+
+        <label>
+            Customer Address
+        </label>
+
+        <textarea
+            name="address"
+            rows="4"
+            required
+        ></textarea>
+
+
+        <h3>Order Details</h3>
+
+
+        <label>
+            Pickup Address
+        </label>
+
+        <textarea
+            name="pickup_address"
+            rows="3"
+            readonly
+        ><%= pickup_address || "" %></textarea>
+
+
+        <label>
+            Delivery Address
+        </label>
+
+        <textarea
+            name="delivery_address"
+            rows="3"
+            readonly
+        ><%= delivery_address || "" %></textarea>
+
+
+        <label>
+            Distance (KM)
+        </label>
+
+        <input
+            type="number"
+            name="distance_km"
+            value="<%= distance_km || "" %>"
+            readonly
+        >
+
+
+        <label>
+            Delivery Charge
+        </label>
+
+        <input
+            type="number"
+            name="delivery_charge"
+            value="<%= delivery_charge || "" %>"
+            readonly
+        >
+
+
+        <label>
+            Platform Fee
+        </label>
+
+        <input
+            type="number"
+            name="platform_fee"
+            value="<%= platform_fee || 5 %>"
+            readonly
+        >
+
+
+        <label>
+            Total Amount
+        </label>
+
+        <input
+            type="number"
+            name="total_amount"
+            value="<%= total_amount || "" %>"
+            readonly
+        >
+
+
+        <label>
+            Order Status
+        </label>
+
+        <input
+            type="text"
+            name="order_status"
+            value="<%= order_status || "Pending" %>"
+            readonly
+        >
+
+
+        <button type="submit">
+            Create Order
+        </button>
+
+
+    </form>
+
+</div>
+
+</body>
+
+</html>

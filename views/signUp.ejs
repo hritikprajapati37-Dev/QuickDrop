@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign Up</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .form-container {
+            width: 450px;
+            margin: 40px auto;
+            padding: 25px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #deliveryFields {
+            display: none;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="form-container">
+
+        <h2>Sign Up</h2>
+
+        <form action="/signUp" method="POST" enctype="multipart/form-data">
+
+
+            <!-- Full Name -->
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" name="full_name" required>
+
+            <!-- Email -->
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <!-- Mobile Number -->
+            <label for="mobile_number">Mobile Number</label>
+            <input type="tel" id="mobile_number" name="mobile_number" required>
+
+            <!-- Password -->
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <!-- Role -->
+            <label for="role">Role</label>
+            <select id="role" name="role" required>
+                <option value="">Select Role</option>
+                <option value="consiner">Consiner</option>
+                <option value="delivery_boy">Delivery Boy</option>
+            </select>
+
+            <!-- Profile Image -->
+            <label for="profile_image">Profile Image</label>
+            <input type="file" id="profile_image" name="profile_image" accept="image/*">
+
+            <!-- Address -->
+            <label for="address">Address</label>
+            <textarea id="address" name="address" rows="4" style="resize: none;" required></textarea>
+
+
+            <!-- DELIVERY BOY FIELDS -->
+            <div id="deliveryFields">
+
+                <h3>Delivery Boy Details</h3>
+
+                <!-- Aadhar Number -->
+                <label for="aadhar_number">Aadhar Number</label>
+                <input type="text" id="aadhar_number" name="aadhar_number">
+
+                <!-- Aadhar Photo -->
+                <label for="aadhar_photo">Aadhar Photo</label>
+                <input type="file" id="aadhar_photo" name="aadhar_photo" accept="image/*">
+
+                <!-- License ID -->
+                <label for="license_id">License ID</label>
+                <input type="text" id="license_id" name="license_id">
+
+                <!-- License Photo -->
+                <label for="license_photo">License Photo</label>
+                <input type="file" id="license_photo" name="license_photo" accept="image/*">
+
+                <!-- Vehicle Type -->
+                <label for="vehicle_type">Vehicle Type</label>
+                <select id="vehicle_type" name="vehicle_type">
+                    <option value="">Select Vehicle</option>
+                    <option value="Bike">Bike</option>
+                    <option value="Scooter">Scooter</option>
+                    <option value="Car">Car</option>
+                    <option value="Auto">Auto</option>
+                </select>
+
+                <!-- Vehicle Number -->
+                <label for="vehicle_number">Vehicle Number</label>
+                <input type="text" id="vehicle_number" name="vehicle_number">
+
+                <label for="bank_account_number">Bank Account Number</label>
+                <input type="text" id="bank_account_number" name="bank_account_number">
+            </div>
+
+            <button type="submit">Sign Up</button>
+
+        </form>
+
+    </div>
+
+
+    <script>
+
+        const role = document.getElementById("role");
+        const deliveryFields = document.getElementById("deliveryFields");
+
+        const deliveryInputs = [
+            document.getElementById("aadhar_number"),
+            document.getElementById("aadhar_photo"),
+            document.getElementById("license_id"),
+            document.getElementById("license_photo"),
+            document.getElementById("vehicle_type"),
+            document.getElementById("vehicle_number"),
+            document.getElementById("bank_account_number")
+        ];
+
+        role.addEventListener("change", function () {
+
+            if (this.value === "delivery_boy") {
+
+                deliveryFields.style.display = "block";
+
+                deliveryInputs.forEach(input => {
+                    input.required = true;
+                });
+
+            } else {
+
+                deliveryFields.style.display = "none";
+
+                deliveryInputs.forEach(input => {
+                    input.required = false;
+                });
+
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>
