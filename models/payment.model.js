@@ -14,9 +14,9 @@ const paymentSchema = new mongoose.Schema(
             required: true
         },
 
-        consignee_id: {
+        delivery_boy_id: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Consignee",
+            ref: "Delivery_Boy_Schema",
             required: true
         },
 
@@ -39,17 +39,18 @@ const paymentSchema = new mongoose.Schema(
             unique: true,
             trim: true
         },
+    },
 
-        paid_at: {
-            type: Date
-        },
 
-        updated_at: {
-            type: Date,
-            default: Date.now
-        }
-    }
-);
+
+    {
+
+          timestamps: {
+               createdAt: "created_at",
+               updatedAt: "updated_at"
+          }
+     });
+
 
 const Payment = mongoose.model("Payment", paymentSchema);
 

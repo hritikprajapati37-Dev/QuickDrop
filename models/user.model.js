@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
 
         email: {
             type: String,
-            required: true,
+            required: false,
             unique: true,
             trim: true
         },
@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema(
     {
         timestamps: {
             createdAt: "created_at",
-            updatedAt: "updated_at"
+            updatedAt: false
         }
     }
 );

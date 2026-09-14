@@ -13,13 +13,8 @@ const consignorSchema = new mongoose.Schema(
             enum: ["Active", "Inactive"],
             default: "Inactive"
         }
-    },
-    {
-        timestamps: {
-            createdAt: "created_at",
-            updatedAt: "updated_at"
-        }
     }
+    
 );
 
 const consignorModel = mongoose.model("Consignor", consignorSchema);

@@ -33,7 +33,6 @@ const orderSchema = new mongoose.Schema(
             trim: true
         },
 
-        // Distance between pickup and delivery location
         distance_km: {
             type: Number,
             required: true,
@@ -41,28 +40,25 @@ const orderSchema = new mongoose.Schema(
             max:5
         },
 
-        // Delivery charge
         delivery_charge: {
             type: Number,
             required: true,
-            min: 0
+            min: 5
         },
 
-        // Platform/service fee
         platform_fee: {
             type: Number,
             required: true,
-            min: 0,
-            default: 0
+            default: 5,
+            min:5
         },
 
         total_amount: {
             type: Number,
-            required: true,
-            min: 0
+            min:10,
+            required: true
         },
 
-        // Current order status
         order_status: {
             type: String,
             enum: [
@@ -79,8 +75,8 @@ const orderSchema = new mongoose.Schema(
 
     {
         timestamps: {
-            createdAt: "created_at",
-            updatedAt: "updated_at"
+            createdAt: "created_at"
+            // updatedAt: "updated_at"
         }
     }
 );

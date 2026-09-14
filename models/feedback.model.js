@@ -30,11 +30,13 @@ const feedbackSchema = new mongoose.Schema(
         review: {
             type: String,
             trim: true
-        },
+        }
 
-        created_at: {
-            type: Date,
-            default: Date.now
+    },
+    {   
+        timestamps: {
+            createdAt: "created_at",
+            updatedAt: false
         }
     }
 );

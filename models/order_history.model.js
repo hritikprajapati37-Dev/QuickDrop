@@ -28,14 +28,22 @@ const orderHistorySchema = new mongoose.Schema(
 
         status: {
             type: String,
-            required: true,
-            trim: true
-        },
-
-        time: {
-            type: Date,
-            default: Date.now,
+            enum: [
+                "Pending",
+                "Assigned",
+                "Picked_Up",
+                "Delivered",
+                "Cancelled"
+            ],
             required: true
+        }
+    },
+
+    {
+
+        timestamps: {
+            createdAt: "created_at",
+            updatedAt: false
         }
     }
 );
