@@ -23,14 +23,9 @@ const userSchema = new mongoose.Schema(
             
         },
 
-        password: {
-            type: String,
-            required: true
-        },
-
         role: {
             type: String,
-            enum: ["consignor", "delivery_boy"],
+            enum: ["consignor", "delivery_boy","admin"],
             required: true
         },
 
@@ -42,7 +37,14 @@ const userSchema = new mongoose.Schema(
         address: {
             type: String,
             required: true
-        }
+        },
+
+        bank_account_number: {
+               type: String,
+               required: true,
+               trim: true
+          }
+
     },
 
     {

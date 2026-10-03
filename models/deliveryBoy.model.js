@@ -68,11 +68,7 @@ const deliveryBoySchema = new mongoose.Schema(
                }
           },
 
-          bank_account_number: {
-               type: String,
-               required: true,
-               trim: true
-          }
+          
           
      });
 
