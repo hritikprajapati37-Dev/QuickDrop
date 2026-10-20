@@ -4,15 +4,24 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
+import com.example.quick_drop.utils.ApiClient;
+import com.example.quick_drop.utils.UserSession;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class AvailableRequestsFragment extends Fragment {
+
+    private LinearLayout llRequests;
 
     @Nullable
     @Override
@@ -25,31 +34,109 @@ public class AvailableRequestsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> 
-            Navigation.findNavController(v).navigateUp());
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> 
+                Navigation.findNavController(v).navigateUp());
+        }
 
-        // Set a click listener on the layout as a dummy for item clicks
-        view.findViewById(R.id.llRequests).setOnClickListener(v -> 
-            Navigation.findNavController(v).navigate(R.id.action_availableRequests_to_details));
+        llRequests = view.findViewById(R.id.llRequests);
+
+        loadAvailableRequests();
 
         BottomNavigationView bottomNav = view.findViewById(R.id.bottom_navigation);
-        bottomNav.setSelectedItemId(R.id.availableRequestsFragment);
-        bottomNav.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.partnerDashboardFragment) {
-                Navigation.findNavController(view).navigate(R.id.action_availableRequests_to_partnerDashboard);
-                return true;
-            } else if (id == R.id.deliveryHistoryPartnerFragment) {
-                Navigation.findNavController(view).navigate(R.id.action_availableRequests_to_history);
-                return true;
-            } else if (id == R.id.earningsFragment) {
-                Navigation.findNavController(view).navigate(R.id.action_availableRequests_to_earnings);
-                return true;
-            } else if (id == R.id.partnerProfileFragment) {
-                Navigation.findNavController(view).navigate(R.id.action_availableRequests_to_partnerProfile);
-                return true;
+        if (bottomNav != null) {
+            bottomNav.setSelectedItemId(R.id.availableRequestsFragment);
+            bottomNav.setOnItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.partnerDashboardFragment) {
+                    Navigation.findNavController(view).navigate(R.id.action_availableRequests_to_partnerDashboard);
+                    return true;
+                } else if (id == R.id.deliveryHistoryPartnerFragment) {
+                    Navigation.findNavController(view).navigate(R.id.action_availableRequests_to_history);
+                    return true;
+                } else if (id == R.id.earningsFragment) {
+                    Navigation.findNavController(view).navigate(R.id.action_availableRequests_to_earnings);
+                    return true;
+                } else if (id == R.id.partnerProfileFragment) {
+                    Navigation.findNavController(view).navigate(R.id.action_availableRequests_to_partnerProfile);
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
+
+    private void loadAvailableRequests() {
+        String token = UserSession.getToken(requireContext());
+        if (token.isEmpty()) return;
+
+        ApiClient.getAvailableRequests(token, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (llRequests != null) {
+                        llRequests.removeAllViews();
+                        JSONArray requests = response.optJSONArray("requests");
+                        if (requests != null && requests.length() > 0) {
+                            for (int i = 0; i < requests.length(); i++) {
+                                JSONObject req = requests.optJSONObject(i);
+                                if (req != null) {
+                                    View itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_delivery_request, llRequests, false);
+                                    
+                                    TextView tvOrderID = itemView.findViewById(R.id.tvOrderID);
+                                    TextView tvPickupAddress = itemView.findViewById(R.id.tvPickupAddress);
+                                    TextView tvDestAddress = itemView.findViewById(R.id.tvDestAddress);
+                                    TextView tvPackageType = itemView.findViewById(R.id.tvPackageType);
+                                    MaterialButton btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
+
+                                    String orderId = req.optString("order_id", "");
+                                    String shortId = orderId;
+                                    if (shortId.length() > 6) {
+                                        shortId = shortId.substring(shortId.length() - 6);
+                                    }
+                                    if (tvOrderID != null) tvOrderID.setText("#" + shortId);
+                                    if (tvPickupAddress != null) tvPickupAddress.setText(req.optString("pickup_address", ""));
+                                    if (tvDestAddress != null) tvDestAddress.setText(req.optString("delivery_address", ""));
+                                    if (tvPackageType != null) tvPackageType.setText(req.optString("item_description", "Standard Package"));
+
+                                    if (btnViewDetails != null) {
+                                        btnViewDetails.setOnClickListener(v -> {
+                                            Bundle args = new Bundle();
+                                            args.putString("order_id", orderId);
+                                            Navigation.findNavController(v).navigate(R.id.action_availableRequests_to_details, args);
+                                        });
+                                    }
+
+                                    llRequests.addView(itemView);
+                                }
+                            }
+                        } else {
+                            TextView emptyTv = new TextView(requireContext());
+                            emptyTv.setText("No delivery requests available right now.");
+                            emptyTv.setPadding(32, 64, 32, 64);
+                            emptyTv.setGravity(android.view.Gravity.CENTER);
+                            llRequests.addView(emptyTv);
+                        }
+                    }
+                });
             }
-            return false;
+
+            @Override
+            public void onError(String error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (llRequests != null) {
+                        llRequests.removeAllViews();
+                        TextView errorTv = new TextView(requireContext());
+                        errorTv.setText("Failed to load available requests. Tap to retry.");
+                        errorTv.setPadding(32, 64, 32, 64);
+                        errorTv.setGravity(android.view.Gravity.CENTER);
+                        errorTv.setOnClickListener(v -> loadAvailableRequests());
+                        llRequests.addView(errorTv);
+                    }
+                });
+            }
         });
     }
 }
