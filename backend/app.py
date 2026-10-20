@@ -4,7 +4,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from backend.services.db_service import init_db
+from backend.services.db_service import init_db, get_db
 from backend.routes.auth_routes import auth_bp
 from backend.routes.order_routes import order_bp
 from backend.routes.delivery_routes import delivery_bp
@@ -76,14 +76,16 @@ def health_check():
 
 @app.route("/test-db")
 def test_db():
-    from backend.services.db_service import MONGO_URI, mongo_client
-    if not MONGO_URI or not MONGO_URI.strip():
+    from backend.services.db_service import mongo_client
+    database = get_db()
+    if database is None:
         return jsonify({
             "success": False,
-            "message": "MONGO_URI is not configured in .env. Please set MONGO_URI."
+            "message": "Database not connected."
         }), 500
     try:
-        mongo_client.admin.command('ping')
+        if mongo_client is not None:
+            mongo_client.admin.command('ping')
         return jsonify({
             "success": True,
             "message": "Successfully connected to MongoDB Atlas (quick_dropDB)."
