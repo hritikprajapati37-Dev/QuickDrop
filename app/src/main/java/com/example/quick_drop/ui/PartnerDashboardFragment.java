@@ -4,18 +4,23 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
+import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
-import android.widget.TextView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class PartnerDashboardFragment extends Fragment {
+
+    private View cardActiveDelivery;
+    private TextView tvTodayDeliveries, tvCompletedDeliveries, tvPendingDeliveries, tvAvailableSummary;
+    private TextView tvOrderID, tvPickupVal, tvDestVal, tvETA;
 
     @Nullable
     @Override
@@ -29,8 +34,29 @@ public class PartnerDashboardFragment extends Fragment {
 
         TextView tvGreeting = view.findViewById(R.id.tvGreetingPartner);
         if (tvGreeting != null) {
-            tvGreeting.setText("Good Morning, " + UserSession.getUserName(requireContext()).split(" ")[0]);
+            String name = UserSession.getUserName(requireContext());
+            if (name != null && !name.isEmpty()) {
+                tvGreeting.setText("Good Morning, " + name.split(" ")[0]);
+            } else {
+                tvGreeting.setText("Good Morning, Partner");
+            }
         }
+
+        tvTodayDeliveries = view.findViewById(R.id.tvTodayDeliveries);
+        tvCompletedDeliveries = view.findViewById(R.id.tvCompletedDeliveries);
+        tvPendingDeliveries = view.findViewById(R.id.tvPendingDeliveries);
+        tvAvailableSummary = view.findViewById(R.id.tvAvailableSummary);
+        cardActiveDelivery = view.findViewById(R.id.cardActiveOrderPartner);
+        tvOrderID = view.findViewById(R.id.tvOrderIDPartner);
+        tvPickupVal = view.findViewById(R.id.tvPickupPartner);
+        tvDestVal = view.findViewById(R.id.tvDestPartner);
+        tvETA = view.findViewById(R.id.tvETAPartner);
+
+        if (cardActiveDelivery != null) {
+            cardActiveDelivery.setVisibility(View.GONE);
+        }
+
+        loadPartnerDashboard();
 
         view.findViewById(R.id.btnViewDelivery).setOnClickListener(v -> 
             Navigation.findNavController(v).navigate(R.id.action_partnerDashboard_to_availableRequests));
@@ -48,23 +74,85 @@ public class PartnerDashboardFragment extends Fragment {
         }
 
         BottomNavigationView bottomNav = view.findViewById(R.id.bottom_navigation);
-        bottomNav.setSelectedItemId(R.id.partnerDashboardFragment);
-        bottomNav.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.availableRequestsFragment) {
-                Navigation.findNavController(view).navigate(R.id.action_partnerDashboard_to_availableRequests);
-                return true;
-            } else if (id == R.id.deliveryHistoryPartnerFragment) {
-                Navigation.findNavController(view).navigate(R.id.action_partnerDashboard_to_history);
-                return true;
-            } else if (id == R.id.earningsFragment) {
-                Navigation.findNavController(view).navigate(R.id.action_partnerDashboard_to_earnings);
-                return true;
-            } else if (id == R.id.partnerProfileFragment) {
-                Navigation.findNavController(view).navigate(R.id.action_partnerDashboard_to_profile);
-                return true;
+        if (bottomNav != null) {
+            bottomNav.setSelectedItemId(R.id.partnerDashboardFragment);
+            bottomNav.setOnItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.availableRequestsFragment) {
+                    Navigation.findNavController(view).navigate(R.id.action_partnerDashboard_to_availableRequests);
+                    return true;
+                } else if (id == R.id.deliveryHistoryPartnerFragment) {
+                    Navigation.findNavController(view).navigate(R.id.action_partnerDashboard_to_history);
+                    return true;
+                } else if (id == R.id.earningsFragment) {
+                    Navigation.findNavController(view).navigate(R.id.action_partnerDashboard_to_earnings);
+                    return true;
+                } else if (id == R.id.partnerProfileFragment) {
+                    Navigation.findNavController(view).navigate(R.id.action_partnerDashboard_to_profile);
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
+
+    private void loadPartnerDashboard() {
+        String token = UserSession.getToken(requireContext());
+        if (token.isEmpty()) return;
+
+        ApiClient.getDashboard(token, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    JSONObject counts = response.optJSONObject("counts");
+                    if (counts != null) {
+                        if (tvTodayDeliveries != null) tvTodayDeliveries.setText(String.valueOf(counts.optInt("total", 0)));
+                        if (tvCompletedDeliveries != null) tvCompletedDeliveries.setText(String.valueOf(counts.optInt("completed", 0)));
+                        if (tvPendingDeliveries != null) tvPendingDeliveries.setText(String.valueOf(counts.optInt("pending", 0)));
+                    }
+
+                    JSONObject activeDelivery = response.optJSONObject("active_delivery");
+                    if (activeDelivery != null) {
+                        if (cardActiveDelivery != null) cardActiveDelivery.setVisibility(View.VISIBLE);
+                        if (tvOrderID != null) {
+                            String oid = activeDelivery.optString("order_id", "");
+                            if (oid.length() > 6) oid = oid.substring(oid.length() - 6);
+                            tvOrderID.setText("#" + oid);
+                        }
+                        if (tvPickupVal != null) tvPickupVal.setText(activeDelivery.optString("pickup_address", ""));
+                        if (tvDestVal != null) tvDestVal.setText(activeDelivery.optString("delivery_address", ""));
+                        if (tvETA != null) tvETA.setText("In Progress");
+                    } else {
+                        if (cardActiveDelivery != null) cardActiveDelivery.setVisibility(View.GONE);
+                    }
+                });
             }
-            return false;
+
+            @Override
+            public void onError(String error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (cardActiveDelivery != null) cardActiveDelivery.setVisibility(View.GONE);
+                });
+            }
+        });
+
+        ApiClient.getAvailableRequests(token, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    JSONArray reqs = response.optJSONArray("requests");
+                    int count = reqs != null ? reqs.length() : 0;
+                    if (tvAvailableSummary != null) {
+                        tvAvailableSummary.setText(count + " delivery request" + (count == 1 ? "" : "s") + " available");
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {}
         });
     }
 }

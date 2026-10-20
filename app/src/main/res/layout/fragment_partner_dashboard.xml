@@ -138,10 +138,11 @@
                         android:padding="@dimen/stitch_md">
 
                         <TextView
+                            android:id="@+id/tvTodayDeliveries"
                             style="@style/Stitch.Typography.HeadlineMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="8"
+                            android:text="0"
                             android:textColor="@color/vf_primary" />
 
                         <TextView
@@ -170,10 +171,11 @@
                         android:padding="@dimen/stitch_md">
 
                         <TextView
+                            android:id="@+id/tvCompletedDeliveries"
                             style="@style/Stitch.Typography.HeadlineMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="5"
+                            android:text="0"
                             android:textColor="@color/vf_secondary" />
 
                         <TextView
@@ -202,10 +204,11 @@
                         android:padding="@dimen/stitch_md">
 
                         <TextView
+                            android:id="@+id/tvPendingDeliveries"
                             style="@style/Stitch.Typography.HeadlineMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="1"
+                            android:text="0"
                             android:textColor="@color/vf_tertiary" />
 
                         <TextView
@@ -226,6 +229,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/stitch_lg"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/vf_surface_container_low"
                 app:cardCornerRadius="@dimen/stitch_rounded_lg"
                 app:strokeWidth="0dp">
@@ -254,7 +258,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/stitch_sm"
-                        android:text="#QD-9284"
+                        android:text=""
                         android:textColor="@color/vf_primary"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvActiveOrderTagPartner" />
@@ -274,7 +278,7 @@
                         style="@style/Stitch.Typography.HeadlineMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2:30 PM"
+                        android:text=""
                         android:textColor="@color/vf_primary"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvEstLabelPartner" />
@@ -325,10 +329,11 @@
                                         android:textAllCaps="false" />
 
                                     <TextView
+                                        android:id="@+id/tvPickupPartner"
                                         style="@style/Stitch.Typography.BodyMedium"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="123 Tech Park"
+                                        android:text=""
                                         android:textColor="@color/vf_on_surface" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -363,10 +368,11 @@
                                         android:textAllCaps="false" />
 
                                     <TextView
+                                        android:id="@+id/tvDestPartner"
                                         style="@style/Stitch.Typography.BodyMedium"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="456 Elm Street"
+                                        android:text=""
                                         android:textColor="@color/vf_on_surface" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -514,10 +520,11 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvAvailableSummary"
                             style="@style/Stitch.Typography.BodyLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="3 delivery requests available"
+                            android:text="0 delivery requests available"
                             android:textStyle="bold" />
 
                         <TextView
