@@ -23,7 +23,12 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
-db = init_db()
+db = None
+try:
+    db = init_db()
+except Exception as e:
+    db = None
+    print(f"Startup DB deferred initialization error: {type(e).__name__}")
 
 @app.before_request
 def disable_limiter_in_testing():
@@ -59,10 +64,11 @@ app.register_blueprint(admin_bp)
 
 @app.route("/")
 def index():
+    active_db = get_db()
     return jsonify({
         "status": "running",
         "database": "quick_dropDB",
-        "connected": db is not None
+        "connected": active_db is not None
     })
 
 @app.route("/health")
