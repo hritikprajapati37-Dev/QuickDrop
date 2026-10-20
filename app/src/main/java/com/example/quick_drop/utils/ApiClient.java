@@ -208,4 +208,122 @@ public class ApiClient {
             }
         }).start();
     }
+
+    public static void getAvailableRequests(String token, ApiCallback callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(getBaseUrl() + "/api/partner/available");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Accept", "application/json");
+
+                int code = conn.getResponseCode();
+                BufferedReader br;
+                if (code >= 200 && code < 300) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
+                }
+
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    callback.onSuccess(resJson);
+                } else {
+                    callback.onError(resJson.optString("error", "Failed to fetch available requests"));
+                }
+            } catch (Exception e) {
+                Log.e("ApiClient", "Available requests error", e);
+                callback.onError(e.getMessage());
+            }
+        }).start();
+    }
+
+    public static void acceptRequest(String token, String orderId, ApiCallback callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(getBaseUrl() + "/api/delivery/accept");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoOutput(true);
+
+                JSONObject jsonParam = new JSONObject();
+                jsonParam.put("order_id", orderId);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonParam.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                int code = conn.getResponseCode();
+                BufferedReader br;
+                if (code >= 200 && code < 300) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
+                }
+
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    callback.onSuccess(resJson);
+                } else {
+                    callback.onError(resJson.optString("error", "Failed to accept order"));
+                }
+            } catch (Exception e) {
+                Log.e("ApiClient", "Accept request error", e);
+                callback.onError(e.getMessage());
+            }
+        }).start();
+    }
+
+    public static void getPartnerEarnings(String token, ApiCallback callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(getBaseUrl() + "/api/partner/earnings");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Accept", "application/json");
+
+                int code = conn.getResponseCode();
+                BufferedReader br;
+                if (code >= 200 && code < 300) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
+                }
+
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    callback.onSuccess(resJson);
+                } else {
+                    callback.onError(resJson.optString("error", "Failed to fetch earnings"));
+                }
+            } catch (Exception e) {
+                Log.e("ApiClient", "Earnings error", e);
+                callback.onError(e.getMessage());
+            }
+        }).start();
+    }
 }

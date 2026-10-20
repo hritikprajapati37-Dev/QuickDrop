@@ -108,6 +108,25 @@ def orders_list():
         del o["_id"]
     return jsonify({"orders": orders}), 200
 
+@order_bp.route("/api/orders/<order_id>", methods=["GET"], endpoint="get_order_details")
+@token_required
+def get_order_details(order_id):
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    try:
+        obj_id = ObjectId(order_id)
+    except Exception:
+        return jsonify({"error": "Invalid order ID"}), 400
+
+    order = db["orders"].find_one({"_id": obj_id})
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
+
+    order["order_id"] = str(order["_id"])
+    del order["_id"]
+    return jsonify(order), 200
+
 @order_bp.route("/api/user/dashboard", methods=["GET"], endpoint="user_dashboard")
 @token_required
 def user_dashboard():
