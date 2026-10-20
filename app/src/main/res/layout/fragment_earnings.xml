@@ -42,7 +42,8 @@
                     android:layout_height="24dp"
                     android:layout_gravity="center"
                     app:srcCompat="@drawable/ic_bell"
-                    app:tint="@color/vf_on_surface_variant" />
+                    app:tint="@color/vf_on_surface_variant"
+                    android:contentDescription="Notifications" />
 
                 <View
                     android:layout_width="8dp"
@@ -61,11 +62,71 @@
             android:background="@color/vf_surface_container" />
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Shimmer Skeleton Layout -->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmerContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:shimmer_auto_start="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/stitch_margin_mobile"
+            android:paddingBottom="24dp">
+
+            <!-- Skeleton Balance Card -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:background="@drawable/shape_rounded_md"
+                android:backgroundTint="@color/vf_surface_container" />
+
+            <!-- Skeleton Tabs -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/stitch_lg"
+                android:background="@drawable/shape_rounded_md"
+                android:backgroundTint="@color/vf_surface_container" />
+
+            <!-- Skeleton Summary Cards -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginTop="@dimen/stitch_lg"
+                android:orientation="horizontal">
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/shape_rounded_md"
+                    android:backgroundTint="@color/vf_surface_container" />
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/shape_rounded_md"
+                    android:backgroundTint="@color/vf_surface_container" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <!-- Real Content Container -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/layoutContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
         android:clipToPadding="false"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -92,7 +153,6 @@
                     android:layout_height="wrap_content"
                     android:padding="@dimen/stitch_lg">
 
-                    <!-- Background gradient element (simulated) -->
                     <View
                         android:layout_width="120dp"
                         android:layout_height="120dp"
@@ -124,18 +184,10 @@
                             style="@style/Stitch.Typography.HeadlineLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₹2,450"
+                            android:text="—"
                             android:textColor="@color/vf_primary"
                             android:textSize="48sp"
                             android:textStyle="bold" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.TitleLarge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            android:text=".00"
-                            android:textColor="@color/vf_outline" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -231,7 +283,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             app:srcCompat="@drawable/ic_local_shipping"
-                            app:tint="@color/vf_primary" />
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="Deliveries" />
 
                         <TextView
                             android:id="@+id/tvDeliveriesValue"
@@ -239,7 +292,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="12"
+                            android:text="0"
                             android:textStyle="bold" />
 
                         <TextView
@@ -270,7 +323,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             app:srcCompat="@drawable/ic_route"
-                            app:tint="@color/vf_secondary" />
+                            app:tint="@color/vf_secondary"
+                            android:contentDescription="Distance" />
 
                         <TextView
                             android:id="@+id/tvDistanceValue"
@@ -278,7 +332,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="45"
+                            android:text="0 km"
                             android:textStyle="bold" />
 
                         <TextView
@@ -290,51 +344,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </GridLayout>
-
-            <!-- Chart Card -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Stitch.Card.Level1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/stitch_lg"
-                app:cardBackgroundColor="@color/white">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/stitch_md">
-
-                    <!-- Simple Bar Chart Simulation -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="180dp"
-                        android:gravity="bottom"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="16dp">
-
-                        <View android:layout_width="0dp" android:layout_height="40dp" android:layout_weight="1" android:layout_marginHorizontal="8dp" android:background="@color/vf_primary_container" />
-                        <View android:layout_width="0dp" android:layout_height="100dp" android:layout_weight="1" android:layout_marginHorizontal="8dp" android:background="@color/vf_primary_container" />
-                        <View android:layout_width="0dp" android:layout_height="70dp" android:layout_weight="1" android:layout_marginHorizontal="8dp" android:background="@color/vf_primary_container" />
-                        <View android:layout_width="0dp" android:layout_height="160dp" android:layout_weight="1" android:layout_marginHorizontal="8dp" android:background="@color/vf_primary_container" />
-                        <View android:layout_width="0dp" android:layout_height="20dp" android:layout_weight="1" android:layout_marginHorizontal="8dp" android:background="@color/vf_surface_container" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:orientation="horizontal">
-                        <TextView style="@style/Stitch.Typography.LabelMedium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="9am" />
-                        <TextView style="@style/Stitch.Typography.LabelMedium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="12pm" />
-                        <TextView style="@style/Stitch.Typography.LabelMedium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="3pm" />
-                        <TextView style="@style/Stitch.Typography.LabelMedium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="6pm" />
-                        <TextView style="@style/Stitch.Typography.LabelMedium" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="9pm" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -360,15 +369,42 @@
                     android:textStyle="bold" />
             </RelativeLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvEarnings"
+            <LinearLayout
+                android:id="@+id/llEarningsHistory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/stitch_md"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_recent_delivery" />
+                android:orientation="vertical" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Error/Retry View -->
+    <LinearLayout
+        android:id="@+id/layoutError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
+
+        <TextView
+            style="@style/Stitch.Typography.BodyLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Failed to load earnings." />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetry"
+            style="@style/Stitch.Button.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Retry" />
+    </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

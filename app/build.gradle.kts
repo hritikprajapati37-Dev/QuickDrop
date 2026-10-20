@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation("androidx.security:security-crypto:1.1.0")
     implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)

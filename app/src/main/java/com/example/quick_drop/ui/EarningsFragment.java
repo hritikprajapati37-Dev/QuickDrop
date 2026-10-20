@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,16 +15,20 @@ import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
 import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.Locale;
 
 public class EarningsFragment extends Fragment {
 
-    private TextView tvBalanceValue;
-    private TextView tvDeliveriesValue;
-    private TextView tvDistanceValue;
+    private ShimmerFrameLayout shimmerContainer;
+    private View layoutContent, layoutError;
+    private TextView tvBalanceValue, tvDeliveriesValue, tvDistanceValue;
     private TextView tabToday, tabWeek, tabMonth;
+    private LinearLayout llEarningsHistory;
 
     @Nullable
     @Override
@@ -41,16 +46,25 @@ public class EarningsFragment extends Fragment {
                 Navigation.findNavController(v).navigateUp());
         }
 
+        shimmerContainer = view.findViewById(R.id.shimmerContainer);
+        layoutContent = view.findViewById(R.id.layoutContent);
+        layoutError = view.findViewById(R.id.layoutError);
         tvBalanceValue = view.findViewById(R.id.tvBalanceValue);
         tvDeliveriesValue = view.findViewById(R.id.tvDeliveriesValue);
         tvDistanceValue = view.findViewById(R.id.tvDistanceValue);
         tabToday = view.findViewById(R.id.tvTabToday);
         tabWeek = view.findViewById(R.id.tvTabWeek);
         tabMonth = view.findViewById(R.id.tvTabMonth);
+        llEarningsHistory = view.findViewById(R.id.llEarningsHistory);
 
         if (tabToday != null) tabToday.setOnClickListener(v -> selectTab(0));
         if (tabWeek != null) tabWeek.setOnClickListener(v -> selectTab(1));
         if (tabMonth != null) tabMonth.setOnClickListener(v -> selectTab(2));
+
+        View btnRetry = view.findViewById(R.id.btnRetry);
+        if (btnRetry != null) {
+            btnRetry.setOnClickListener(v -> loadEarnings());
+        }
 
         loadEarnings();
 
@@ -98,34 +112,104 @@ public class EarningsFragment extends Fragment {
     }
 
     private void loadEarnings() {
+        if (shimmerContainer != null) {
+            shimmerContainer.setVisibility(View.VISIBLE);
+            shimmerContainer.startShimmer();
+        }
+        if (layoutContent != null) layoutContent.setVisibility(View.GONE);
+        if (layoutError != null) layoutError.setVisibility(View.GONE);
+
         String token = UserSession.getToken(requireContext());
-        if (token.isEmpty()) return;
+        if (token.isEmpty()) {
+            showErrorState();
+            return;
+        }
 
         ApiClient.getPartnerEarnings(token, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
+                    if (shimmerContainer != null) {
+                        shimmerContainer.stopShimmer();
+                        shimmerContainer.setVisibility(View.GONE);
+                    }
+                    if (layoutContent != null) layoutContent.setVisibility(View.VISIBLE);
+
                     double earnings = response.optDouble("total_earnings", 0.0);
                     int deliveries = response.optInt("completed_deliveries", 0);
                     String currency = response.optString("currency", "₹");
 
-                    if (tvBalanceValue != null) tvBalanceValue.setText(currency + String.format("%.0f", earnings));
-                    if (tvDeliveriesValue != null) tvDeliveriesValue.setText(String.valueOf(deliveries));
-                    if (tvDistanceValue != null) tvDistanceValue.setText(String.valueOf(deliveries * 3) + " km");
+                    if (tvBalanceValue != null) {
+                        tvBalanceValue.setText(String.format(Locale.getDefault(), "%s%.0f", currency, earnings));
+                    }
+                    if (tvDeliveriesValue != null) {
+                        tvDeliveriesValue.setText(String.valueOf(deliveries));
+                    }
+                    if (tvDistanceValue != null) {
+                        tvDistanceValue.setText((deliveries * 3) + " km");
+                    }
+
+                    loadEarningsHistory(token);
                 });
             }
 
             @Override
             public void onError(String error) {
                 if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> {
-                    if (tvBalanceValue != null) tvBalanceValue.setText("₹0");
-                    if (tvDeliveriesValue != null) tvDeliveriesValue.setText("0");
-                    if (tvDistanceValue != null) tvDistanceValue.setText("0 km");
-                });
+                requireActivity().runOnUiThread(() -> showErrorState());
             }
         });
+    }
+
+    private void loadEarningsHistory(String token) {
+        ApiClient.getOrdersList(token, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (llEarningsHistory != null) {
+                        llEarningsHistory.removeAllViews();
+                        JSONArray orders = response.optJSONArray("orders");
+                        if (orders != null && orders.length() > 0) {
+                            int count = 0;
+                            for (int i = 0; i < orders.length(); i++) {
+                                JSONObject order = orders.optJSONObject(i);
+                                if (order != null && (order.optBoolean("delivered", false) || "DELIVERED".equals(order.optString("status")))) {
+                                    if (count >= 3) break;
+                                    View itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_recent_delivery, llEarningsHistory, false);
+                                    
+                                    TextView tvId = itemView.findViewById(R.id.tvOrderID);
+                                    TextView tvTime = itemView.findViewById(R.id.tvTimestamp);
+                                    TextView tvAmt = itemView.findViewById(R.id.tvAmount);
+
+                                    String oid = order.optString("order_id", "");
+                                    if (oid.length() > 6) oid = oid.substring(oid.length() - 6);
+                                    if (tvId != null) tvId.setText("#" + oid);
+                                    if (tvTime != null) tvTime.setText(order.optString("delivery_address", "Completed"));
+                                    if (tvAmt != null) tvAmt.setText("+₹150");
+
+                                    llEarningsHistory.addView(itemView);
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {}
+        });
+    }
+
+    private void showErrorState() {
+        if (shimmerContainer != null) {
+            shimmerContainer.stopShimmer();
+            shimmerContainer.setVisibility(View.GONE);
+        }
+        if (layoutContent != null) layoutContent.setVisibility(View.GONE);
+        if (layoutError != null) layoutError.setVisibility(View.VISIBLE);
     }
 
     private void selectTab(int index) {
