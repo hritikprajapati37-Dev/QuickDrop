@@ -56,14 +56,16 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     app:srcCompat="@drawable/ic_tune"
-                    app:tint="@color/vf_on_surface_variant" />
+                    app:tint="@color/vf_on_surface_variant"
+                    android:contentDescription="Filter" />
 
                 <ImageButton
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     app:srcCompat="@drawable/ic_search"
-                    app:tint="@color/vf_on_surface_variant" />
+                    app:tint="@color/vf_on_surface_variant"
+                    android:contentDescription="Search" />
             </LinearLayout>
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -152,7 +154,8 @@
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         app:srcCompat="@drawable/ic_calendar"
-                        app:tint="@color/vf_on_surface_variant" />
+                        app:tint="@color/vf_on_surface_variant"
+                        android:contentDescription="Calendar" />
 
                     <TextView
                         style="@style/Stitch.Typography.LabelMedium"
@@ -168,7 +171,7 @@
                     style="@style/Stitch.Typography.LabelMedium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3 deliveries"
+                    android:text="Deliveries"
                     android:textAllCaps="false"
                     android:textColor="@color/vf_on_surface_variant"
                     app:layout_constraintBottom_toBottomOf="@id/llCalendar"
@@ -180,7 +183,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="All · This Month"
+                    android:text="All · History"
                     android:textAllCaps="false"
                     android:textColor="@color/vf_on_surface_variant"
                     android:alpha="0.75"
@@ -206,14 +209,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/stitch_lg"
-                android:orientation="vertical">
-
-                <include layout="@layout/item_delivery_history" />
-
-                <include layout="@layout/item_delivery_history" />
-
-                <include layout="@layout/item_delivery_history" />
-            </LinearLayout>
+                android:orientation="vertical" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
