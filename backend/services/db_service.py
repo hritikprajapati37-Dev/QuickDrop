@@ -118,19 +118,31 @@ class MockDatabase(dict):
 
 def init_db(testing=False):
     global db, mongo_client, _mock_db_singleton
-    if db is not None:
+    if db is not None and not testing:
         return db
+
+    # If testing mode, always use singleton mock DB
+    if testing:
+        if _mock_db_singleton is None:
+            _mock_db_singleton = MockDatabase()
+        db = _mock_db_singleton
+        return db
+
     try:
         uri = MONGO_URI.strip() if MONGO_URI else ""
         if not uri:
-            raise ValueError("Empty MONGO_URI")
-        mongo_client = MongoClient(uri, tlsCAFile=certifi.where(), serverSelectionTimeoutMS=2000)
+            if _mock_db_singleton is None:
+                _mock_db_singleton = MockDatabase()
+            db = _mock_db_singleton
+            return db
+
+        mongo_client = MongoClient(uri, tlsCAFile=certifi.where(), serverSelectionTimeoutMS=3000)
         mongo_client.admin.command('ping')
-        db_name = "quick_drop_testDB" if testing else "quick_dropDB"
-        db = mongo_client[db_name]
-        print(f"Successfully connected to MongoDB Atlas database: {db_name}")
+        db = mongo_client["quick_dropDB"]
+        print("Successfully connected to MongoDB Atlas database: quick_dropDB")
         return db
     except Exception as e:
+        print(f"Failed to connect to MongoDB Atlas ({e}). Falling back to in-memory mock database.")
         if _mock_db_singleton is None:
             _mock_db_singleton = MockDatabase()
         db = _mock_db_singleton
