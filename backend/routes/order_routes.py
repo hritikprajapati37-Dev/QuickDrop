@@ -88,6 +88,26 @@ def get_order_otps(order_id):
         "delivery_otp_available": order.get("delivery_otp_hash") is not None
     }), 200
 
+@order_bp.route("/api/orders/list", methods=["GET"], endpoint="orders_list")
+@token_required
+def orders_list():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    phone = request.user.get("phone")
+    role = request.user.get("role", "SENDER")
+    if role == "SENDER":
+        query = {"sender_phone": phone}
+    elif role == "PARTNER":
+        query = {"$or": [{"assigned_partner": phone}, {"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]}
+    else:
+        query = {}
+    orders = list(db["orders"].find(query).sort("created_at", -1))
+    for o in orders:
+        o["order_id"] = str(o["_id"])
+        del o["_id"]
+    return jsonify({"orders": orders}), 200
+
 @order_bp.route("/api/user/dashboard", methods=["GET"], endpoint="user_dashboard")
 @token_required
 def user_dashboard():

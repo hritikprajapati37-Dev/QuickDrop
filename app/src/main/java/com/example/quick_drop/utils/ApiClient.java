@@ -172,4 +172,40 @@ public class ApiClient {
             }
         }).start();
     }
+
+    public static void getOrdersList(String token, ApiCallback callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(getBaseUrl() + "/api/orders/list");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Accept", "application/json");
+
+                int code = conn.getResponseCode();
+                BufferedReader br;
+                if (code >= 200 && code < 300) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
+                }
+
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    callback.onSuccess(resJson);
+                } else {
+                    callback.onError(resJson.optString("error", "Failed to fetch orders"));
+                }
+            } catch (Exception e) {
+                Log.e("ApiClient", "Orders list error", e);
+                callback.onError(e.getMessage());
+            }
+        }).start();
+    }
 }
