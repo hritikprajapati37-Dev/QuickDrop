@@ -1,0 +1,289 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>QuickDrop - Destination Delivery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9ff",
+                        "secondary-fixed": "#6ffbbe",
+                        "tertiary-container": "#603b00",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary-container": "#a9a7ff",
+                        "on-primary-fixed": "#0f0069",
+                        "secondary-fixed-dim": "#4edea3",
+                        "tertiary": "#422700",
+                        "outline-variant": "#c8c4d5",
+                        "surface-variant": "#d3e4fe",
+                        "secondary": "#006c49",
+                        "primary-fixed": "#e2dfff",
+                        "surface": "#f8f9ff",
+                        "surface-container-high": "#dce9ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "primary": "#1f108e",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container": "#e5eeff",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "surface-tint": "#544fc0",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "inverse-primary": "#c3c0ff",
+                        "on-secondary-container": "#00714d",
+                        "secondary-container": "#6cf8bb",
+                        "outline": "#777584",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "primary-container": "#3730a3",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#002113",
+                        "on-surface-variant": "#464553",
+                        "inverse-surface": "#213145",
+                        "background": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-container": "#f49d09",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "margin-desktop": "32px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "margin-mobile": "16px",
+                        "md": "16px",
+                        "2xl": "48px",
+                        "unit": "4px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Public Sans"],
+                        "display-lg": ["Public Sans"],
+                        "headline-lg": ["Public Sans"],
+                        "headline-lg-mobile": ["Public Sans"],
+                        "title-lg": ["Public Sans"],
+                        "code-mono": ["Courier Prime"],
+                        "label-md": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "body-md": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "code-mono": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #f8f9ff; /* background */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Mobile Frame Container for demo purposes */
+        .mobile-frame {
+            max-width: 390px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #f8f9ff;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow-x: hidden;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-variant flex justify-center items-start min-h-screen">
+<div class="mobile-frame w-full h-full flex flex-col pb-24">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between px-margin-mobile py-sm w-full bg-surface top-0 sticky z-10 flat no shadows">
+<button class="w-10 h-10 flex items-center justify-center text-primary rounded-full hover:bg-surface-container-low transition-colors active:opacity-80">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Destination Delivery</h1>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant rounded-full hover:bg-surface-container-low transition-colors active:opacity-80">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="flex-1 px-margin-mobile flex flex-col gap-lg py-sm">
+<!-- Delivery Status Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-lg border border-surface-container flex flex-col gap-sm">
+<div class="flex items-center gap-xs text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] fill" data-icon="check_circle">check_circle</span>
+<span class="uppercase tracking-wider">PACKAGE PICKED UP</span>
+</div>
+<div class="flex justify-between items-end">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Head to Destination</h2>
+<span class="font-code-mono text-code-mono text-on-surface-variant">#QD-9287</span>
+</div>
+</div>
+<!-- Delivery Summary Row (Bento Style) -->
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container flex flex-col justify-center items-center gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Earnings</span>
+<span class="font-title-lg text-title-lg text-primary">₹120</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container flex flex-col justify-center items-center gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Est. Time</span>
+<span class="font-title-lg text-title-lg text-on-surface">~11 min</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container flex flex-col justify-center items-center gap-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Distance</span>
+<span class="font-title-lg text-title-lg text-on-surface">1.6 km</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container flex flex-col justify-center items-center gap-xs text-center">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase">Type</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Document Express</span>
+</div>
+</div>
+<!-- Progress Indicator -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container">
+<div class="flex items-center justify-between relative">
+<!-- Connecting Lines -->
+<div class="absolute top-1/2 left-4 right-4 h-[2px] -translate-y-1/2 z-0 flex">
+<div class="h-full bg-secondary w-1/2"></div>
+<div class="h-full bg-surface-container-highest w-1/2"></div>
+</div>
+<!-- Steps -->
+<div class="flex flex-col items-center gap-xs z-10">
+<div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-on-secondary">
+<span class="material-symbols-outlined text-[16px] fill" data-icon="check">check</span>
+</div>
+<span class="font-label-md text-label-md text-secondary">Pickup</span>
+</div>
+<div class="flex flex-col items-center gap-xs z-10">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-[0_0_0_4px_rgba(31,16,142,0.1)]">
+<div class="w-3 h-3 rounded-full bg-on-primary animate-pulse"></div>
+</div>
+<span class="font-label-md text-label-md text-primary font-bold">On the Way</span>
+</div>
+<div class="flex flex-col items-center gap-xs z-10">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-outline-variant flex items-center justify-center text-outline-variant">
+<span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">Delivered</span>
+</div>
+</div>
+</div>
+<!-- Destination Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container flex flex-col gap-sm relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
+<div class="pl-xs">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider block mb-xs">Destination</span>
+<h3 class="font-title-lg text-title-lg text-on-surface">456 Elm Street</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-xs">Apt 4B, Sharma Heights</p>
+<div class="flex items-center gap-sm mt-xs">
+<div class="flex items-center gap-xs text-primary bg-surface-container-low px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]" data-icon="route">route</span>
+<span class="font-label-md text-label-md">1.6 km away</span>
+</div>
+<div class="flex items-center gap-xs text-primary bg-surface-container-low px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+<span class="font-label-md text-label-md">~11 min arrival</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Map Preview -->
+<div class="rounded-xl overflow-hidden shadow-sm border border-surface-container h-48 relative bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="A detailed, modern UI map interface showing a delivery route. The map should have a clean, light-mode aesthetic with soft grey and white tones for roads and terrain. A bright indigo route line connects a starting marker to a destination marker. The lighting is bright and clear, reflecting a modern corporate logistics application style." data-location="New Delhi" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6xYmMNXJeGX03iL-NWF1FOW2KhnmHdWvXjCDPAryaPRadD1eScGqU_2wTA2RqM0SiLz7MLt5SBMrsG674zsYNryzzoAeM9bKzfL1iPTLeMKietxlksd6o3Q2hVHEuODFjW1YHO4mN0gS3aD3sri276MZaIMzRyzx1QInTW0FXDkWdUivExO1wvZH2olRrBdEwCtMf8uiJHTIr2B4YgpoqN9h4KIdIpqAFeGByC2ILwlzfn3vKMRVoKw">
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<div class="absolute bottom-md right-md bg-surface-container-lowest rounded-full p-2 shadow-md">
+<span class="material-symbols-outlined text-primary" data-icon="my_location">my_location</span>
+</div>
+</div>
+<!-- Customer Info & Instructions -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-container flex flex-col gap-md">
+<!-- Customer -->
+<div>
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-sm">Customer</h4>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-12 h-12 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait photo of a young Indian male with short dark hair and a neat beard, smiling slightly, wearing a casual light blue button-down shirt. The lighting is soft and natural, with a blurred outdoor background, suitable for a professional user profile avatar in a modern mobile app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4wxGtStMQhndxhIKhH4a0q9Q6FjB2ORyj9C4XgapxULxZjx2QsJWrpveq6C0oSCYZ7M3aA4jjsxpcvk2rTXY4y6CzdANY4eLDi446bHuKVhHAp7v-qdi7-x96zP3x71iZc0SRKhxK60hzCfheS1UFlKTQHn_iYDAi247Zb65a-E0MGQne3VKIuEJvOEJWCdNUgAiNYvtm6yajzwlImyQ5Hny26p2goYSZAuynrxcoGjMacKECQYhd9w">
+</div>
+<div>
+<p class="font-body-lg text-body-lg font-semibold text-on-surface">Rahul Sharma</p>
+<div class="flex items-center text-tertiary-container gap-xs">
+<span class="material-symbols-outlined text-[14px] fill" data-icon="star">star</span>
+<span class="font-label-md text-label-md">4.8</span>
+</div>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="w-10 h-10 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</button>
+<button class="px-4 h-10 rounded-full bg-surface-container-low text-primary flex items-center gap-xs font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="call">call</span>
+                                Call
+                            </button>
+</div>
+</div>
+</div>
+<hr class="border-surface-container">
+<!-- Instructions -->
+<div>
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Delivery Instructions</h4>
+<div class="bg-surface-container-low rounded-lg p-sm flex items-start gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-primary mt-xs" data-icon="info">info</span>
+<p class="font-body-md text-body-md italic">"Please hand the package directly to the customer."</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Actions (Fixed) -->
+<div class="fixed bottom-0 left-0 w-full max-w-[390px] mx-auto bg-surface-container-lowest p-margin-mobile shadow-[0px_-4px_24px_rgba(0,0,0,0.08)] z-50 flex flex-col gap-sm rounded-t-xl" style="left: 50%; transform: translateX(-50%);">
+<button class="w-full h-14 bg-primary text-on-primary rounded-xl font-title-lg text-title-lg flex justify-center items-center gap-xs shadow-md active:scale-[0.98] transition-transform">
+                Start Navigation
+                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<button class="w-full h-12 border-2 border-primary text-primary rounded-xl font-label-md text-label-md flex justify-center items-center hover:bg-surface-container-low active:scale-[0.98] transition-all">
+                Arrived at Destination
+            </button>
+</div>
+</div>
+</body></html>

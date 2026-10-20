@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vf_background">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/vf_primary">
+
+            <TextView
+                style="@style/Stitch.Typography.TitleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="QuickDrop"
+                android:textColor="@color/vf_primary"
+                android:textStyle="bold" />
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/vf_surface_container" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="@dimen/stitch_margin_mobile"
+            android:paddingBottom="24dp">
+
+            <!-- Success Illustration Area -->
+            <FrameLayout
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="48dp">
+
+                <View
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:layout_gravity="center"
+                    android:alpha="0.05"
+                    android:background="@drawable/shape_circle_white"
+                    android:backgroundTint="@color/vf_primary" />
+
+                <View
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center"
+                    android:alpha="0.1"
+                    android:background="@drawable/shape_circle_white"
+                    android:backgroundTint="@color/vf_primary" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center"
+                    app:cardBackgroundColor="@color/vf_primary_container"
+                    app:cardCornerRadius="40dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="20dp"
+                        app:srcCompat="@drawable/ic_check_circle"
+                        app:tint="@color/white" />
+                </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
+
+            <TextView
+                style="@style/Stitch.Typography.HeadlineLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Thank You!"
+                android:textColor="@color/vf_on_surface"
+                android:textSize="36sp"
+                android:textStyle="bold" />
+
+            <TextView
+                style="@style/Stitch.Typography.BodyLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="Your feedback has been submitted\nsuccessfully."
+                android:textColor="@color/vf_on_surface_variant" />
+
+            <!-- Summary Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="48dp"
+                app:cardBackgroundColor="@color/white"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/vf_surface_container">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/stitch_md">
+
+                    <TextView
+                        style="@style/Stitch.Typography.TitleLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Feedback Submitted"
+                        android:textColor="@color/vf_on_surface"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="16dp"
+                        android:background="@color/vf_surface_container" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Order" />
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="#QD-9284"
+                            android:textColor="@color/vf_on_surface"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp">
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Delivery Partner" />
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="Rahul Sharma"
+                            android:textColor="@color/vf_on_surface"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp">
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rating" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:orientation="horizontal">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" app:srcCompat="@drawable/ic_star" app:tint="@color/vf_primary" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="2dp" app:srcCompat="@drawable/ic_star" app:tint="@color/vf_primary" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="2dp" app:srcCompat="@drawable/ic_star" app:tint="@color/vf_primary" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="2dp" app:srcCompat="@drawable/ic_star" app:tint="@color/vf_primary" />
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="2dp" app:srcCompat="@drawable/ic_star" app:tint="@color/vf_primary" />
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHome"
+                style="@style/Stitch.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="48dp"
+                android:text="Back to Order"
+                android:textStyle="bold"
+                app:cornerRadius="28dp" />
+
+            <TextView
+                android:id="@+id/btnHistory"
+                style="@style/Stitch.Typography.BodyMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Go to Order History"
+                android:textColor="@color/vf_primary"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

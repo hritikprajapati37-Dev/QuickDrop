@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Location Pin -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,20c-8,0 -14.5,6.5 -14.5,14.5c0,11 14.5,23.5 14.5,23.5s14.5,-12.5 14.5,-23.5C52.5,26.5 46,20 38,20zm0,20c-3,0 -5.5,-2.5 -5.5,-5.5s2.5,-5.5 5.5,-5.5s5.5,2.5 5.5,5.5S41,40 38,40z" />
+
+    <!-- Delivery Truck -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M78,32h-8v-8H48c-2,0 -3.5,1.5 -3.5,3.5v22h4c0,3.5 3,6.5 6.5,6.5s6.5,-3 6.5,-6.5h14c0,3.5 3,6.5 6.5,6.5s6.5,-3 6.5,-6.5h4v-11L78,32zM55,54c-2,0 -3.5,-1.5 -3.5,-3.5s1.5,-3.5 3.5,-3.5s3.5,1.5 3.5,3.5S57,54 55,54zM79,54c-2,0 -3.5,-1.5 -3.5,-3.5s1.5,-3.5 3.5,-3.5s3.5,1.5 3.5,3.5S81,54 79,54zM77,35l4,6h-8v-6H77z" />
+
+    <!-- Road / Path Swoosh -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M20,65c15,-5 45,-5 60,0c-25,-3 -50,-3 -60,0z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M25,72c15,-3 35,-3 50,0c-20,-2 -40,-2 -50,0z" />
+</vector>

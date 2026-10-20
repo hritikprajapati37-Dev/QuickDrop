@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- Pin -->
+    <path
+        android:fillColor="#1f108e"
+        android:pathData="M35,25c-8.4,0 -15.2,6.8 -15.2,15.2c0,11.4 15.2,24.8 15.2,24.8s15.2,-13.4 15.2,-24.8C50.2,31.8 43.4,25 35,25zm0,20.8c-3,0 -5.6,-2.6 -5.6,-5.6s2.6,-5.6 5.6,-5.6s5.6,2.6 5.6,5.6S38,45.8 35,45.8z" />
+    <!-- Truck -->
+    <path
+        android:fillColor="#1f108e"
+        android:pathData="M75,37h-6v-8H41c-2.2,0 -4,1.8 -4,4v22h4c0,3.32 2.68,6 6,6s6,-2.68 6,-6h12c0,3.32 2.68,6 6,6s6,-2.68 6,-6h4v-10l-6,-8zM47,58c-1.66,0 -3,-1.34 -3,-3s1.34,-3 3,-3s3,1.34 3,3S48.66,58 47,58zM69,58c-1.66,0 -3,-1.34 -3,-3s1.34,-3 3,-3s3,1.34 3,3S70.66,58 69,58zM71,40l4.08,6h-6.08v-6h2z" />
+    <!-- Path swoosh -->
+    <path
+        android:fillColor="#1f108e"
+        android:pathData="M25,65c10,-5 30,-5 50,0c-20,-2 -40,-2 -50,0z" />
+</vector>

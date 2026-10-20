@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="stitch_unit">4dp</dimen>
+    <dimen name="stitch_xs">4dp</dimen>
+    <dimen name="stitch_sm">8dp</dimen>
+    <dimen name="stitch_md">16dp</dimen>
+    <dimen name="stitch_lg">24dp</dimen>
+    <dimen name="stitch_xl">32dp</dimen>
+    <dimen name="stitch_2xl">48dp</dimen>
+    <dimen name="stitch_margin_mobile">16dp</dimen>
+
+    <dimen name="stitch_rounded_sm">4dp</dimen>
+    <dimen name="stitch_rounded_default">8dp</dimen>
+    <dimen name="stitch_rounded_md">12dp</dimen>
+    <dimen name="stitch_rounded_lg">16dp</dimen>
+    <dimen name="stitch_rounded_xl">24dp</dimen>
+    <dimen name="stitch_rounded_full">999dp</dimen>
+</resources>

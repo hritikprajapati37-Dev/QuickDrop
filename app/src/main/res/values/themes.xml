@@ -1,0 +1,138 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Quick_Drop" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/vf_primary</item>
+        <item name="colorOnPrimary">@color/vf_on_primary</item>
+        <item name="colorPrimaryContainer">@color/vf_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/vf_on_primary_container</item>
+        <item name="colorSecondary">@color/vf_secondary</item>
+        <item name="colorOnSecondary">@color/vf_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/vf_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/vf_on_secondary_container</item>
+        <item name="colorTertiary">@color/vf_tertiary</item>
+        <item name="colorOnTertiary">@color/vf_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/vf_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/vf_on_tertiary_container</item>
+        <item name="android:windowBackground">@color/vf_background</item>
+        <item name="colorSurface">@color/vf_surface</item>
+        <item name="colorOnSurface">@color/vf_on_surface</item>
+        <item name="colorSurfaceVariant">@color/vf_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/vf_on_surface_variant</item>
+        <item name="colorOutline">@color/vf_outline</item>
+        <item name="colorError">@color/vf_error</item>
+        <item name="colorOnError">@color/vf_on_error</item>
+
+        <!-- Global Input Text Styles -->
+        <item name="android:editTextColor">#222222</item>
+        <item name="android:textColorHint">#777777</item>
+        <item name="editTextStyle">@style/Widget.QuickDrop.EditText</item>
+    </style>
+
+    <style name="Widget.QuickDrop.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">#222222</item>
+        <item name="android:textColorHint">#777777</item>
+    </style>
+
+    <style name="Theme.Quick_Drop" parent="Base.Theme.Quick_Drop" />
+
+    <style name="Stitch" />
+    <style name="Stitch.Typography" />
+
+    <style name="Stitch.Typography.HeadlineLarge">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/vf_on_background</item>
+    </style>
+
+    <style name="Stitch.Typography.HeadlineMedium">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/vf_on_background</item>
+    </style>
+
+    <style name="Stitch.Typography.TitleLarge">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/vf_on_background</item>
+    </style>
+
+    <style name="Stitch.Typography.BodyLarge">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#222222</item>
+        <item name="android:textColorHint">#777777</item>
+    </style>
+
+    <style name="Stitch.Typography.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/vf_on_surface_variant</item>
+    </style>
+
+    <style name="Stitch.Typography.LabelMedium">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/vf_outline</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <style name="Stitch.Typography.CodeMono">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:textColor">@color/vf_primary</item>
+    </style>
+
+    <style name="Stitch.Button" />
+
+    <style name="Stitch.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:layout_height">56dp</item>
+        <item name="backgroundTint">@color/vf_primary</item>
+        <item name="android:textColor">@color/vf_on_primary</item>
+        <item name="cornerRadius">@dimen/stitch_rounded_default</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Stitch.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:layout_height">56dp</item>
+        <item name="android:textColor">@color/vf_primary</item>
+        <item name="strokeColor">@color/vf_primary</item>
+        <item name="cornerRadius">@dimen/stitch_rounded_default</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Stitch.Card" />
+
+    <style name="Stitch.Card.Level1" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/vf_surface_container_lowest</item>
+        <item name="cardCornerRadius">@dimen/stitch_rounded_lg</item>
+        <item name="cardElevation">2dp</item>
+        <item name="strokeColor">@color/vf_outline_variant</item>
+        <item name="strokeWidth">0.5dp</item>
+    </style>
+
+    <style name="ShapeAppearance.QuickDrop.BottomSheet" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">24dp</item>
+        <item name="cornerSizeTopRight">24dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="ShapeAppearance.QuickDrop.Logo" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
+    </style>
+    <style name="Theme.Quick_Drop.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.BottomNav</item>
+    </style>
+
+    <style name="ThemeOverlay.App.BottomNav" parent="">
+        <item name="colorSecondaryContainer">@color/vf_outline_variant</item>
+        <item name="colorOnSecondaryContainer">@color/vf_on_surface</item>
+    </style>
+
+    <style name="ToolbarTitleBold" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

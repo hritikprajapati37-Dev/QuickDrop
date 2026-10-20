@@ -1,0 +1,247 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Create Delivery - QuickDrop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "on-surface": "#0b1c30",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "primary": "#1f108e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-container": "#f49d09",
+                        "on-secondary-container": "#00714d",
+                        "surface-variant": "#d3e4fe",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#603b00",
+                        "on-primary-fixed": "#0f0069",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c3c0ff",
+                        "outline-variant": "#c8c4d5",
+                        "primary-container": "#3730a3",
+                        "surface-tint": "#544fc0",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "secondary-container": "#6cf8bb",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "inverse-surface": "#213145",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-fixed": "#002113",
+                        "secondary-fixed": "#6ffbbe",
+                        "background": "#f8f9ff",
+                        "on-background": "#0b1c30",
+                        "on-primary-container": "#a9a7ff",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#464553",
+                        "tertiary": "#422700",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-dim": "#cbdbf5",
+                        "surface": "#f8f9ff",
+                        "primary-fixed": "#e2dfff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "secondary": "#006c49",
+                        "outline": "#777584"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "margin-desktop": "32px",
+                        "2xl": "48px",
+                        "unit": "4px",
+                        "lg": "24px",
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "display-lg": ["Public Sans"],
+                        "body-md": ["Public Sans"],
+                        "code-mono": ["Courier Prime"],
+                        "headline-lg-mobile": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "title-lg": ["Public Sans"],
+                        "headline-lg": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-mono": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom floating label styles */
+        .floating-input {
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .floating-input:focus {
+            border-color: #1f108e;
+            box-shadow: 0 0 0 1px #1f108e;
+            outline: none;
+        }
+        .floating-input:focus + .floating-label,
+        .floating-input:not(:placeholder-shown) + .floating-label {
+            transform: translateY(-16px) scale(0.85);
+            color: #1f108e;
+        }
+        .floating-label {
+            transition: transform 0.2s, color 0.2s;
+            pointer-events: none;
+            transform-origin: left top;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col md:w-[390px] md:mx-auto shadow-2xl relative pb-24">
+<!-- Top Navigation (Transactional - No global nav shell) -->
+<header class="sticky top-0 z-40 bg-background/90 backdrop-blur-md px-margin-mobile pt-12 pb-4 shadow-sm flex items-center gap-sm">
+<button aria-label="Go back" class="p-2 -ml-2 rounded-full hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div>
+<h1 class="text-title-lg font-title-lg text-on-surface">Create Delivery</h1>
+<p class="text-label-md font-label-md text-on-surface-variant font-normal tracking-normal">Enter the details to send your package</p>
+</div>
+</header>
+<main class="flex-1 px-margin-mobile py-lg flex flex-col gap-lg">
+<!-- Section 1: Pickup Details -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30 relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+<div class="flex items-center gap-xs mb-md">
+<span class="material-symbols-outlined fill text-primary text-[20px]">my_location</span>
+<h2 class="text-body-lg font-body-lg font-semibold text-on-surface">Pickup Details</h2>
+</div>
+<div class="relative bg-surface rounded-lg p-md border border-outline-variant/50 flex gap-sm items-start mb-sm">
+<span class="material-symbols-outlined text-outline mt-1">location_on</span>
+<div class="flex-1">
+<p class="text-body-md font-body-md text-on-surface">123 Tech Park, Sharma Heights</p>
+<p class="text-label-md font-label-md text-on-surface-variant font-normal mt-1">Bengaluru, Karnataka 560001</p>
+</div>
+</div>
+<button class="flex items-center justify-center gap-xs w-full py-2 text-primary hover:bg-surface-container-low rounded-lg transition-colors text-body-md font-body-md font-medium">
+<span class="material-symbols-outlined text-[18px]">gps_fixed</span>
+                Use Current Location
+            </button>
+</section>
+<!-- Section 2: Receiver Details -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30">
+<div class="flex items-center gap-xs mb-md">
+<span class="material-symbols-outlined fill text-primary text-[20px]">person</span>
+<h2 class="text-body-lg font-body-lg font-semibold text-on-surface">Receiver Details</h2>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Receiver Name -->
+<div class="relative">
+<input class="floating-input w-full bg-surface border border-outline-variant rounded-lg px-4 pt-6 pb-2 text-body-md font-body-md text-on-surface placeholder-transparent focus:border-primary focus:ring-1 focus:ring-primary" id="receiverName" placeholder="Enter receiver name" type="text">
+<label class="floating-label absolute left-4 top-4 text-body-md font-body-md text-on-surface-variant" for="receiverName">Receiver Name</label>
+</div>
+<!-- Receiver Phone -->
+<div class="relative">
+<input class="floating-input w-full bg-surface border border-outline-variant rounded-lg px-4 pt-6 pb-2 text-body-md font-body-md text-on-surface placeholder-transparent focus:border-primary focus:ring-1 focus:ring-primary" id="receiverPhone" pattern="[0-9]{10}" placeholder="Enter 10-digit phone number" type="tel">
+<label class="floating-label absolute left-4 top-4 text-body-md font-body-md text-on-surface-variant" for="receiverPhone">Receiver Phone</label>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">phone</span>
+</div>
+<!-- Delivery Address -->
+<div class="relative">
+<textarea class="floating-input w-full bg-surface border border-outline-variant rounded-lg px-4 pt-6 pb-2 text-body-md font-body-md text-on-surface placeholder-transparent focus:border-primary focus:ring-1 focus:ring-primary resize-none" id="deliveryAddress" placeholder="Enter complete delivery address" rows="2"></textarea>
+<label class="floating-label absolute left-4 top-4 text-body-md font-body-md text-on-surface-variant" for="deliveryAddress">Delivery Address</label>
+<span class="material-symbols-outlined absolute right-4 top-6 text-outline-variant pointer-events-none">location_on</span>
+</div>
+</div>
+</section>
+<!-- Section 3: Package Details -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30"><div class="flex items-center gap-xs mb-md">
+<span class="material-symbols-outlined fill text-primary text-[20px]">inventory_2</span>
+<h2 class="text-body-lg font-body-lg font-semibold text-on-surface">Package Details</h2>
+</div>
+<div class="flex flex-col gap-4">
+<!-- Item Catalog Dropdown -->
+<div class="relative">
+<select class="floating-input w-full bg-surface border border-outline-variant rounded-lg px-4 pt-6 pb-2 text-body-md font-body-md text-on-surface appearance-none focus:border-primary focus:ring-1 focus:ring-primary" id="itemCatalog">
+<option value="" disabled="" selected="" hidden="">Select item category</option>
+<option value="document">Document</option>
+<option value="clothing">Clothing</option>
+<option value="grocery">Grocery</option>
+<option value="electronics">Electronics</option>
+<option value="food">Food</option>
+<option value="gift">Gift</option>
+<option value="other">Other</option>
+</select>
+<label class="floating-label absolute left-4 top-4 text-body-md font-body-md text-on-surface-variant" for="itemCatalog">Item Catalog</label>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">expand_more</span>
+</div>
+<!-- Item Name Input -->
+<div class="relative">
+<input class="floating-input w-full bg-surface border border-outline-variant rounded-lg px-4 pt-6 pb-2 text-body-md font-body-md text-on-surface placeholder-transparent focus:border-primary focus:ring-1 focus:ring-primary" id="itemName" placeholder="Enter item name" type="text">
+<label class="floating-label absolute left-4 top-4 text-body-md font-body-md text-on-surface-variant" for="itemName">Item Name</label>
+</div>
+</div></section>
+<!-- Section 4: Delivery Charge -->
+<section class="bg-primary/5 rounded-xl p-md border border-primary/20 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h2 class="text-body-lg font-body-lg font-semibold text-on-surface">Estimated Charge</h2>
+<button aria-label="Charge details info" class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">info</span>
+</button>
+</div>
+<div class="text-headline-lg-mobile font-headline-lg-mobile font-bold text-primary">
+                ₹75
+            </div>
+</section>
+</main>
+<!-- Bottom Action Area -->
+<div class="fixed bottom-0 left-0 w-full md:w-[390px] md:left-1/2 md:-translate-x-1/2 bg-background/95 backdrop-blur-md px-margin-mobile py-md border-t border-outline-variant/20 z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+<button class="w-full bg-primary hover:bg-primary-container text-on-primary font-title-lg text-title-lg font-bold py-4 rounded-xl shadow-lg shadow-primary/25 transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
+            Continue
+            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+
+
+</body></html>

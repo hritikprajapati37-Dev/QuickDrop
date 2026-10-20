@@ -1,0 +1,169 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Edit Profile — Mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;family=Courier+Prime&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "on-tertiary-container": "#f49d09",
+                        "secondary": "#006c49",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary-container": "#00714d",
+                        "primary-fixed": "#e2dfff",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary": "#1f108e",
+                        "outline": "#777584",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "inverse-surface": "#213145",
+                        "on-surface-variant": "#464553",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-container": "#a9a7ff",
+                        "background": "#f8f9ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#544fc0",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container": "#e5eeff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "outline-variant": "#c8c4d5",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-container": "#3730a3",
+                        "tertiary-container": "#603b00",
+                        "surface": "#f8f9ff",
+                        "on-primary-fixed": "#0f0069",
+                        "secondary-fixed": "#6ffbbe",
+                        "inverse-primary": "#c3c0ff",
+                        "on-background": "#0b1c30",
+                        "on-error": "#ffffff",
+                        "tertiary": "#422700"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "unit": "4px",
+                        "2xl": "48px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "xs": "4px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Public Sans"],
+                        "label-md": ["Public Sans"],
+                        "headline-lg-mobile": ["Public Sans"],
+                        "body-md": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "title-lg": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "code-mono": ["Courier Prime"],
+                        "headline-lg": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "code-mono": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen font-body-md antialiased overflow-x-hidden flex justify-center">
+<div class="w-full max-w-[390px] min-h-[884px] bg-background relative flex flex-col shadow-2xl">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface-dim shadow-sm flex items-center justify-between px-margin-mobile h-16 w-full z-10">
+<a class="w-10 h-10 flex items-center justify-center hover:bg-primary-container/10 dark:hover:bg-primary-container/20 rounded-full transition-colors active:scale-95 transition-transform duration-150 text-on-surface-variant dark:text-on-surface-variant cursor-pointer" href="{{DATA:SCREEN:SCREEN_2}}">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</a>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim absolute left-1/2 transform -translate-x-1/2">Edit Profile</h1>
+<div class="w-10 h-10 flex items-center justify-center hover:bg-primary-container/10 dark:hover:bg-primary-container/20 rounded-full transition-colors active:scale-95 transition-transform duration-150 text-on-surface-variant dark:text-on-surface-variant invisible">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow p-margin-mobile flex flex-col gap-lg">
+<!-- Profile Photo Section -->
+<section class="flex flex-col items-center justify-center mt-md">
+<div class="relative group cursor-pointer mb-sm">
+<img class="w-24 h-24 rounded-full object-cover shadow-sm border border-surface-variant" data-alt="A highly detailed close-up portrait of a young professional man named Alex Sharma. He has a clean haircut, warm skin tone, and is wearing a modern casual indigo polo shirt. The lighting is soft studio lighting with a clean light gray background, highlighting his approachable and confident expression. Corporate modern style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjgYNbVyT5NdK4LP_aVg-JenxN-UXAN0tkGp2FzhreqrXLUvCIdsvclLJGnne7_fLC8hVKCComPWmxiT1T3aYobjlxcjDt_qWBPf5WSZM03iuj-9soj2w23XruhIRRxFCeBWoPUa_8jSsal2TFzO6_YhGMxMmRm1B3sPoCsG6OzD3wkAH4gGSmvVYloGwNHD99Zs0OHb2RtIi49KNlutyc-kI5YhQXjK_vyCURBIMUILnMDTLWMAwrYQ">
+<div class="absolute bottom-0 right-0 bg-primary text-on-primary rounded-full p-1 shadow-md">
+<span class="material-symbols-outlined text-[16px]" data-icon="camera_alt">camera_alt</span>
+</div>
+</div>
+<button class="text-primary font-label-md text-label-md bg-transparent border-none outline-none">Change Photo</button>
+</section>
+<!-- Personal Information Form Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-surface-variant p-md flex flex-col gap-md">
+<!-- Full Name -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="fullName">Full Name</label>
+<input class="w-full bg-surface text-on-surface font-body-lg text-body-lg rounded-lg border border-outline-variant px-sm py-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none" id="fullName" placeholder="Enter your full name" type="text" value="Alex Sharma">
+</div>
+<!-- Phone Number -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="phoneNumber">Phone Number</label>
+<input class="w-full bg-surface text-on-surface font-body-lg text-body-lg rounded-lg border border-outline-variant px-sm py-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none" id="phoneNumber" placeholder="Enter your phone number" type="tel" value="+91 XXXXX XXXXX">
+</div>
+<!-- Email Address (Optional) -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="emailAddress">Email Address <span class="text-outline font-normal">(Optional)</span></label>
+<input class="w-full bg-surface text-on-surface font-body-lg text-body-lg rounded-lg border border-outline-variant px-sm py-sm focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none placeholder:text-outline" id="emailAddress" placeholder="Not added" type="email" value="">
+<p class="font-body-md text-body-md text-outline text-[12px] mt-xs">Email is optional and can be added later.</p>
+</div>
+</section>
+</main>
+<!-- Fixed Bottom Save Action -->
+<div class="p-margin-mobile pb-lg bg-background w-full">
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-sm px-lg rounded-lg shadow-sm active:scale-95 transition-transform duration-150 h-12 flex items-center justify-center">
+                Save Changes
+            </button>
+</div>
+</div>
+</body></html>

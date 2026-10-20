@@ -1,0 +1,226 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Feedback Submitted - QuickDrop</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts: Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from system prompt -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#00714d",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-high": "#dce9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#777584",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-surface-variant": "#464553",
+                        "secondary": "#006c49",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-background": "#0b1c30",
+                        "primary": "#1f108e",
+                        "surface-bright": "#f8f9ff",
+                        "on-error": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#422700",
+                        "inverse-surface": "#213145",
+                        "inverse-primary": "#c3c0ff",
+                        "on-primary-container": "#a9a7ff",
+                        "outline-variant": "#c8c4d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#6cf8bb",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary-fixed": "#2a1700",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#eff4ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "primary-fixed": "#e2dfff",
+                        "surface-tint": "#544fc0",
+                        "secondary-fixed-dim": "#4edea3",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#0f0069",
+                        "on-tertiary-container": "#f49d09",
+                        "surface-container": "#e5eeff",
+                        "background": "#f8f9ff",
+                        "primary-container": "#3730a3",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "tertiary-container": "#603b00",
+                        "secondary-fixed": "#6ffbbe",
+                        "surface-container-highest": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "unit": "4px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "2xl": "48px",
+                        "margin-mobile": "16px",
+                        "md": "16px",
+                        "margin-desktop": "32px",
+                        "gutter": "16px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "code-mono": ["Courier Prime"],
+                        "body-md": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "title-lg": ["Public Sans"],
+                        "label-md": ["Public Sans"],
+                        "headline-lg-mobile": ["Public Sans"],
+                        "headline-lg": ["Public Sans"],
+                        "display-lg": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "code-mono": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Base styles */
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #eff4ff; /* surface-container-low */
+            color: #0b1c30; /* on-surface */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile Container Simulation */
+        #mobile-container {
+            width: 390px;
+            height: 884px;
+            background-color: #eff4ff; /* surface-container-low */
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 40px; /* To look like a phone */
+            border: 8px solid #213145; /* inverse-surface for phone bezel */
+        }
+        
+        /* Material Symbols Outline Base */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Hide scrollbar for cleaner look */
+        #mobile-container::-webkit-scrollbar {
+            display: none;
+        }
+        #mobile-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-dim">
+<div id="mobile-container">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between px-margin-mobile w-full h-16 bg-surface z-10 sticky top-0">
+<button aria-label="Go back" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container active:scale-95 transition-transform">
+<!-- Using empty div to balance flex space if no icon is needed for a true "success" screen, but keeping structure as per json guidance -->
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary flex-1 text-center">QuickDrop</h1>
+<div class="w-12 h-12"></div> <!-- Spacer for centering -->
+</header>
+<!-- Main Content (Centered Vertically) -->
+<main class="flex-1 flex flex-col justify-center px-margin-mobile py-lg relative">
+<!-- Confetti/Celebration background effect (Subtle) -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden opacity-50 flex items-center justify-center">
+<div class="w-64 h-64 bg-primary-fixed rounded-full blur-3xl opacity-30"></div>
+<div class="w-48 h-48 bg-secondary-fixed rounded-full blur-2xl opacity-20 absolute top-1/4 -right-10"></div>
+</div>
+<div class="flex flex-col items-center text-center z-10 relative">
+<!-- Success Icon -->
+<div class="w-24 h-24 bg-surface-container rounded-full flex items-center justify-center mb-lg shadow-sm border border-outline-variant/30 relative">
+<!-- Inner pulse effect -->
+<div class="absolute inset-0 bg-primary-container/20 rounded-full animate-ping opacity-50 duration-1000"></div>
+<span class="material-symbols-outlined text-[64px] text-primary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Typography -->
+<h2 class="font-display-lg text-display-lg text-on-surface mb-sm">Thank You!</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[280px] mb-xl">Your feedback has been submitted successfully.</p>
+<!-- Feedback Summary Card (Level 1 Elevation) -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/40 flex flex-col gap-sm mb-xl text-left">
+<h3 class="font-title-lg text-title-lg text-on-surface pb-xs border-b border-outline-variant/20 mb-xs">Feedback Submitted</h3>
+<div class="flex justify-between items-center py-xs">
+<span class="font-body-md text-body-md text-on-surface-variant">Order</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">#QD-9284</span>
+</div>
+<div class="flex justify-between items-center py-xs">
+<span class="font-body-md text-body-md text-on-surface-variant">Delivery Partner</span>
+<span class="font-body-md text-body-md text-on-surface">Rahul Sharma</span>
+</div>
+<div class="flex justify-between items-center py-xs">
+<span class="font-body-md text-body-md text-on-surface-variant">Rating</span>
+<div class="flex gap-1 text-primary">
+<span class="material-symbols-outlined text-[20px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[20px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[20px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[20px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[20px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="w-full flex flex-col gap-sm mt-auto w-full">
+<button class="w-full h-[48px] bg-primary text-on-primary rounded-xl font-body-lg text-body-lg font-semibold shadow-sm active:scale-95 transition-transform flex items-center justify-center">
+                        Back to Order
+                    </button>
+<button class="w-full h-[48px] bg-transparent text-primary rounded-xl font-body-lg text-body-lg font-semibold active:bg-surface-container transition-colors flex items-center justify-center">
+                        Go to Order History
+                    </button>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar omitted as per instructions (Success/Transactional screen) -->
+</div>
+</body></html>

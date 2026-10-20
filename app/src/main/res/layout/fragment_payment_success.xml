@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vf_background">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:elevation="1dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Payment Successful"
+            app:titleCentered="true"
+            app:titleTextColor="@color/vf_primary" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:paddingBottom="120dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="@dimen/stitch_margin_mobile">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginTop="@dimen/stitch_xl"
+                app:cardBackgroundColor="@color/vf_secondary_container"
+                app:cardCornerRadius="48dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    app:srcCompat="@drawable/ic_check_circle"
+                    app:tint="@color/vf_secondary" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                style="@style/Stitch.Typography.HeadlineMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_lg"
+                android:text="Payment Successful!" />
+
+            <TextView
+                style="@style/Stitch.Typography.BodyMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_xs"
+                android:gravity="center"
+                android:text="Your delivery request has been created successfully." />
+
+            <!-- Payment Details Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_lg">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/stitch_md">
+
+                    <TextView
+                        style="@style/Stitch.Typography.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Payment Details"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/stitch_md"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Order Number" />
+
+                        <TextView
+                            style="@style/Stitch.Typography.CodeMono"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="#QD-9284"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/stitch_sm"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Amount Paid" />
+
+                        <TextView
+                            style="@style/Stitch.Typography.BodyLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹75"
+                            android:textStyle="bold"
+                            android:textColor="@color/vf_primary" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Delivery Request Details Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_md">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/stitch_md">
+
+                    <TextView
+                        style="@style/Stitch.Typography.BodyLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delivery Request"
+                        android:textStyle="bold" />
+
+                    <!-- Timeline -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/stitch_md">
+
+                        <View
+                            android:layout_width="2dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@color/vf_outline_variant"
+                            app:layout_constraintBottom_toBottomOf="@id/destPoint"
+                            app:layout_constraintStart_toStartOf="@id/pickupPoint"
+                            app:layout_constraintTop_toTopOf="@id/pickupPoint" />
+
+                        <View
+                            android:id="@+id/pickupPoint"
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:background="@drawable/shape_circle_white"
+                            android:backgroundTint="@color/vf_outline"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/tvPickupLabel"
+                            style="@style/Stitch.Typography.LabelMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/stitch_md"
+                            android:text="Pickup"
+                            app:layout_constraintStart_toEndOf="@id/pickupPoint"
+                            app:layout_constraintTop_toTopOf="@id/pickupPoint" />
+
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="123 Tech Park"
+                            android:textColor="@color/vf_on_surface"
+                            android:textStyle="bold"
+                            app:layout_constraintStart_toStartOf="@id/tvPickupLabel"
+                            app:layout_constraintTop_toBottomOf="@id/tvPickupLabel" />
+
+                        <View
+                            android:id="@+id/destPoint"
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:layout_marginTop="48dp"
+                            android:background="@drawable/shape_circle_white"
+                            android:backgroundTint="@color/vf_primary"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/pickupPoint" />
+
+                        <TextView
+                            android:id="@+id/tvDestLabel"
+                            style="@style/Stitch.Typography.LabelMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/stitch_md"
+                            android:text="Deliver to"
+                            android:textColor="@color/vf_primary"
+                            app:layout_constraintStart_toEndOf="@id/destPoint"
+                            app:layout_constraintTop_toTopOf="@id/destPoint" />
+
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="456 Elm Street"
+                            android:textColor="@color/vf_on_surface"
+                            android:textStyle="bold"
+                            app:layout_constraintStart_toStartOf="@id/tvDestLabel"
+                            app:layout_constraintTop_toBottomOf="@id/tvDestLabel" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Info box -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_md"
+                android:background="@drawable/shape_pill_white"
+                android:backgroundTint="@color/vf_surface_variant"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/stitch_md">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    app:srcCompat="@drawable/ic_fact_check"
+                    app:tint="@color/vf_primary" />
+
+                <TextView
+                    style="@style/Stitch.Typography.BodyMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/stitch_md"
+                    android:text="Your delivery request is now being processed."
+                    android:textColor="@color/vf_on_surface" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:padding="@dimen/stitch_margin_mobile">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTrack"
+            style="@style/Stitch.Button.Primary"
+            android:layout_width="match_parent"
+            android:text="Track Delivery"
+            app:icon="@drawable/ic_arrow_forward"
+            app:iconGravity="textEnd"
+            app:cornerRadius="32dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDashboard"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/stitch_sm"
+            android:text="Back to Dashboard"
+            android:textColor="@color/vf_primary" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

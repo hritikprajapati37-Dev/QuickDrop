@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Velocity Flux (Indigo) - Core Palette -->
+    <color name="vf_primary">#1f108e</color>
+    <color name="vf_on_primary">#ffffff</color>
+    <color name="vf_primary_container">#3730a3</color>
+    <color name="vf_on_primary_container">#a9a7ff</color>
+
+    <color name="vf_secondary">#006c49</color>
+    <color name="vf_on_secondary">#ffffff</color>
+    <color name="vf_secondary_container">#6cf8bb</color>
+    <color name="vf_on_secondary_container">#00714d</color>
+
+    <color name="vf_tertiary">#422700</color>
+    <color name="vf_on_tertiary">#ffffff</color>
+    <color name="vf_tertiary_container">#603b00</color>
+    <color name="vf_on_tertiary_container">#f49d09</color>
+
+    <color name="vf_background">#f8f9ff</color>
+    <color name="vf_on_background">#0b1c30</color>
+
+    <color name="vf_surface">#f8f9ff</color>
+    <color name="vf_on_surface">#0b1c30</color>
+    <color name="vf_surface_variant">#d3e4fe</color>
+    <color name="vf_on_surface_variant">#464553</color>
+
+    <color name="vf_outline">#777584</color>
+    <color name="vf_outline_variant">#c8c4d5</color>
+
+    <color name="vf_surface_container_lowest">#ffffff</color>
+    <color name="vf_surface_container_low">#eff4ff</color>
+    <color name="vf_surface_container">#e5eeff</color>
+    <color name="vf_surface_container_high">#dce9ff</color>
+    <color name="vf_surface_container_highest">#d3e4fe</color>
+
+    <color name="vf_success">#10b981</color>
+    <color name="vf_warning">#f59e0b</color>
+    <color name="vf_error">#ba1a1a</color>
+    <color name="vf_on_error">#ffffff</color>
+
+    <!-- Common -->
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="error">#ba1a1a</color>
+</resources>

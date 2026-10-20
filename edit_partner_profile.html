@@ -1,0 +1,226 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Edit Profile - QuickDrop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#464553",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "secondary": "#006c49",
+                        "surface-container-high": "#dce9ff",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "outline-variant": "#c8c4d5",
+                        "on-primary-container": "#a9a7ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#c3c0ff",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-tertiary-container": "#f49d09",
+                        "on-background": "#0b1c30",
+                        "primary-container": "#3730a3",
+                        "on-tertiary-fixed": "#2a1700",
+                        "outline": "#777584",
+                        "primary": "#1f108e",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "surface-container": "#e5eeff",
+                        "on-primary-fixed": "#0f0069",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#603b00",
+                        "on-surface": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#00714d",
+                        "surface-tint": "#544fc0",
+                        "primary-fixed": "#e2dfff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-surface": "#213145",
+                        "background": "#f8f9ff",
+                        "tertiary": "#422700",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "secondary-container": "#6cf8bb",
+                        "tertiary-fixed": "#ffddb8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "2xl": "48px",
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "margin-desktop": "32px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Public Sans"],
+                        "body-md": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "display-lg": ["Public Sans"],
+                        "code-mono": ["Courier Prime"],
+                        "headline-lg": ["Public Sans"],
+                        "title-lg": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "label-md": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "code-mono": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen">
+<!-- Top App Bar -->
+<header class="flex flex-col px-margin-mobile w-full py-4 bg-surface dark:bg-surface sticky top-0 z-50">
+<div class="flex items-center">
+<button aria-label="Go back" class="mr-4 w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<div class="flex-1">
+<h1 class="font-title-lg text-title-lg text-primary dark:text-inverse-primary">Edit Profile</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Update your profile information</p>
+</div>
+</div>
+</header>
+<main class="px-margin-mobile pb-32">
+<!-- Profile Photo -->
+<section class="flex flex-col items-center mt-lg mb-xl">
+<div class="relative">
+<img class="w-24 h-24 rounded-full object-cover border-4 border-surface-container-lowest shadow-sm" data-alt="A close-up, highly professional headshot of a modern delivery driver looking directly at the camera with a confident, friendly expression. The driver is wearing a clean, modern uniform. The background is a soft, out-of-focus street scene bathed in bright, daylight. The lighting is crisp and even, reflecting a pristine, high-end mobile app aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTnixHE-SHegJHoldom_Yc_zFMvbXyDngCCT9kJjG6tGPjklJqG9Gq47nVpVUoJsnGdjFjvUKXS_pNd9pQk1sUBWY5r6JmZmCXjPa2YfRlGKu3qzHgOMkDQfoOoedpip3SQ95YQjnYpxQl8E3jbPFFmjPNQsrqIa95_qytEIsnOU9mxeUy_nU82owjiRo2wg-JdwreNyoxwx2_gFg0938IGi-tJvrFyk8Yl_b49mFoEu-0PCbJFBD-bA">
+<button aria-label="Change Profile Photo" class="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center border-2 border-surface-container-lowest shadow-md active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">edit</span>
+</button>
+</div>
+</section>
+<!-- Section 1: Personal Information -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30 mb-lg">
+<h2 class="font-title-lg text-title-lg text-on-surface mb-md">Personal Information</h2>
+<div class="space-y-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="full-name">Full Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-colors" id="full-name" type="text" value="Rahul Sharma">
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="phone-number">Phone Number</label>
+<div class="flex">
+<span class="inline-flex items-center px-md rounded-l-lg border-r border-outline-variant/20 bg-surface-container-low text-on-surface-variant font-body-lg text-body-lg">
+                            +91
+                        </span>
+<input class="flex-1 bg-surface-container-low border-none rounded-r-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-colors" id="phone-number" type="tel" value="98765 43210">
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Vehicle Information -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30 mb-lg">
+<h2 class="font-title-lg text-title-lg text-on-surface mb-md">Vehicle Information</h2>
+<div class="space-y-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="vehicle-type">Vehicle Type</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-low border-none rounded-lg px-md py-sm pr-xl font-body-lg text-body-lg text-on-surface focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-colors" id="vehicle-type">
+<option selected="" value="motorcycle">Motorcycle</option>
+<option value="bike">Bike</option>
+<option value="scooter">Scooter</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="vehicle-number">Vehicle Number</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest uppercase transition-colors" id="vehicle-number" type="text" value="MH 01 AB 1234">
+</div>
+</div>
+</section>
+<!-- Section 3: Contact Information -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30 mb-lg">
+<h2 class="font-title-lg text-title-lg text-on-surface mb-md">Contact Information</h2>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs" for="email">Email</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-colors" id="email" placeholder="Email not added" type="email">
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs text-xs">Email is optional</p>
+</div>
+</section>
+<!-- Section 4: Verification -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30 mb-xl">
+<h2 class="font-title-lg text-title-lg text-on-surface mb-md">Verification</h2>
+<ul class="space-y-sm">
+<li class="flex items-center justify-between p-sm bg-surface-container-low rounded-lg">
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Identity Verified
+                    </span>
+</li>
+<li class="flex items-center justify-between p-sm bg-surface-container-low rounded-lg">
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Driving License Verified
+                    </span>
+</li>
+<li class="flex items-center justify-between p-sm bg-surface-container-low rounded-lg">
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Vehicle Information Verified
+                    </span>
+</li>
+<li class="flex items-center justify-between p-sm bg-surface-container-low rounded-lg">
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Aadhaar Verified
+                    </span>
+</li>
+</ul>
+</section>
+</main>
+<!-- Bottom Actions -->
+<div class="fixed bottom-0 w-full bg-surface-container-lowest border-t border-outline-variant/20 p-margin-mobile shadow-[0_-4px_12px_rgba(0,0,0,0.05)] z-50 pb-safe flex flex-col gap-sm">
+<button class="w-full bg-primary text-on-primary font-title-lg text-title-lg py-3 rounded-lg shadow-sm hover:bg-primary/90 active:scale-[0.98] transition-all">
+            Save Changes
+        </button>
+<button class="w-full bg-transparent text-on-surface-variant font-label-md text-label-md py-3 rounded-lg hover:bg-surface-container-low active:scale-[0.98] transition-all">
+            Cancel
+        </button>
+</div>
+</body></html>

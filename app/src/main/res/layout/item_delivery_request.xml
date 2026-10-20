@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Stitch.Card.Level1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/stitch_md"
+    app:cardBackgroundColor="@color/white"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/vf_surface_container"
+    app:strokeWidth="0.5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Card Header -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#F8F9FF"
+            android:padding="@dimen/stitch_md">
+
+            <TextView
+                android:id="@+id/tvEarningsLabel"
+                style="@style/Stitch.Typography.LabelMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EARNINGS"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvEarnings"
+                style="@style/Stitch.Typography.HeadlineMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹120"
+                android:textColor="@color/vf_primary"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvEarningsLabel" />
+
+            <TextView
+                android:id="@+id/tvEstTime"
+                style="@style/Stitch.Typography.LabelMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="~15 min"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvEarnings" />
+
+            <TextView
+                android:id="@+id/tvOrderID"
+                style="@style/Stitch.Typography.LabelMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_pill_white"
+                android:backgroundTint="@color/vf_surface_container_high"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="#QD-9287"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvOrderID">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    app:srcCompat="@drawable/ic_route"
+                    app:tint="@color/vf_on_surface_variant" />
+
+                <TextView
+                    android:id="@+id/tvDistance"
+                    style="@style/Stitch.Typography.BodyMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="2.4 km away • 2 min ago" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/vf_surface_container" />
+
+        <!-- Card Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/stitch_md">
+
+            <!-- Connecting Path -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <View
+                    android:id="@+id/vLine"
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="11dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@color/vf_outline_variant"
+                    android:alpha="0.5"
+                    app:layout_constraintBottom_toBottomOf="@id/ivDestIcon"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/ivPickupIcon" />
+
+                <ImageView
+                    android:id="@+id/ivPickupIcon"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:background="@drawable/shape_circle_white"
+                    android:backgroundTint="@color/vf_surface_container_high"
+                    android:padding="4dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_my_location"
+                    app:tint="@color/vf_on_surface_variant" />
+
+                <TextView
+                    android:id="@+id/tvPickupLabel"
+                    style="@style/Stitch.Typography.LabelMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/stitch_md"
+                    android:text="PICKUP"
+                    app:layout_constraintStart_toEndOf="@id/ivPickupIcon"
+                    app:layout_constraintTop_toTopOf="@id/ivPickupIcon" />
+
+                <TextView
+                    android:id="@+id/tvPickupAddress"
+                    style="@style/Stitch.Typography.BodyLarge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="123 Tech Park"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/tvPickupLabel"
+                    app:layout_constraintTop_toBottomOf="@id/tvPickupLabel" />
+
+                <ImageView
+                    android:id="@+id/ivDestIcon"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_marginTop="32dp"
+                    android:background="@drawable/shape_circle_white"
+                    android:backgroundTint="@color/vf_primary_container"
+                    android:padding="4dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvPickupAddress"
+                    app:srcCompat="@drawable/ic_location"
+                    app:tint="@color/white" />
+
+                <TextView
+                    android:id="@+id/tvDestLabel"
+                    style="@style/Stitch.Typography.LabelMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/stitch_md"
+                    android:text="DESTINATION"
+                    app:layout_constraintStart_toEndOf="@id/ivDestIcon"
+                    app:layout_constraintTop_toTopOf="@id/ivDestIcon" />
+
+                <TextView
+                    android:id="@+id/tvDestAddress"
+                    style="@style/Stitch.Typography.BodyLarge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="456 Elm Street"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/tvDestLabel"
+                    app:layout_constraintTop_toBottomOf="@id/tvDestLabel" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Package Pill -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_md"
+                android:background="@drawable/shape_pill_white"
+                android:backgroundTint="#F0F4FF"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    app:srcCompat="@drawable/ic_package"
+                    app:tint="@color/vf_on_surface_variant" />
+
+                <TextView
+                    android:id="@+id/tvPackageType"
+                    style="@style/Stitch.Typography.BodyMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Document Express"
+                    android:textColor="@color/vf_on_surface_variant" />
+            </LinearLayout>
+
+            <!-- Action Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewDetails"
+                style="@style/Stitch.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_marginTop="24dp"
+                android:text="View Details"
+                app:icon="@drawable/ic_arrow_forward"
+                app:iconGravity="textEnd" />
+
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

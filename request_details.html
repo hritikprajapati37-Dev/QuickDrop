@@ -1,0 +1,329 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Delivery Request Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-tertiary-container": "#f49d09",
+                      "tertiary": "#422700",
+                      "secondary-fixed": "#6ffbbe",
+                      "on-primary-container": "#a9a7ff",
+                      "on-background": "#0b1c30",
+                      "on-error": "#ffffff",
+                      "surface": "#f8f9ff",
+                      "on-primary-fixed": "#0f0069",
+                      "error-container": "#ffdad6",
+                      "surface-variant": "#d3e4fe",
+                      "on-secondary-container": "#00714d",
+                      "surface-container-high": "#dce9ff",
+                      "inverse-primary": "#c3c0ff",
+                      "surface-bright": "#f8f9ff",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed-variant": "#3b35a7",
+                      "primary-container": "#3730a3",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface": "#0b1c30",
+                      "surface-container-highest": "#d3e4fe",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-error-container": "#93000a",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#464553",
+                      "background": "#f8f9ff",
+                      "surface-container-low": "#eff4ff",
+                      "surface-tint": "#544fc0",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "outline": "#777584",
+                      "surface-container": "#e5eeff",
+                      "primary": "#1f108e",
+                      "on-secondary-fixed": "#002113",
+                      "secondary-fixed-dim": "#4edea3",
+                      "inverse-on-surface": "#eaf1ff",
+                      "primary-fixed": "#e2dfff",
+                      "on-tertiary-fixed": "#2a1700",
+                      "surface-dim": "#cbdbf5",
+                      "inverse-surface": "#213145",
+                      "secondary": "#006c49",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#603b00",
+                      "outline-variant": "#c8c4d5",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#005236",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "secondary-container": "#6cf8bb"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "md": "16px",
+                      "2xl": "48px",
+                      "lg": "24px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "unit": "4px",
+                      "margin-desktop": "32px",
+                      "xs": "4px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "title-lg": [
+                              "Public Sans"
+                      ],
+                      "label-md": [
+                              "Public Sans"
+                      ],
+                      "body-lg": [
+                              "Public Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Public Sans"
+                      ],
+                      "body-md": [
+                              "Public Sans"
+                      ],
+                      "display-lg": [
+                              "Public Sans"
+                      ],
+                      "headline-lg": [
+                              "Public Sans"
+                      ],
+                      "code-mono": [
+                              "Courier Prime"
+                      ],
+                      "headline-md": [
+                              "Public Sans"
+                      ]
+              },
+              "fontSize": {
+                      "title-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pb-24 max-w-[390px] mx-auto min-h-screen shadow-2xl relative">
+<!-- Header -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center px-gutter h-16 bg-surface shadow-sm max-w-[390px] mx-auto left-1/2 -translate-x-1/2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="flex-1 text-center font-title-lg text-title-lg text-primary ml-4">Delivery Details</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</header>
+<main class="pt-20 px-margin-mobile flex flex-col gap-md">
+<!-- Earnings Summary -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-outline-variant/30 flex flex-col gap-sm">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">₹120</h2>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mt-1">Earnings</p>
+</div>
+<div class="bg-surface-container-low px-3 py-1 rounded-full border border-primary/20">
+<span class="font-label-md text-label-md text-primary">#QD-9287</span>
+</div>
+</div>
+<div class="h-px w-full bg-outline-variant/30 my-2"></div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2 flex-1">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">schedule</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Est. Time</p>
+<p class="font-body-md text-body-md font-semibold text-on-surface">~15 min</p>
+</div>
+</div>
+<div class="w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-2 flex-1 pl-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">route</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Distance</p>
+<p class="font-body-md text-body-md font-semibold text-on-surface">2.4 km away</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Logistics Section -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-outline-variant/30 relative">
+<!-- Timeline Connectors -->
+<div class="absolute left-6 top-8 bottom-8 w-0.5 bg-outline-variant/30"></div>
+<!-- Pickup -->
+<div class="flex gap-md relative mb-6">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center z-10 border-2 border-surface-container-lowest shrink-0">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-secondary uppercase tracking-wider mb-1">Pickup • 0.8 km</p>
+<h3 class="font-title-lg text-title-lg text-on-surface">123 Tech Park</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Block B, Ground Floor, Sector 45, Tech Zone</p>
+</div>
+</div>
+<!-- Destination -->
+<div class="flex gap-md relative mb-6">
+<div class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center z-10 border-2 border-surface-container-lowest shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-[14px]" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-primary uppercase tracking-wider mb-1">Destination • 1.6 km</p>
+<h3 class="font-title-lg text-title-lg text-on-surface">456 Elm Street</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Apt 4B, Sunrise Heights, Elm Valley</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 flex items-center gap-3 border border-outline-variant/20 mt-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-semibold text-on-surface">Document Express</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Signature required on delivery</p>
+</div>
+</div>
+</div>
+<!-- Package Info Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-outline-variant/30 flex flex-col gap-3">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-2">Package Details</h3>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Contents</p>
+<p class="font-body-md text-body-md font-semibold text-on-surface">Documents</p>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Weight</p>
+<p class="font-body-md text-body-md font-semibold text-on-surface">0.5 kg</p>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Size</p>
+<p class="font-body-md text-body-md font-semibold text-on-surface">Small Envelope</p>
+</div>
+</div>
+<div class="bg-error-container/30 rounded-lg p-3 border border-error/20 mt-2 flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[18px] mt-0.5" style="font-variation-settings: 'FILL' 1;">info</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Special Instructions</p>
+<p class="font-body-md text-body-md text-on-surface mt-1">Handle package carefully. Do not bend.</p>
+</div>
+</div>
+</div>
+<!-- Map Preview -->
+<div class="rounded-xl overflow-hidden shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-outline-variant/30 h-48 relative bg-surface-container">
+<!-- Simulated Map Background -->
+<div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-outline to-transparent" style="background-size: 20px 20px; background-image: radial-gradient(circle, #777584 1px, transparent 1px);"></div>
+<!-- Route Line SVG -->
+<svg class="absolute inset-0 w-full h-full z-10" preserveAspectRatio="none" viewBox="0 0 390 192">
+<path class="animate-[dash_2s_linear_infinite]" d="M 80,140 Q 150,140 180,96 T 300,50" fill="none" stroke="#1f108e" stroke-dasharray="8 8" stroke-width="4"></path>
+<style>
+                    @keyframes dash {
+                        to {
+                            stroke-dashoffset: -16;
+                        }
+                    }
+                </style>
+</svg>
+<!-- Map Markers -->
+<!-- Current Location -->
+<div class="absolute top-[140px] left-[80px] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center">
+<div class="w-4 h-4 bg-primary rounded-full border-2 border-white shadow-md relative">
+<div class="absolute inset-0 bg-primary rounded-full animate-ping opacity-75"></div>
+</div>
+</div>
+<!-- Destination -->
+<div class="absolute top-[50px] left-[300px] -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center">
+<div class="w-8 h-8 bg-surface rounded-full flex items-center justify-center shadow-md border border-outline-variant/20 mb-1">
+<span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+</div>
+<!-- Overlay fade -->
+<div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-surface-container to-transparent z-10"></div>
+</div>
+</main>
+<!-- Bottom Actions -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant/20 p-margin-mobile shadow-[0px_-4px_12px_rgba(0,0,0,0.05)] z-50 max-w-[390px] mx-auto left-1/2 -translate-x-1/2 flex gap-4">
+<button class="flex-1 py-3 px-4 rounded-full border border-outline text-on-surface font-title-lg text-title-lg hover:bg-surface-container-low transition-colors active:scale-95 flex items-center justify-center">
+            Decline
+        </button>
+<button class="flex-[2] py-3 px-4 rounded-full bg-primary text-on-primary font-title-lg text-title-lg shadow-md hover:bg-primary/90 transition-colors active:scale-95 flex items-center justify-center gap-2">Accept Delivery <span class="material-symbols-outlined text-[20px]">arrow_forward</span></button>
+</div>
+
+
+</body></html>

@@ -1,0 +1,86 @@
+<resources>
+    <string name="app_name">QuickDrop</string>
+    <string name="welcome_title">Welcome to QuickDrop</string>
+    <string name="welcome_subtitle">Fast, reliable, and secure local delivery at your fingertips.</string>
+    <string name="get_started">Get Started</string>
+    <string name="log_in">Log In</string>
+    <string name="join_as">Join QuickDrop as&#8230;</string>
+    <string name="sender">Sender</string>
+    <string name="sender_desc">I want to send packages</string>
+    <string name="partner">Delivery Partner</string>
+    <string name="partner_desc">I want to deliver packages</string>
+    <string name="continue_btn">Continue</string>
+    <string name="back">Back</string>
+    <string name="welcome_back">Welcome back</string>
+    <string name="login_subtitle">Log in to manage your QuickDrop account.</string>
+    <string name="email_hint">Email or Phone Number</string>
+    <string name="password_hint">Password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="login_btn">Login</string>
+    <string name="no_account">Don\'t have an account? </string>
+    <string name="create_account">Create Account</string>
+    <string name="create_sender_title">Create Sender Account</string>
+    <string name="full_name_hint">Full Name</string>
+    <string name="email_address_hint">Email Address</string>
+    <string name="phone_number_hint">Phone Number</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="already_have_account">Already have an account? </string>
+    <string name="become_partner">Become a Partner</string>
+    <string name="vehicle_type_hint">Vehicle Type</string>
+    <string name="license_number_hint">License Number</string>
+    <string name="upload_proof_title">Upload ID Proof</string>
+    <string name="upload_instructions">Click to upload or drag and drop</string>
+    <string name="consent_check">I consent to a background check as per local regulations.</string>
+    <string name="submit_application">Submit Application</string>
+
+    <string name="hello_user">Hello, Alex</string>
+    <string name="active_order">Active Order</string>
+    <string name="recent_deliveries">Recent Deliveries</string>
+    <string name="track_btn">Track</string>
+    <string name="eta_label">ETA: 15 Mins</string>
+    <string name="order_id_placeholder">QD-77821-X</string>
+    <string name="in_transit">In Transit</string>
+    <string name="new_delivery">New Delivery</string>
+
+    <string name="pickup_address_hint">Pickup Address</string>
+    <string name="dest_address_hint">Destination Address</string>
+    <string name="package_type">Package Type</string>
+    <string name="weight_hint">Estimated Weight (kg)</string>
+    <string name="next">Next</string>
+
+    <string name="order_details">Order Details</string>
+    <string name="order_id_label">Order ID</string>
+    <string name="package_info">Package Information</string>
+    <string name="live_track">Live Tracking</string>
+
+    <string name="est_delivery">Estimated delivery in 12 mins</string>
+    <string name="call">Call</string>
+    <string name="chat">Chat</string>
+
+    <string name="pickup_confirmation">Pickup Confirmation</string>
+    <string name="tracking_id">Tracking ID</string>
+    <string name="pickup_from">Pickup from</string>
+    <string name="confirm_pickup">Confirm Pickup</string>
+    <string name="pickup_loc_placeholder">456 Tech Park, Bangalore</string>
+
+    <string name="hello_partner">Good Morning, Rahul</string>
+    <string name="ready_to_deliver">Ready to deliver today?</string>
+    <string name="online_status">You\'re Online</string>
+    <string name="today_deliveries">Today\'s Deliveries</string>
+    <string name="completed">Completed</string>
+    <string name="pending">Pending</string>
+    <string name="out_for_delivery">Out for Delivery</string>
+    <string name="est_delivery_label">Est. Delivery</string>
+    <string name="view_delivery">View Delivery</string>
+    <string name="requests_available">3 delivery requests available</string>
+    <string name="nearby_pickups">Nearby pickups waiting</string>
+    <string name="view">View</string>
+    <string name="pickup_label">Pickup: %1$s</string>
+    <string name="dest_label">Dest: %1$s</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_requests">Requests</string>
+    <string name="menu_history">History</string>
+    <string name="menu_earnings">Earnings</string>
+    <string name="menu_profile">Profile</string>
+    <string name="mapbox_access_token" translatable="false">pk.eyJ1IjoiaHJpdGl6IiwiYSI6ImNtdmdiYmt2MDBkMTQyd3M3dHFmcG4xOW4ifQ.igLOMAKHiZEdrHgn0mykGQ</string>
+</resources>

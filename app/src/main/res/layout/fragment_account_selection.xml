@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vf_background"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="80dp">
+
+        <!-- Logo Section -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/cardLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:maxWidth="120dp"
+            android:adjustViewBounds="true"
+            android:layout_marginTop="60dp"
+            android:background="@color/vf_primary"
+            android:contentDescription="@string/app_name"
+            android:padding="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_app_logo_final"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.QuickDrop.Logo" />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            style="@style/Stitch.Typography.HeadlineLarge"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/stitch_lg"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:text="Create your QuickDrop account"
+            android:textColor="@color/vf_on_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardLogo" />
+
+        <TextView
+            android:id="@+id/tvSubtitle"
+            style="@style/Stitch.Typography.BodyMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/stitch_lg"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="Choose how you'd like to use QuickDrop."
+            android:textColor="@color/vf_on_surface_variant"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+        <!-- Selection Cards -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSender"
+            style="@style/Stitch.Card.Level1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/stitch_md"
+            android:layout_marginTop="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="24dp">
+
+                <View
+                    android:id="@+id/iconBgSender"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/shape_circle_white"
+                    android:backgroundTint="#EFF6FF"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_sender_login"
+                    app:layout_constraintBottom_toBottomOf="@id/iconBgSender"
+                    app:layout_constraintEnd_toEndOf="@id/iconBgSender"
+                    app:layout_constraintStart_toStartOf="@id/iconBgSender"
+                    app:layout_constraintTop_toTopOf="@id/iconBgSender"
+                    app:tint="@color/vf_primary" />
+
+                <TextView
+                    android:id="@+id/tvSenderTitle"
+                    style="@style/Stitch.Typography.TitleLarge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="Continue as Sender"
+                    android:textColor="@color/vf_on_background"
+                    app:layout_constraintEnd_toStartOf="@id/ivChevronSender"
+                    app:layout_constraintStart_toEndOf="@id/iconBgSender"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvSenderDesc"
+                    style="@style/Stitch.Typography.BodyMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Send packages quickly and track your deliveries."
+                    android:textColor="@color/vf_on_surface_variant"
+                    app:layout_constraintEnd_toStartOf="@id/ivChevronSender"
+                    app:layout_constraintStart_toStartOf="@id/tvSenderTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvSenderTitle" />
+
+                <ImageView
+                    android:id="@+id/ivChevronSender"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/vf_outline_variant" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPartner"
+            style="@style/Stitch.Card.Level1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/stitch_md"
+            android:layout_marginTop="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintTop_toBottomOf="@id/cardSender">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="24dp">
+
+                <View
+                    android:id="@+id/iconBgPartner"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/shape_circle_white"
+                    android:backgroundTint="#EFF6FF"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_two_wheeler"
+                    app:layout_constraintBottom_toBottomOf="@id/iconBgPartner"
+                    app:layout_constraintEnd_toEndOf="@id/iconBgPartner"
+                    app:layout_constraintStart_toStartOf="@id/iconBgPartner"
+                    app:layout_constraintTop_toTopOf="@id/iconBgPartner"
+                    app:tint="@color/vf_primary" />
+
+                <TextView
+                    android:id="@+id/tvPartnerTitle"
+                    style="@style/Stitch.Typography.TitleLarge"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="Continue as Delivery Partner"
+                    android:textColor="@color/vf_on_background"
+                    app:layout_constraintEnd_toStartOf="@id/ivChevronPartner"
+                    app:layout_constraintStart_toEndOf="@id/iconBgPartner"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvPartnerDesc"
+                    style="@style/Stitch.Typography.BodyMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Accept delivery requests and earn by delivering packages."
+                    android:textColor="@color/vf_on_surface_variant"
+                    app:layout_constraintEnd_toStartOf="@id/ivChevronPartner"
+                    app:layout_constraintStart_toStartOf="@id/tvPartnerTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvPartnerTitle" />
+
+                <ImageView
+                    android:id="@+id/ivChevronPartner"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/vf_outline_variant" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Footer -->
+        <LinearLayout
+            android:id="@+id/footerLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardPartner">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/vf_on_surface_variant" />
+
+            <TextView
+                style="@style/Stitch.Typography.BodyLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Back to Login"
+                android:textColor="@color/vf_on_surface_variant"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

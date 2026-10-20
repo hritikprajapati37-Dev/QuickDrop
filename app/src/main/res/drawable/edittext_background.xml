@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/vf_surface_container_lowest" />
+    <stroke
+        android:width="1dp"
+        android:color="@color/vf_outline_variant" />
+    <corners android:radius="@dimen/stitch_rounded_default" />
+    <padding
+        android:bottom="14dp"
+        android:left="@dimen/stitch_md"
+        android:right="@dimen/stitch_md"
+        android:top="14dp" />
+</shape>

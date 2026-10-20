@@ -1,0 +1,349 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>QuickDrop Sender Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;900&amp;family=Courier+Prime&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "surface-tint": "#544fc0",
+                            "on-secondary-fixed-variant": "#005236",
+                            "surface-dim": "#cbdbf5",
+                            "on-background": "#0b1c30",
+                            "on-tertiary-fixed-variant": "#653e00",
+                            "primary": "#1f108e",
+                            "surface-container-high": "#dce9ff",
+                            "on-secondary": "#ffffff",
+                            "surface-bright": "#f8f9ff",
+                            "inverse-on-surface": "#eaf1ff",
+                            "on-tertiary": "#ffffff",
+                            "secondary-fixed": "#6ffbbe",
+                            "surface-container-low": "#eff4ff",
+                            "surface-container-lowest": "#ffffff",
+                            "inverse-primary": "#c3c0ff",
+                            "error": "#ba1a1a",
+                            "on-primary": "#ffffff",
+                            "on-tertiary-fixed": "#2a1700",
+                            "tertiary-fixed-dim": "#ffb95f",
+                            "error-container": "#ffdad6",
+                            "background": "#f8f9ff",
+                            "secondary-fixed-dim": "#4edea3",
+                            "on-error-container": "#93000a",
+                            "primary-fixed": "#e2dfff",
+                            "outline": "#777584",
+                            "surface-variant": "#d3e4fe",
+                            "on-surface": "#0b1c30",
+                            "on-surface-variant": "#464553",
+                            "tertiary-container": "#603b00",
+                            "surface-container": "#e5eeff",
+                            "secondary-container": "#6cf8bb",
+                            "on-primary-container": "#a9a7ff",
+                            "primary-fixed-dim": "#c3c0ff",
+                            "outline-variant": "#c8c4d5",
+                            "surface": "#f8f9ff",
+                            "surface-container-highest": "#d3e4fe",
+                            "on-primary-fixed": "#0f0069",
+                            "tertiary-fixed": "#ffddb8",
+                            "inverse-surface": "#213145",
+                            "on-primary-fixed-variant": "#3b35a7",
+                            "on-secondary-container": "#00714d",
+                            "tertiary": "#422700",
+                            "on-error": "#ffffff",
+                            "secondary": "#006c49",
+                            "primary-container": "#3730a3",
+                            "on-tertiary-container": "#f49d09",
+                            "on-secondary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "md": "16px",
+                            "sm": "8px",
+                            "margin-desktop": "32px",
+                            "xs": "4px",
+                            "lg": "24px",
+                            "gutter": "16px",
+                            "unit": "4px",
+                            "2xl": "48px",
+                            "margin-mobile": "16px",
+                            "xl": "32px"
+                    },
+                    "fontFamily": {
+                            "headline-lg-mobile": [
+                                    "Public Sans"
+                            ],
+                            "code-mono": [
+                                    "Courier Prime"
+                            ],
+                            "title-lg": [
+                                    "Public Sans"
+                            ],
+                            "display-lg": [
+                                    "Public Sans"
+                            ],
+                            "body-md": [
+                                    "Public Sans"
+                            ],
+                            "body-lg": [
+                                    "Public Sans"
+                            ],
+                            "headline-lg": [
+                                    "Public Sans"
+                            ],
+                            "label-md": [
+                                    "Public Sans"
+                            ],
+                            "headline-md": [
+                                    "Public Sans"
+                            ]
+                    },
+                    "fontSize": {
+                            "headline-lg-mobile": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "32px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "code-mono": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "20px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "title-lg": [
+                                    "20px",
+                                    {
+                                            "lineHeight": "28px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "display-lg": [
+                                    "48px",
+                                    {
+                                            "lineHeight": "56px",
+                                            "letterSpacing": "-0.02em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "body-md": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "20px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "body-lg": [
+                                    "16px",
+                                    {
+                                            "lineHeight": "24px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "headline-lg": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "40px",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "label-md": [
+                                    "12px",
+                                    {
+                                            "lineHeight": "16px",
+                                            "letterSpacing": "0.05em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "headline-md": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "32px",
+                                            "fontWeight": "600"
+                                    }
+                            ]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:pb-0 pb-32">
+<div class="px-margin-mobile pt-margin-mobile pb-xl max-w-lg mx-auto w-full md:max-w-7xl md:px-margin-desktop md:pt-margin-desktop pb-2xl">
+<header class="flex justify-between items-start mb-lg">
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background mb-sm font-bold">Good Morning, Alex</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Here's what's happening with your deliveries.</p>
+</div>
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-surface-container-high shadow-sm flex-shrink-0">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a young entrepreneur in a modern office setting, bright lighting, high quality, realistic photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzTjFlmNcyA4xZugvE0eW0DyjNFQK_qAnNq6QvCVMeMaT6DbDdklYGQZUzxqkuTb06krVcnZcFNoNj6TeDzNpF4MJ6Ag-3pLxEbxTopoxEIPpqOpCyLhy1NdQZiZnNDNtxatdWiUoUgWvp57qLVdPUD9YicgMfSpiPwApkkdzxHNOuDslCXQfzaiIGtKUBZT4yiRTuhWl54fUWYQu33fGR1KK-MdX171cIEDoQgSBjLdQbFH5Aavrbgg">
+</div>
+</header>
+<button class="w-full bg-primary text-on-primary py-sm px-md rounded-full shadow-md hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-xs font-label-md text-label-md mb-xl h-12">
+<span class="material-symbols-outlined text-lg">add</span>
+            Create Delivery
+        </button>
+<section class="mb-xl mb-2xl">
+<div class="flex justify-between items-center mb-sm">
+<h2 class="font-title-lg text-title-lg text-on-background font-semibold">Active Delivery</h2>
+<a class="font-label-md text-label-md text-primary flex items-center hover:underline bg-surface-container-high px-sm py-xs rounded-full" href="OrderDetailsActivity">
+                    View Details
+                    <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
+</a>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant p-lg">
+<div class="flex justify-between items-start mb-md pb-sm border-b border-surface-container-high">
+<div>
+<span class="font-code-mono text-code-mono text-on-surface-variant block mb-1">#QD-9284</span>
+<div class="flex items-center gap-xs text-primary font-label-md text-label-md">
+<span class="material-symbols-outlined filled text-xs animate-pulse">local_shipping</span>
+                            Out for Delivery
+                        </div>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1">Est. Arrival</span>
+<span class="font-title-lg text-title-lg text-on-background">2:30 PM</span>
+</div>
+</div>
+<div class="relative pl-6 mb-md space-y-4">
+<div class="absolute left-1.5 top-2 bottom-2 w-0.5 bg-surface-container-high"></div>
+<div class="relative">
+<div class="absolute -left-6 top-0.5 w-3 h-3 rounded-full bg-outline-variant border-2 border-surface-container-lowest"></div>
+<p class="font-label-md text-label-md text-on-surface-variant">Pickup</p>
+<p class="font-body-md text-body-md text-on-background">123 Tech Park</p>
+</div>
+<div class="relative">
+<div class="absolute -left-6 top-0.5 w-3 h-3 rounded-full bg-primary border-2 border-surface-container-lowest"></div>
+<p class="font-label-md text-label-md text-primary">Destination</p>
+<p class="font-body-md text-body-md text-on-background font-semibold">456 Elm Street</p>
+</div>
+</div>
+<div class="flex items-center gap-2 mt-4">
+<div class="h-1 flex-1 bg-primary rounded-full"></div>
+<div class="h-1 flex-1 bg-primary rounded-full"></div>
+<div class="h-1 flex-1 bg-primary rounded-full relative">
+<div class="absolute right-0 -top-1 w-3 h-3 bg-primary rounded-full shadow-[0_0_8px_rgba(31,16,142,0.6)] animate-ping"></div>
+<div class="absolute right-0 -top-1 w-3 h-3 bg-primary rounded-full"></div>
+</div>
+<div class="h-1 flex-1 bg-surface-container-high rounded-full"></div>
+</div>
+<div class="flex justify-between text-[10px] uppercase tracking-wider font-semibold text-on-surface-variant mt-2">
+<span class="">Accepted</span>
+<span class="">Picked Up</span>
+<span class="text-primary font-bold">Out</span>
+<span class="">Delivered</span>
+</div>
+</div>
+</section>
+<section class="mb-xl grid grid-cols-3 gap-sm mb-2xl">
+<div class="bg-surface-container-lowest rounded-lg p-sm shadow-sm border border-outline-variant flex flex-col items-center justify-center text-center">
+<span class="font-display-lg text-primary leading-none mb-1 text-headline-lg">1</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Active</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-sm shadow-sm border border-outline-variant flex flex-col items-center justify-center text-center">
+<span class="font-display-lg text-on-background leading-none mb-1 text-headline-lg">12</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Completed</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-sm shadow-sm border border-outline-variant flex flex-col items-center justify-center text-center">
+<span class="font-display-lg text-on-background leading-none mb-1 text-headline-lg">3</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Pending</span>
+</div>
+</section>
+<section class="mb-xl mb-2xl">
+<div class="flex justify-between items-center mb-sm">
+<h2 class="font-title-lg text-title-lg text-on-background font-semibold">Recent Orders</h2>
+<a class="font-label-md text-label-md text-primary flex items-center hover:underline bg-surface-container-high px-sm py-xs rounded-full" href="HistoryActivity">
+                    View All
+                    <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
+</a>
+</div>
+<div class="space-y-md">
+<div class="bg-surface-container-lowest rounded-lg p-sm shadow-sm border border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div>
+<span class="font-code-mono text-code-mono text-on-background block font-semibold">#QD-9287</span>
+<span class="font-body-md text-body-md text-on-surface-variant">789 Pine Ave • Today</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-secondary bg-secondary-container px-2 py-1 rounded-full">Delivered</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-sm shadow-sm border border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+<div>
+<span class="font-code-mono text-code-mono text-on-background block font-semibold">#QD-9286</span>
+<span class="font-body-md text-body-md text-on-surface-variant">101 Oak Blvd • Today</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-primary bg-primary-container text-on-primary-container px-2 py-1 rounded-full">In Transit</span>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-sm shadow-sm border border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<span class="font-code-mono text-code-mono text-on-background block font-semibold">#QD-9285</span>
+<span class="font-body-md text-body-md text-on-surface-variant">222 Maple Ln • Yesterday</span>
+</div>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant bg-surface-variant px-2 py-1 rounded-full">Pending</span>
+</div>
+</div>
+</section>
+</div>
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface dark:bg-surface-container shadow-[0px_-4px_12px_rgba(0,0,0,0.05)] rounded-t-xl pb-6 pt-2">
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container rounded-full px-4 py-1 scale-95 duration-200" href="DashboardActivity">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high px-4 py-1 rounded-full transition-colors" href="DeliveriesActivity">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="font-label-md text-label-md mt-1">Deliveries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high px-4 py-1 rounded-full transition-colors" href="HistoryActivity">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md mt-1">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-low dark:hover:bg-surface-container-high px-4 py-1 rounded-full transition-colors" href="ProfileActivity">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</a>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>

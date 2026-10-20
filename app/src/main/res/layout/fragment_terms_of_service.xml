@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vf_background">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/vf_background"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/vf_primary">
+
+            <TextView
+                style="@style/Stitch.Typography.TitleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Terms of Service"
+                android:textColor="@color/vf_primary" />
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:paddingBottom="24dp">
+
+            <TextView
+                style="@style/Stitch.Typography.HeadlineMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QuickDrop Terms of Service"
+                android:textColor="@color/vf_primary" />
+
+            <TextView
+                style="@style/Stitch.Typography.LabelMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_sm"
+                android:text="LAST UPDATED: AUGUST 2026" />
+
+            <TextView
+                style="@style/Stitch.Typography.BodyMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_lg"
+                android:text="1. About QuickDrop\n\nQuickDrop provides a platform that connects senders seeking delivery services with independent delivery partners willing to provide such services.\n\n2. Sender Responsibilities\n\n• Provide accurate pickup and delivery information.\n• Ensure items are securely and appropriately packaged.\n• Do not send prohibited items.\n• Provide correct receiver contact information.\n• Make required payments for the requested services.\n\n3. Delivery Partner Responsibilities\n\n• Accept delivery requests based on personal availability.\n• Collect packages from the correct sender.\n• Verify the One-Time Password (OTP) during pickup.\n• Handle all items with care during transit.\n• Verify the receiver's OTP at the destination.\n• Provide proof of delivery as required by the platform."
+                android:textColor="@color/vf_on_surface"
+                android:lineSpacingExtra="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPrivacyPolicy"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/stitch_xl"
+                android:text="View Privacy Policy"
+                android:textColor="@color/vf_primary"
+                android:textStyle="bold"
+                app:icon="@drawable/ic_arrow_forward"
+                app:iconGravity="textEnd"
+                app:iconTint="@color/vf_primary" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

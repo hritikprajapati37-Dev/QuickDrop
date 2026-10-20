@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vf_background">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:paddingStart="0dp"
+            android:paddingEnd="@dimen/stitch_md"
+            app:contentInsetStart="0dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/back"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_arrow_back"
+                    app:tint="@color/vf_primary" />
+
+                <LinearLayout
+                    android:id="@+id/llHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/btnBack"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        style="@style/Stitch.Typography.TitleLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Track Delivery"
+                        android:textColor="@color/vf_on_background"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        style="@style/Stitch.Typography.BodyMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Order #QD-9284"
+                        android:textColor="@color/vf_on_surface_variant"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/chipStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/shape_pill_white"
+                    android:backgroundTint="@color/vf_primary_container"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="RtlSymmetry">
+
+                    <View
+                        android:layout_width="6dp"
+                        android:layout_height="6dp"
+                        android:background="@drawable/shape_pill_white"
+                        android:backgroundTint="@color/white" />
+
+                    <TextView
+                        style="@style/Stitch.Typography.LabelMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Out for Delivery"
+                        android:textColor="@color/white"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/stitch_margin_mobile"
+            android:paddingBottom="24dp"
+            android:clipToPadding="false">
+
+            <!-- Map Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/mapPlaceholder"
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="0dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/vf_surface_container">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        app:srcCompat="@drawable/ic_route"
+                        app:tint="@color/vf_primary"
+                        android:alpha="0.3"/>
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="top|start"
+                        android:layout_margin="32dp"
+                        app:srcCompat="@drawable/ic_storefront"
+                        app:tint="@color/vf_primary"
+                        android:background="@drawable/shape_circle_white"
+                        android:padding="6dp"
+                        android:elevation="4dp"/>
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="bottom|end"
+                        android:layout_margin="32dp"
+                        app:srcCompat="@drawable/ic_home"
+                        app:tint="@color/vf_primary"
+                        android:background="@drawable/shape_circle_white"
+                        android:padding="6dp"
+                        android:elevation="4dp"/>
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginEnd="40dp"
+                        app:srcCompat="@drawable/ic_local_shipping"
+                        app:tint="@color/white"
+                        android:background="@drawable/shape_pill_white"
+                        android:backgroundTint="@color/vf_primary"
+                        android:padding="10dp"
+                        android:elevation="6dp"/>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ETA and Distance Pill -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_md"
+                app:cardBackgroundColor="@color/vf_surface_container_low"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/stitch_md">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:srcCompat="@drawable/ic_schedule"
+                        app:tint="@color/vf_primary" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/stitch_md"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            style="@style/Stitch.Typography.LabelMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="EST. ARRIVAL"
+                            android:textSize="10sp" />
+                        <TextView
+                            style="@style/Stitch.Typography.TitleLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2:30 PM"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="40dp"
+                        android:background="@color/vf_outline_variant" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="@dimen/stitch_md"
+                        app:srcCompat="@drawable/ic_route"
+                        app:tint="@color/vf_primary" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/stitch_md"
+                        android:orientation="vertical">
+                        <TextView
+                            style="@style/Stitch.Typography.LabelMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DISTANCE"
+                            android:textSize="10sp" />
+                        <TextView
+                            style="@style/Stitch.Typography.TitleLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1.6 km"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Delivery Progress Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_md">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/stitch_md">
+
+                    <TextView
+                        style="@style/Stitch.Typography.TitleLarge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delivery In Progress" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/stitch_lg">
+
+                        <!-- Timeline Lines (defined first for layering) -->
+                        <View
+                            android:id="@+id/timeline_full"
+                            android:layout_width="2dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="11dp"
+                            android:background="@color/vf_outline_variant"
+                            app:layout_constraintBottom_toBottomOf="@+id/ivStep4"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/ivStep1" />
+
+                        <View
+                            android:id="@+id/timeline_active"
+                            android:layout_width="2dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="11dp"
+                            android:background="@color/vf_primary"
+                            app:layout_constraintBottom_toBottomOf="@+id/ivStep3"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/ivStep1" />
+
+                        <ImageView
+                            android:id="@+id/ivStep1"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:srcCompat="@drawable/ic_timeline_checked" />
+
+                        <TextView
+                            android:id="@+id/tvStep1"
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/stitch_md"
+                            android:text="Order Accepted"
+                            android:textColor="@color/vf_on_surface"
+                            app:layout_constraintBottom_toBottomOf="@id/ivStep1"
+                            app:layout_constraintStart_toEndOf="@id/ivStep1"
+                            app:layout_constraintTop_toTopOf="@id/ivStep1" />
+
+                        <ImageView
+                            android:id="@+id/ivStep2"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginTop="32dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/ivStep1"
+                            app:srcCompat="@drawable/ic_timeline_checked" />
+
+                        <LinearLayout
+                            android:id="@+id/llStep2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/stitch_md"
+                            android:orientation="vertical"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/ivStep2"
+                            app:layout_constraintTop_toTopOf="@id/ivStep2">
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Picked Up"
+                                android:textColor="@color/vf_on_surface" />
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="123 Tech Park, Sharma Heights"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/ivStep3"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginTop="32dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/llStep2"
+                            app:srcCompat="@drawable/ic_timeline_active" />
+
+                        <TextView
+                            style="@style/Stitch.Typography.BodyLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/stitch_md"
+                            android:text="Out for Delivery"
+                            android:textColor="@color/vf_primary"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="@id/ivStep3"
+                            app:layout_constraintStart_toEndOf="@id/ivStep3"
+                            app:layout_constraintTop_toTopOf="@id/ivStep3" />
+
+                        <ImageView
+                            android:id="@+id/ivStep4"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginTop="32dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/ivStep3"
+                            app:srcCompat="@drawable/ic_timeline_pending" />
+
+                        <LinearLayout
+                            android:id="@+id/llStep4"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/stitch_md"
+                            android:orientation="vertical"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/ivStep4"
+                            app:layout_constraintTop_toTopOf="@id/ivStep4">
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Delivered" />
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="456 Elm Street, Apt 4B, Sharma Heights"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Delivery Partner Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_md">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/stitch_md">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivPartnerAvatar"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                        app:srcCompat="@drawable/ic_user_circle" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/stitch_md"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="@id/ivPartnerAvatar"
+                        app:layout_constraintEnd_toStartOf="@id/btnCall"
+                        app:layout_constraintStart_toEndOf="@id/ivPartnerAvatar"
+                        app:layout_constraintTop_toTopOf="@id/ivPartnerAvatar">
+                        <TextView
+                            style="@style/Stitch.Typography.BodyLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rahul Sharma"
+                            android:textStyle="bold" />
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Delivery Partner • ★ 4.9" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCall"
+                        style="@style/Widget.Material3.Button.IconButton.Filled"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:backgroundTint="@color/vf_secondary_container"
+                        app:icon="@drawable/ic_phone"
+                        app:iconTint="@color/vf_on_secondary_container"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnChat"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChat"
+                        style="@style/Widget.Material3.Button.IconButton.Filled"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:backgroundTint="@color/vf_primary_container"
+                        app:icon="@drawable/ic_route"
+                        app:iconTint="@color/vf_primary"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Delivery Details Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_md">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/stitch_md">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            style="@style/Stitch.Typography.TitleLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Delivery Details" />
+                        <TextView
+                            android:id="@+id/btnEditDetails"
+                            style="@style/Stitch.Typography.LabelMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:text="Edit"
+                            android:textColor="@color/vf_primary" />
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/stitch_md"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Receiver" />
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rahul Sharma"
+                                android:textColor="@color/vf_on_surface"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Phone" />
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+91 XXXXX XXXXX"
+                                android:textColor="@color/vf_on_surface"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Package Type" />
+                            <TextView
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Document Express"
+                                android:textColor="@color/vf_on_surface"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewDetails"
+                style="@style/Stitch.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/stitch_xl"
+                android:text="View Order Details"
+                app:icon="@drawable/ic_arrow_forward"
+                app:iconGravity="textEnd"
+                app:strokeColor="@color/vf_primary"
+                app:strokeWidth="1.5dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        style="@style/Theme.Quick_Drop.BottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:itemIconTint="@color/bottom_nav_icon_selector"
+        app:itemTextColor="@color/bottom_nav_text_selector"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/sender_bottom_nav" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

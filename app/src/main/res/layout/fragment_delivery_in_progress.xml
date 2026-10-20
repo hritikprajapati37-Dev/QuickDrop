@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vf_background">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/vf_primary">
+
+            <TextView
+                style="@style/Stitch.Typography.TitleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Delivery In Progress"
+                app:titleTextAppearance="@style/ToolbarTitleBold"
+                android:textColor="@color/vf_primary" />
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/stitch_md"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/tvOrderLabel"
+                style="@style/Stitch.Typography.BodyMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Order #QD-9284"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_pill_white"
+                android:backgroundTint="#F0F4FF"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/shape_circle_white"
+                    android:backgroundTint="@color/vf_primary" />
+
+                <TextView
+                    style="@style/Stitch.Typography.LabelMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="On the Way"
+                    android:textAllCaps="false"
+                    android:textColor="@color/vf_primary" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/vf_surface_container" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="160dp">
+
+            <!-- Map Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_margin="@dimen/stitch_md"
+                app:cardBackgroundColor="#EAF1FF"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="0dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/ic_route"
+                    app:tint="@color/vf_primary_container"
+                    android:alpha="0.3" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/stitch_margin_mobile">
+
+                <!-- Package Status Card -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Stitch.Card.Level1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/white"
+                    app:strokeWidth="0.5dp"
+                    app:strokeColor="@color/vf_surface_container">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/stitch_md">
+                        <TextView
+                            style="@style/Stitch.Typography.TitleLarge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Package Picked Up"
+                            android:textStyle="bold" />
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="You're on the way to the receiver." />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/stitch_lg">
+                            <View
+                                android:id="@+id/vTimelineLine"
+                                android:layout_width="0dp"
+                                android:layout_height="2dp"
+                                android:background="@color/vf_surface_container_high"
+                                app:layout_constraintBottom_toBottomOf="@id/ivStep1"
+                                app:layout_constraintEnd_toEndOf="@id/ivStep4"
+                                app:layout_constraintStart_toStartOf="@id/ivStep1"
+                                app:layout_constraintTop_toTopOf="@id/ivStep1" />
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="2dp"
+                                android:background="@color/vf_primary"
+                                app:layout_constraintBottom_toBottomOf="@id/ivStep1"
+                                app:layout_constraintEnd_toEndOf="@id/ivStep2"
+                                app:layout_constraintStart_toStartOf="@id/ivStep1"
+                                app:layout_constraintTop_toTopOf="@id/ivStep1" />
+                            <ImageView
+                                android:id="@+id/ivStep1"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                app:layout_constraintEnd_toStartOf="@id/ivStep2"
+                                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/ic_timeline_checked" />
+                            <ImageView
+                                android:id="@+id/ivStep2"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                app:layout_constraintEnd_toStartOf="@id/ivStep3"
+                                app:layout_constraintStart_toEndOf="@id/ivStep1"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/ic_timeline_active" />
+                            <ImageView
+                                android:id="@+id/ivStep3"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                app:layout_constraintEnd_toStartOf="@id/ivStep4"
+                                app:layout_constraintStart_toEndOf="@id/ivStep2"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/ic_timeline_pending" />
+                            <ImageView
+                                android:id="@+id/ivStep4"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/ivStep3"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:srcCompat="@drawable/ic_timeline_pending" />
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Picked Up"
+                                android:textSize="9sp"
+                                app:layout_constraintEnd_toEndOf="@id/ivStep1"
+                                app:layout_constraintStart_toStartOf="@id/ivStep1"
+                                app:layout_constraintTop_toBottomOf="@id/ivStep1" />
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="On the Way"
+                                android:textColor="@color/vf_primary"
+                                android:textSize="9sp"
+                                app:layout_constraintEnd_toEndOf="@id/ivStep2"
+                                app:layout_constraintStart_toStartOf="@id/ivStep2"
+                                app:layout_constraintTop_toBottomOf="@id/ivStep2" />
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Arrived"
+                                android:textSize="9sp"
+                                app:layout_constraintEnd_toEndOf="@id/ivStep3"
+                                app:layout_constraintStart_toStartOf="@id/ivStep3"
+                                app:layout_constraintTop_toBottomOf="@id/ivStep3" />
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Delivered"
+                                android:textSize="9sp"
+                                app:layout_constraintEnd_toEndOf="@id/ivStep4"
+                                app:layout_constraintStart_toStartOf="@id/ivStep4"
+                                app:layout_constraintTop_toBottomOf="@id/ivStep4" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Destination Card -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Stitch.Card.Level1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/stitch_md"
+                    app:cardBackgroundColor="@color/white"
+                    app:strokeWidth="0.5dp"
+                    app:strokeColor="@color/vf_surface_container">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/stitch_md">
+                        <ImageView
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:background="@drawable/shape_circle_white"
+                            android:backgroundTint="#EAF1FF"
+                            android:padding="10dp"
+                            app:srcCompat="@drawable/ic_location"
+                            app:tint="@color/vf_primary" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/stitch_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="DESTINATION" />
+                            <TextView
+                                style="@style/Stitch.Typography.BodyLarge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="456 Elm Street, Apt 4B,\nSharma Heights"
+                                android:textStyle="bold"
+                                android:textColor="@color/vf_on_surface" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Info Grid -->
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/stitch_md"
+                    android:columnCount="2">
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Stitch.Card.Level1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginEnd="@dimen/stitch_xs"
+                        android:layout_marginBottom="@dimen/stitch_md"
+                        app:cardBackgroundColor="#F8F9FF"
+                        app:strokeWidth="0dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/stitch_md">
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/ic_schedule"
+                                app:tint="@color/vf_on_surface_variant" />
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Est. Arrival"
+                                android:textAllCaps="false" />
+                            <TextView
+                                style="@style/Stitch.Typography.TitleLarge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2:30 PM"
+                                android:textColor="@color/vf_primary"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Stitch.Card.Level1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginStart="@dimen/stitch_xs"
+                        android:layout_marginBottom="@dimen/stitch_md"
+                        app:cardBackgroundColor="#F8F9FF"
+                        app:strokeWidth="0dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/stitch_md">
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/ic_route"
+                                app:tint="@color/vf_on_surface_variant" />
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Distance"
+                                android:textAllCaps="false" />
+                            <TextView
+                                style="@style/Stitch.Typography.TitleLarge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1.6 km"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Stitch.Card.Level1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginEnd="@dimen/stitch_xs"
+                        app:cardBackgroundColor="#F8F9FF"
+                        app:strokeWidth="0dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/stitch_md">
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/ic_package"
+                                app:tint="@color/vf_on_surface_variant" />
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Package"
+                                android:textAllCaps="false" />
+                            <TextView
+                                style="@style/Stitch.Typography.BodyLarge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Document Express"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Stitch.Card.Level1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_marginStart="@dimen/stitch_xs"
+                        app:cardBackgroundColor="#F8F9FF"
+                        app:strokeWidth="0dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="@dimen/stitch_md">
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                app:srcCompat="@drawable/ic_description"
+                                app:tint="@color/vf_on_surface_variant" />
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Order"
+                                android:textAllCaps="false" />
+                            <TextView
+                                style="@style/Stitch.Typography.BodyLarge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="#QD-9284"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </GridLayout>
+
+                <!-- Receiver Card -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Stitch.Card.Level1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/stitch_md"
+                    app:cardBackgroundColor="@color/white"
+                    app:strokeWidth="0.5dp"
+                    app:strokeColor="@color/vf_surface_container">
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/stitch_md">
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivReceiverAvatar"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:scaleType="centerCrop"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                            app:srcCompat="@drawable/ic_user_circle" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/stitch_md"
+                            android:orientation="vertical"
+                            app:layout_constraintBottom_toBottomOf="@id/ivReceiverAvatar"
+                            app:layout_constraintEnd_toStartOf="@id/btnCall"
+                            app:layout_constraintStart_toEndOf="@id/ivReceiverAvatar"
+                            app:layout_constraintTop_toTopOf="@id/ivReceiverAvatar">
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="RECEIVER" />
+                            <TextView
+                                android:id="@+id/tvReceiverName"
+                                style="@style/Stitch.Typography.BodyLarge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rahul Sharma"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/tvReceiverPhone"
+                                style="@style/Stitch.Typography.BodyMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+91 98765 43210" />
+                        </LinearLayout>
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCall"
+                            style="@style/Widget.Material3.Button.IconButton.Filled"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:backgroundTint="#EAF1FF"
+                            app:icon="@drawable/ic_phone"
+                            app:iconTint="@color/vf_primary"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/bottomActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/stitch_margin_mobile"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:layout_gravity="bottom">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNavigate"
+            style="@style/Stitch.Button.Primary"
+            android:layout_width="match_parent"
+            android:text="Start Navigation"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_arrow_forward"
+            app:iconGravity="textEnd" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnArrived"
+            style="@style/Stitch.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_marginTop="@dimen/stitch_md"
+            android:text="Arrived at Destination"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/vf_primary"
+            app:strokeWidth="1.5dp" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

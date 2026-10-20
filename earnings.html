@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Earnings - QuickDrop</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;family=Courier+Prime&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "on-surface": "#0b1c30",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "inverse-primary": "#c3c0ff",
+                    "on-primary": "#ffffff",
+                    "surface-container": "#e5eeff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary-fixed-variant": "#3b35a7",
+                    "secondary": "#006c49",
+                    "primary": "#1f108e",
+                    "surface-variant": "#d3e4fe",
+                    "secondary-container": "#6cf8bb",
+                    "surface-container-high": "#dce9ff",
+                    "surface-container-highest": "#d3e4fe",
+                    "tertiary-container": "#603b00",
+                    "on-surface-variant": "#464553",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "primary-container": "#3730a3",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-primary-container": "#a9a7ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "outline": "#777584",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary-container": "#00714d",
+                    "on-primary-fixed": "#0f0069",
+                    "inverse-surface": "#213145",
+                    "on-tertiary-container": "#f49d09",
+                    "outline-variant": "#c8c4d5",
+                    "tertiary": "#422700",
+                    "background": "#f8f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#e2dfff",
+                    "on-background": "#0b1c30",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-secondary-fixed": "#002113",
+                    "tertiary-fixed": "#ffddb8",
+                    "surface-tint": "#544fc0",
+                    "surface": "#f8f9ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "margin-desktop": "32px",
+                    "unit": "4px",
+                    "gutter": "16px",
+                    "margin-mobile": "16px",
+                    "2xl": "48px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": [
+                            "Public Sans"
+                    ],
+                    "display-lg": [
+                            "Public Sans"
+                    ],
+                    "headline-md": [
+                            "Public Sans"
+                    ],
+                    "label-md": [
+                            "Public Sans"
+                    ],
+                    "headline-lg": [
+                            "Public Sans"
+                    ],
+                    "title-lg": [
+                            "Public Sans"
+                    ],
+                    "code-mono": [
+                            "Courier Prime"
+                    ],
+                    "body-lg": [
+                            "Public Sans"
+                    ],
+                    "body-md": [
+                            "Public Sans"
+                    ]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-md": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "title-lg": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "code-mono": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-lg": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center px-gutter h-16 bg-surface shadow-sm transition-transform active:scale-95 duration-200">
+<button class="mr-4 text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full flex items-center justify-center" onclick="window.location.href='{{DATA:SCREEN:SCREEN_94}}'">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="flex-1 font-headline-md text-headline-md font-bold text-primary">Earnings</h1>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full flex items-center justify-center relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 pt-16 px-margin-mobile md:px-margin-desktop md:max-w-4xl md:mx-auto w-full flex flex-col gap-md">
+<!-- Balance Card -->
+<section class="mt-md bg-surface-container-lowest shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-surface-variant rounded-xl p-lg flex flex-col gap-sm relative overflow-hidden">
+<!-- Decorative Background Element -->
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary-container rounded-full opacity-20 blur-xl"></div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Total Balance</p>
+<h2 class="font-display-lg text-display-lg text-primary">₹2,450<span class="text-title-lg text-outline ml-1">.00</span></h2>
+<div class="mt-sm">
+<button class="bg-primary text-on-primary font-label-md text-label-md py-3 px-6 rounded-full w-full sm:w-auto shadow-sm hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+                    Withdraw Funds
+                </button>
+</div>
+</section>
+<!-- Time Filters -->
+<section class="flex bg-surface-container-low rounded-lg p-1">
+<button class="flex-1 py-2 text-center font-label-md text-label-md rounded-md bg-surface-container-lowest text-primary shadow-sm transition-all duration-200" id="tab-today" onclick="updateData('today')">Today</button>
+<button class="flex-1 py-2 text-center font-label-md text-label-md rounded-md text-on-surface-variant hover:bg-surface-container-high transition-all duration-200" id="tab-week" onclick="updateData('week')">This Week</button>
+<button class="flex-1 py-2 text-center font-label-md text-label-md rounded-md text-on-surface-variant hover:bg-surface-container-high transition-all duration-200" id="tab-month" onclick="updateData('month')">This Month</button>
+</section>
+<!-- Stats Grid & Chart Area -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Stats -->
+<div class="grid grid-cols-2 gap-md">
+<div class="bg-surface-container-lowest shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-surface-variant rounded-xl p-md flex flex-col justify-center items-center text-center">
+<span class="material-symbols-outlined text-primary mb-2 text-3xl">local_shipping</span>
+<p class="font-display-lg text-headline-lg-mobile text-on-surface" id="stat-deliveries">12</p>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase">Total Deliveries</p>
+</div>
+<div class="bg-surface-container-lowest shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-surface-variant rounded-xl p-md flex flex-col justify-center items-center text-center">
+<span class="material-symbols-outlined text-secondary mb-2 text-3xl">route</span>
+<p class="font-display-lg text-headline-lg-mobile text-on-surface" id="stat-distance">45<span class="text-body-md text-outline ml-1">km</span></p>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase">Total Distance</p>
+</div>
+</div>
+<!-- Earnings Chart -->
+<div class="bg-surface-container-lowest shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-surface-variant rounded-xl p-md relative min-h-[200px] flex items-center justify-center">
+<canvas class="w-full h-full max-h-[200px]" id="earningsChart"></canvas>
+</div>
+</div>
+<!-- Recent Earnings List -->
+<section class="bg-surface-container-lowest shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-surface-variant rounded-xl overflow-hidden flex flex-col">
+<div class="px-lg py-md border-b border-surface-variant bg-surface-bright flex justify-between items-center">
+<h3 class="font-title-lg text-title-lg text-on-surface">Recent Earnings</h3>
+<button class="text-primary font-label-md text-label-md hover:underline">See All</button>
+</div>
+<div class="divide-y divide-surface-variant" id="recent-list">
+<!-- List Item 1 -->
+<div class="px-lg py-md hover:bg-surface-container-low transition-colors duration-150 cursor-pointer flex justify-between items-center group" onclick="window.location.href='{{DATA:SCREEN:SCREEN_74}}'">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-code-mono text-code-mono font-bold text-on-surface group-hover:text-primary transition-colors">#QD-8821</span>
+<span class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-secondary bg-secondary-container px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Delivered
+                            </span>
+</div>
+<span class="font-body-md text-body-md text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Today, 14:30
+                        </span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-headline-md text-on-surface">₹120</span>
+</div>
+</div>
+<!-- List Item 2 -->
+<div class="px-lg py-md hover:bg-surface-container-low transition-colors duration-150 cursor-pointer flex justify-between items-center group" onclick="window.location.href='{{DATA:SCREEN:SCREEN_74}}'">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-code-mono text-code-mono font-bold text-on-surface group-hover:text-primary transition-colors">#QD-8819</span>
+<span class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-secondary bg-secondary-container px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Delivered
+                            </span>
+</div>
+<span class="font-body-md text-body-md text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Today, 11:15
+                        </span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-headline-md text-on-surface">₹85</span>
+</div>
+</div>
+<!-- List Item 3 -->
+<div class="px-lg py-md hover:bg-surface-container-low transition-colors duration-150 cursor-pointer flex justify-between items-center group" onclick="window.location.href='{{DATA:SCREEN:SCREEN_74}}'">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-code-mono text-code-mono font-bold text-on-surface group-hover:text-primary transition-colors">#QD-8790</span>
+<span class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-secondary bg-secondary-container px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Delivered
+                            </span>
+</div>
+<span class="font-body-md text-body-md text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Yesterday, 16:45
+                        </span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-headline-md text-on-surface">₹210</span>
+</div>
+</div>
+<!-- List Item 4 -->
+<div class="px-lg py-md hover:bg-surface-container-low transition-colors duration-150 cursor-pointer flex justify-between items-center group" onclick="window.location.href='{{DATA:SCREEN:SCREEN_74}}'">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-code-mono text-code-mono font-bold text-on-surface group-hover:text-primary transition-colors">#QD-8755</span>
+<span class="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-secondary bg-secondary-container px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Delivered
+                            </span>
+</div>
+<span class="font-body-md text-body-md text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Yesterday, 09:20
+                        </span>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-headline-md text-on-surface">₹95</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-surface-container-lowest shadow-[0px_-4px_12px_rgba(0,0,0,0.05)] rounded-t-xl transition-all active:scale-90 duration-200">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high transition-colors rounded-lg" href="{{DATA:SCREEN:SCREEN_94}}">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high transition-colors rounded-lg" href="{{DATA:SCREEN:SCREEN_93}}">
+<span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
+<span class="font-label-md text-label-md mt-1">Requests</span>
+</a>
+<!-- History tab is logically close to Earnings, but instructions don't explicitly say make it active. Let's make History active as it's the closest semantic match to Earnings/Past work. -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1" href="{{DATA:SCREEN:SCREEN_76}}">
+<span class="material-symbols-outlined" data-icon="history" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-label-md text-label-md mt-1">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high transition-colors rounded-lg" href="{{DATA:SCREEN:SCREEN_71}}">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md mt-1">Profile</span>
+</a>
+</nav>
+<script>
+        // Chart.js Setup
+        const ctx = document.getElementById('earningsChart').getContext('2d');
+        
+        const chartData = {
+            today: {
+                labels: ['9am', '12pm', '3pm', '6pm', '9pm'],
+                data: [45, 120, 85, 210, 0]
+            },
+            week: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                data: [350, 420, 280, 510, 490, 600, 300]
+            },
+            month: {
+                labels: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'],
+                data: [1500, 1800, 1650, 2100]
+            }
+        };
+
+        const chartConfig = {
+            type: 'bar',
+            data: {
+                labels: chartData.today.labels,
+                datasets: [{
+                    label: 'Earnings (₹)',
+                    data: chartData.today.data,
+                    backgroundColor: '#1f108e', // primary
+                    borderRadius: 4,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#213145',
+                        titleFont: { family: 'Public Sans', size: 12 },
+                        bodyFont: { family: 'Public Sans', size: 14, weight: 'bold' },
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#e5eeff', drawBorder: false }, // surface-container
+                        ticks: { font: { family: 'Public Sans', size: 10 }, color: '#777584' } // outline
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Public Sans', size: 10 }, color: '#777584' } // outline
+                    }
+                }
+            }
+        };
+
+        let earningsChart = new Chart(ctx, chartConfig);
+
+        // UI State Update Logic
+        function updateData(period) {
+            // Update Tabs
+            const tabs = ['today', 'week', 'month'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (t === period) {
+                    el.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high');
+                    el.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+                } else {
+                    el.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high');
+                    el.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+                }
+            });
+
+            // Update Chart
+            earningsChart.data.labels = chartData[period].labels;
+            earningsChart.data.datasets[0].data = chartData[period].data;
+            earningsChart.update();
+
+            // Update Mock Stats
+            const stats = {
+                today: { del: 12, dist: 45 },
+                week: { del: 84, dist: 312 },
+                month: { del: 320, dist: 1240 }
+            };
+            
+            document.getElementById('stat-deliveries').innerText = stats[period].del;
+            document.getElementById('stat-distance').innerHTML = `${stats[period].dist}<span class="text-body-md text-outline ml-1">km</span>`;
+            
+            // Add a subtle animation to the stats
+            ['stat-deliveries', 'stat-distance'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.add('opacity-50', 'scale-95');
+                setTimeout(() => {
+                    el.classList.remove('opacity-50', 'scale-95');
+                    el.classList.add('transition-all', 'duration-300');
+                }, 50);
+            });
+        }
+    </script>
+</body></html>

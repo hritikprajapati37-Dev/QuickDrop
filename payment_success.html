@@ -1,0 +1,270 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Payment Success — Mobile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;family=Courier+Prime&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#1f108e",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-primary-fixed-variant": "#3b35a7",
+                      "on-secondary-container": "#00714d",
+                      "inverse-primary": "#c3c0ff",
+                      "on-background": "#0b1c30",
+                      "secondary-fixed-dim": "#4edea3",
+                      "secondary-fixed": "#6ffbbe",
+                      "surface": "#f8f9ff",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-surface": "#0b1c30",
+                      "on-tertiary-container": "#f49d09",
+                      "outline": "#777584",
+                      "inverse-on-surface": "#eaf1ff",
+                      "tertiary": "#422700",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-container": "#a9a7ff",
+                      "outline-variant": "#c8c4d5",
+                      "primary-fixed": "#e2dfff",
+                      "on-error-container": "#93000a",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "background": "#f8f9ff",
+                      "on-error": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "inverse-surface": "#213145",
+                      "primary-container": "#3730a3",
+                      "surface-container": "#e5eeff",
+                      "surface-container-low": "#eff4ff",
+                      "tertiary-container": "#603b00",
+                      "surface-tint": "#544fc0",
+                      "surface-variant": "#d3e4fe",
+                      "on-surface-variant": "#464553",
+                      "error": "#ba1a1a",
+                      "surface-bright": "#f8f9ff",
+                      "tertiary-fixed": "#ffddb8",
+                      "surface-dim": "#cbdbf5",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#6cf8bb",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed": "#002113",
+                      "secondary": "#006c49",
+                      "surface-container-high": "#dce9ff",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-primary-fixed": "#0f0069"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "unit": "4px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "2xl": "48px",
+                      "gutter": "16px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Public Sans"
+                      ],
+                      "label-md": [
+                              "Public Sans"
+                      ],
+                      "body-lg": [
+                              "Public Sans"
+                      ],
+                      "title-lg": [
+                              "Public Sans"
+                      ],
+                      "code-mono": [
+                              "Courier Prime"
+                      ],
+                      "display-lg": [
+                              "Public Sans"
+                      ],
+                      "headline-lg": [
+                              "Public Sans"
+                      ],
+                      "headline-lg-mobile": [
+                              "Public Sans"
+                      ],
+                      "headline-md": [
+                              "Public Sans"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "title-lg": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col justify-between max-w-[390px] mx-auto border-x border-outline-variant shadow-lg">
+<!-- TopAppBar -->
+<header class="bg-surface w-full top-0 sticky shadow-sm flex items-center justify-between px-margin-mobile w-full h-16 z-10">
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95 duration-150 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-title-lg text-title-lg text-primary">Payment Successful</h1>
+<div class="w-10"></div> <!-- Spacer for center alignment -->
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow p-margin-mobile space-y-lg flex flex-col items-center overflow-y-auto flex-1">
+<!-- Success Area -->
+<div class="flex flex-col items-center text-center mt-xl mb-md w-full">
+<div class="bg-secondary-container w-24 h-24 rounded-full flex items-center justify-center mb-lg shadow-md animate-[bounce_0.5s_ease-out]">
+<span class="material-symbols-outlined text-[48px] text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background mb-xs">Payment Successful!</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[280px]">Your delivery request has been created successfully.</p>
+</div>
+<!-- Payment Details Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-surface-container-high w-full p-md">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Payment Details</h3>
+<div class="space-y-sm">
+<div class="flex justify-between items-center py-xs border-b border-surface-container-low">
+<span class="font-body-md text-body-md text-on-surface-variant">Order Number</span>
+<span class="font-label-md text-label-md text-on-surface font-code-mono">#QD-9284</span>
+</div>
+<div class="flex justify-between items-center py-xs border-b border-surface-container-low">
+<span class="font-body-md text-body-md text-on-surface-variant">Payment Method</span>
+<span class="font-label-md text-label-md text-on-surface">UPI</span>
+</div>
+<div class="flex justify-between items-center py-xs border-b border-surface-container-low">
+<span class="font-body-md text-body-md text-on-surface-variant">Amount Paid</span>
+<span class="font-label-md text-label-md text-on-surface">₹75</span>
+</div>
+<div class="flex justify-between items-center py-xs pt-sm">
+<span class="font-body-md text-body-md text-on-surface-variant">Payment Status</span>
+<span class="font-label-md text-label-md text-secondary bg-secondary-container px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">done</span> Paid
+                    </span>
+</div>
+</div>
+</div>
+<!-- Delivery Summary Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-surface-container-high w-full p-md">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-md">Delivery Request</h3>
+<div class="relative pl-6 space-y-md">
+<!-- Timeline Line -->
+<div class="absolute left-[11px] top-4 bottom-8 w-[2px] bg-outline-variant"></div>
+<!-- Pickup -->
+<div class="relative">
+<div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-outline border-2 border-surface-container-lowest z-10"></div>
+<span class="block font-label-md text-label-md text-on-surface-variant mb-xs">Pickup</span>
+<span class="block font-body-md text-body-md text-on-surface">123 Tech Park, Sharma Heights</span>
+</div>
+<!-- Delivery -->
+<div class="relative">
+<div class="absolute -left-6 top-1 w-3 h-3 rounded-full bg-primary border-2 border-surface-container-lowest z-10"></div>
+<span class="block font-label-md text-label-md text-on-surface-variant mb-xs">Deliver to</span>
+<span class="block font-body-md text-body-md text-on-surface">Rahul Sharma, 456 Elm Street, Apt 4B</span>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-surface-container-low flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">description</span>
+<div>
+<span class="block font-label-md text-label-md text-on-surface-variant">Package</span>
+<span class="block font-body-md text-body-md text-on-surface">Document Express</span>
+</div>
+</div>
+</div>
+<!-- Information Message Card -->
+<div class="bg-surface-container-low rounded-lg p-md w-full flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary mt-1">info</span>
+<p class="font-body-md text-body-md text-on-surface">Your delivery request is now being processed. Delivery partners can now receive your request.</p>
+</div>
+</main>
+<!-- Bottom Actions -->
+<footer class="p-margin-mobile bg-surface w-full sticky bottom-0 shadow-[0px_-4px_12px_rgba(0,0,0,0.05)] flex flex-col gap-md">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-4 rounded-full flex items-center justify-center gap-2 hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm active:scale-95 duration-150">
+            Track Delivery
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<button class="w-full bg-transparent text-primary font-label-md text-label-md py-2 flex items-center justify-center hover:bg-surface-container-low rounded-full transition-colors active:scale-95 duration-150">
+            Back to Dashboard
+        </button>
+</footer>
+
+
+</body></html>

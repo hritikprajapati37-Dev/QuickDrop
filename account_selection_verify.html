@@ -1,0 +1,199 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Create Account - QuickDrop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&amp;family=Public+Sans:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#eff4ff",
+                        "surface-dim": "#cbdbf5",
+                        "surface": "#f8f9ff",
+                        "on-secondary-container": "#00714d",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "primary-container": "#3730a3",
+                        "secondary": "#006c49",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-variant": "#d3e4fe",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#0f0069",
+                        "inverse-on-surface": "#eaf1ff",
+                        "tertiary": "#422700",
+                        "surface-container": "#e5eeff",
+                        "secondary-container": "#6cf8bb",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "outline-variant": "#c8c4d5",
+                        "inverse-surface": "#213145",
+                        "tertiary-fixed": "#ffddb8",
+                        "inverse-primary": "#c3c0ff",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "primary": "#1f108e",
+                        "on-background": "#0b1c30",
+                        "surface-tint": "#544fc0",
+                        "primary-fixed": "#e2dfff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-container": "#f49d09",
+                        "on-primary-container": "#a9a7ff",
+                        "background": "#f8f9ff",
+                        "outline": "#777584",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#6ffbbe",
+                        "tertiary-container": "#603b00",
+                        "on-surface-variant": "#464553",
+                        "on-tertiary-fixed-variant": "#653e00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "2xl": "48px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "code-mono": ["Courier Prime"],
+                        "title-lg": ["Public Sans"],
+                        "headline-lg-mobile": ["Public Sans"],
+                        "headline-lg": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "body-md": ["Public Sans"],
+                        "label-md": ["Public Sans"],
+                        "display-lg": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "code-mono": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0px 12px 24px rgba(0,0,0,0.05);
+        }
+        
+        .role-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .role-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow: inset 0 0 0 2px transparent;
+            transition: box-shadow 0.3s ease;
+            pointer-events: none;
+        }
+
+        .role-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0px 20px 40px rgba(31, 16, 142, 0.08);
+            background-color: theme('colors.surface-container-lowest');
+        }
+        
+        .role-card:hover::after {
+            box-shadow: inset 0 0 0 2px theme('colors.primary');
+        }
+
+        .role-card:active {
+            transform: translateY(0);
+        }
+
+        .icon-wrapper {
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .role-card:hover .icon-wrapper {
+            transform: scale(1.1);
+            background-color: theme('colors.primary-container');
+            color: theme('colors.on-primary-container');
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Background Pattern/Decoration -->
+<div class="fixed inset-0 z-0 pointer-events-none opacity-40 overflow-hidden">
+<div class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-primary-fixed/30 to-surface-container-highest blur-3xl mix-blend-multiply"></div>
+<div class="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-surface-container-high to-surface-variant blur-3xl mix-blend-multiply"></div>
+</div>
+<!-- Main Content Wrapper -->
+<main class="flex-1 flex flex-col justify-center items-center px-margin-mobile md:px-margin-desktop py-12 z-10 relative">
+<!-- Header Section -->
+<header class="text-center mb-12 max-w-2xl mx-auto w-full">
+<div class="flex justify-center mb-6">
+<!-- Brand Logo (Simplified) -->
+<div class="w-12 h-12 bg-primary text-on-primary rounded-xl flex items-center justify-center shadow-md shadow-primary/20">
+<span class="material-symbols-outlined font-title-lg" style="font-variation-settings: &quot;FILL&quot; 1;">local_shipping</span>
+</div>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-xs tracking-tight">Create your QuickDrop account</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Choose how you'd like to use QuickDrop.</p>
+</header>
+<!-- Selection Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter md:gap-lg max-w-4xl w-full mx-auto">
+<!-- Sender Card -->
+<button aria-label="Continue as Sender" class="role-card glass-card rounded-xl p-lg md:p-xl text-left flex flex-col h-full focus:outline-none focus:ring-4 focus:ring-primary/20 group"><div class="flex items-start justify-between mb-lg"><div class="icon-wrapper w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-primary shadow-sm"><span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 0, 'wght' 400;">send_to_mobile</span></div><span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">arrow_forward</span></div><h2 class="font-title-lg text-title-lg text-on-surface mb-sm">Continue as Sender</h2><p class="font-body-md text-body-md text-on-surface-variant flex-1">Send packages quickly and track your deliveries.</p></button>
+<!-- Delivery Partner Card -->
+<button aria-label="Continue as Delivery Partner" class="role-card glass-card rounded-xl p-lg md:p-xl text-left flex flex-col h-full focus:outline-none focus:ring-4 focus:ring-primary/20 group"><div class="flex items-start justify-between mb-lg"><div class="icon-wrapper w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-primary shadow-sm"><span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 0, 'wght' 400;">two_wheeler</span></div><span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">arrow_forward</span></div><h2 class="font-title-lg text-title-lg text-on-surface mb-sm">Continue as Delivery Partner</h2><p class="font-body-md text-body-md text-on-surface-variant flex-1">Accept delivery requests and earn by delivering packages.</p></button>
+</div>
+<!-- Footer / Back Action -->
+<div class="mt-12 text-center">
+<a class="inline-flex items-center justify-center gap-sm font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors py-2 px-4 rounded-full hover:bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary/40" href="#"><span class="material-symbols-outlined text-[18px]">arrow_back</span>Back to Login</a>
+</div>
+</main>
+
+
+
+
+</body></html>

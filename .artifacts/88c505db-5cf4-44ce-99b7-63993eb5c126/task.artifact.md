@@ -1,0 +1,7 @@
+- `[ ]` 1. Backend Security & Dependencies (`requirements.txt`, `.env.example`, security headers, CORS, rate limiting)
+- `[ ]` 2. Authentication & Password Hashing (`bcrypt`, JWT tokens, generic error messages, token validation)
+- `[ ]` 3. Role-Based Authorization & IDOR Protection (Admin, Sender, Partner, Receiver high-entropy tokens)
+- `[ ]` 4. Delivery Workflow & Cryptographic OTP Security (Secure OTP generation, expiration, anti-brute-force)
+- `[ ]` 5. Android App Security (`EncryptedSharedPreferences`, network security config, secure session handling)
+- `[ ]` 6. Documentation (`SECURITY.md`, updated `README.md`)
+- `[ ]` 7. Verification & Testing

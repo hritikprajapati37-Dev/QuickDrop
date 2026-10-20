@@ -1,0 +1,284 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Payment - QuickDrop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        input[type="radio"]:checked {
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c8c4d5",
+                        "outline": "#777584",
+                        "primary": "#1f108e",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-container": "#a9a7ff",
+                        "surface-bright": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "tertiary-container": "#603b00",
+                        "tertiary": "#422700",
+                        "primary-fixed": "#e2dfff",
+                        "secondary": "#006c49",
+                        "on-tertiary-fixed": "#2a1700",
+                        "secondary-fixed-dim": "#4edea3",
+                        "tertiary-fixed": "#ffddb8",
+                        "inverse-surface": "#213145",
+                        "inverse-primary": "#c3c0ff",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "on-background": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#0f0069",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "secondary-container": "#6cf8bb",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface-variant": "#464553",
+                        "surface-tint": "#544fc0",
+                        "background": "#f8f9ff",
+                        "on-secondary-container": "#00714d",
+                        "primary-container": "#3730a3",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-container": "#f49d09",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-error": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "margin-desktop": "32px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "gutter": "16px",
+                        "margin-mobile": "16px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "code-mono": ["Courier Prime"],
+                        "display-lg": ["Public Sans"],
+                        "body-md": ["Public Sans"],
+                        "title-lg": ["Public Sans"],
+                        "headline-lg": ["Public Sans"],
+                        "label-md": ["Public Sans"],
+                        "headline-md": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "headline-lg-mobile": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "code-mono": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md h-screen flex flex-col items-center">
+<!-- Mobile Frame Container -->
+<div class="w-full max-w-[390px] h-full bg-background relative flex flex-col shadow-2xl sm:rounded-[40px] overflow-hidden border border-outline-variant/30 max-h-screen">
+<!-- Header -->
+<header class="w-full top-0 sticky bg-surface dark:bg-background z-20 flex flex-col px-margin-mobile pt-12 pb-4 shadow-sm border-b border-surface-container-high transition-shadow">
+<div class="flex items-center gap-4">
+<button aria-label="Go back" class="p-2 -ml-2 rounded-full hover:bg-surface-container-low transition-colors active:scale-95 duration-150 text-primary">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight">Payment</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Complete your payment to confirm the delivery</p>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto px-margin-mobile py-lg pb-[120px] space-y-lg flex flex-col scroll-smooth">
+<!-- Order Summary Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-outline-variant/30 p-md flex flex-col gap-sm relative group hover:shadow-[0px_8px_24px_rgba(0,0,0,0.08)] transition-shadow pb-lg">
+
+<div class="flex justify-between items-center z-10">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Order Number</span>
+<span class="font-code-mono text-code-mono text-primary font-bold bg-surface-container px-2 py-1 rounded-md">#QD-9284</span>
+</div>
+<hr class="border-t border-outline-variant/30 my-2 z-10">
+<div class="flex justify-between items-center z-10">
+<span class="font-body-md text-body-md text-on-surface">Delivery Charge</span>
+<span class="font-body-md text-body-md text-on-surface">₹75</span>
+</div>
+<div class="flex justify-between items-center z-10 mt-2 mt-4">
+<span class="font-title-lg text-title-lg text-primary">Total Payable</span>
+<span class="font-title-lg text-title-lg text-primary font-bold">₹75</span>
+</div>
+</div>
+<!-- Payment Method Section -->
+<div class="flex flex-col gap-md">
+<h2 class="font-title-lg text-title-lg text-on-surface">Select Payment Method</h2>
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-outline-variant/30 overflow-hidden divide-y divide-outline-variant/30">
+<!-- UPI Option (Selected) -->
+<label class="flex flex-col p-md cursor-pointer hover:bg-surface-container-low transition-colors group relative">
+<div class="flex items-center gap-md">
+<input checked="" class="w-5 h-5 text-primary border-outline focus:ring-primary focus:ring-offset-surface-container-lowest cursor-pointer transition-all" name="payment_method" type="radio" value="upi">
+<div class="w-10 h-10 rounded-lg bg-surface-bright border border-outline-variant/50 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors" style="border-width: medium; border-style: none; border-color: currentcolor; border-image: none;">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface flex-1 transition-all">UPI</span>
+</div>
+<!-- UPI Expanded Area -->
+<div class="mt-md pl-[60px] animate-[slideDown_0.3s_ease-out_forwards] overflow-hidden relative" id="upi-area" style="display: none; animation: 0.3s ease-out 0s 1 normal forwards running slideDown;">
+<div class="flex flex-col gap-sm relative">
+<label class="sr-only" for="upi-id">UPI ID</label>
+<div class="relative">
+<input class="w-full bg-surface-bright border border-outline-variant rounded-lg px-md py-3 text-body-md font-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary transition-all pr-10 shadow-inner" id="upi-id" placeholder="name@upi" type="text">
+<button aria-label="Clear field" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-label-md text-label-md text-outline">A payment request will be sent to this UPI ID.</p>
+</div>
+</div>
+</label>
+<!-- Card Option -->
+<label class="flex flex-col p-md cursor-pointer hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-md">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary focus:ring-offset-surface-container-lowest cursor-pointer transition-all" name="payment_method" type="radio" value="card">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary transition-colors" style="border-width: medium; border-style: none; border-color: currentcolor; border-image: none;">
+<span class="material-symbols-outlined">credit_card</span>
+</div>
+<span class="font-title-lg text-title-lg text-on-surface flex-1 transition-all">Credit / Debit Card</span>
+</div>
+</label>
+<!-- Net Banking Option -->
+<label class="flex flex-col p-md cursor-pointer hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-md">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary focus:ring-offset-surface-container-lowest cursor-pointer transition-all" name="payment_method" type="radio" value="netbanking">
+<div class="w-10 h-10 rounded-lg bg-surface-bright border border-outline-variant/50 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors" style="border-width: medium; border-style: none; border-color: currentcolor; border-image: none;">
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface flex-1 transition-all">Net Banking</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Security Message -->
+<div class="bg-surface-container-low rounded-lg p-sm flex items-start gap-3 border border-surface-container-high mt-4">
+<span class="material-symbols-outlined text-primary mt-0.5 text-[20px]" style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary font-bold tracking-wide">Secure Online Payment</span>
+<span class="font-label-md text-label-md text-on-surface-variant mt-1 leading-relaxed">Your payment is processed securely through our 256-bit encrypted gateway.</span>
+</div>
+</div>
+</main>
+<!-- Fixed Bottom Action -->
+<div class="absolute bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant/30 p-margin-mobile pb-safe shadow-[0px_-4px_16px_rgba(0,0,0,0.05)] z-30">
+<button class="w-full bg-primary hover:bg-primary-container text-on-primary font-title-lg text-title-lg py-4 rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md group overflow-hidden relative">
+<div class="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:animate-[shimmer_1.5s_infinite]"></div>
+<span class="">Pay ₹75</span>
+<span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</div>
+</div>
+<style>
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; transform: translateY(-10px); }
+            to { opacity: 1; max-height: 200px; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+    </style>
+<script>
+        // Simple micro-interaction for radio buttons to collapse/expand areas
+        const radios = document.querySelectorAll('input[name="payment_method"]');
+        const upiArea = document.getElementById('upi-area');
+        
+        // In a real app, you'd have card and netbanking areas to toggle as well.
+        // For this UI mockup, we'll just demonstrate the active state logic.
+        
+        radios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                // Remove bold/primary styles from all labels
+                document.querySelectorAll('input[name="payment_method"]').forEach(r => {
+                    const labelSpan = r.nextElementSibling.nextElementSibling;
+                    const iconContainer = r.nextElementSibling;
+                    
+                    labelSpan.className = "font-body-lg text-body-lg text-on-surface flex-1 transition-all";
+                    iconContainer.className = "w-10 h-10 rounded-lg bg-surface-bright border border-outline-variant/50 flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors";
+                });
+
+                // Add active styles to selected
+                if(e.target.checked) {
+                    const labelSpan = e.target.nextElementSibling.nextElementSibling;
+                    const iconContainer = e.target.nextElementSibling;
+                    
+                    labelSpan.className = "font-title-lg text-title-lg text-on-surface flex-1 transition-all";
+                    iconContainer.className = "w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-primary transition-colors";
+                    iconContainer.style.border = "none";
+                }
+
+                if (e.target.value === 'upi') {
+                    upiArea.style.display = 'block';
+                    upiArea.style.animation = 'slideDown 0.3s ease-out forwards';
+                } else {
+                    upiArea.style.display = 'none';
+                }
+            });
+        });
+        
+        // Clear input interaction
+        const clearBtn = document.querySelector('button[aria-label="Clear field"]');
+        const upiInput = document.getElementById('upi-id');
+        
+        if(clearBtn && upiInput) {
+            clearBtn.addEventListener('click', () => {
+                upiInput.value = '';
+                upiInput.focus();
+            });
+        }
+    </script>
+
+
+</body></html>

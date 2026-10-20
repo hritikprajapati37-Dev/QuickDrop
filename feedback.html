@@ -1,0 +1,269 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>QuickDrop - Rate Your Delivery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#00714d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#d3e4fe",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-container-high": "#dce9ff",
+                        "outline-variant": "#c8c4d5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary-container": "#3730a3",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#a9a7ff",
+                        "on-background": "#0b1c30",
+                        "secondary-fixed-dim": "#4edea3",
+                        "inverse-surface": "#213145",
+                        "secondary": "#006c49",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-container": "#e5eeff",
+                        "on-primary-fixed": "#0f0069",
+                        "background": "#f8f9ff",
+                        "on-primary-fixed-variant": "#3b35a7",
+                        "tertiary-container": "#603b00",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "surface-tint": "#544fc0",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-tertiary-container": "#f49d09",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#e2dfff",
+                        "secondary-fixed": "#6ffbbe",
+                        "error-container": "#ffdad6",
+                        "primary": "#1f108e",
+                        "on-secondary-fixed": "#002113",
+                        "on-primary": "#ffffff",
+                        "outline": "#777584",
+                        "inverse-primary": "#c3c0ff",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary": "#422700",
+                        "on-surface-variant": "#464553",
+                        "surface": "#f8f9ff",
+                        "surface-container-low": "#eff4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "2xl": "48px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Public Sans"],
+                        "label-md": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "headline-lg": ["Public Sans"],
+                        "code-mono": ["Courier Prime"],
+                        "headline-lg-mobile": ["Public Sans"],
+                        "body-md": ["Public Sans"],
+                        "title-lg": ["Public Sans"],
+                        "headline-md": ["Public Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "code-mono": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            width: 390px;
+            height: 884px;
+            margin: 0 auto;
+            border: 1px solid #e2e8f0; /* Optional: just to visualize phone boundary if viewed on desktop */
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        /* Star Rating Logic */
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+        .star-rating label {
+            cursor: pointer;
+            color: theme('colors.outline-variant');
+            transition: color 0.2s ease, transform 0.1s ease;
+        }
+        .star-rating label:active {
+            transform: scale(0.9);
+        }
+        .star-rating label.active,
+        .star-rating label.active ~ label {
+            /* We use JS to handle visual state to allow 'filled' icon toggle */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased flex flex-col relative pb-2xl">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface-dim shadow-sm flex items-center justify-between px-margin-mobile h-16 z-10">
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-95 duration-150 text-on-surface-variant dark:text-outline">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex-1 text-center">
+<h1 class="font-title-lg text-title-lg text-primary dark:text-primary-fixed-dim m-0">Rate Your Delivery</h1>
+</div>
+<!-- Placeholder for balance to keep title centered -->
+<div class="w-10 h-10"></div>
+</header>
+<main class="flex-1 px-margin-mobile py-lg flex flex-col gap-lg">
+<!-- Header Text -->
+<section class="text-center">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-xs">How was your QuickDrop delivery?</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Your feedback helps us improve our service.</p>
+</section>
+<!-- Order Summary Card -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-surface-container p-md flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-unit">
+<span class="font-label-md text-label-md text-secondary uppercase tracking-wider">Delivered</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Today · 2:28 PM</span>
+</div>
+<div class="font-title-lg text-title-lg text-on-surface">Order #QD-9284</div>
+</div>
+</section>
+<!-- Delivery Partner Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] border border-surface-container p-md flex items-center gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-surface-container-high bg-surface-container">
+<img alt="Rahul Sharma Avatar" class="w-full h-full object-cover" data-alt="A close-up professional headshot of a delivery driver smiling warmly. The lighting is bright and even, highlighting a trustworthy expression. The background is a soft, blurred urban setting in daylight. The overall aesthetic is clean, modern, and reassuring, fitting a premium logistics app in light mode." src="https://lh3.googleusercontent.com/aida-public/AB6AXuANh3pgSZb-PJlcNsr5bW2RkHlsnoieVBzfh9jJ464QEg1N815NkDMfQ6SaPKZA6YlgS-A_XPs00ub_8uf3H3BnIvxL6NWMDwjGYfi3ZiOB-h8d2u-g_0-9I8poTPUrp_4Bd8rhhhG-tQpQDjeSnp3hyuG9JUiyJYzsLJj0cXp97DReLWWLBfMdaTurhdzLTswogyFp8m5XmH2TxODnt8S39WQDOyDwZE3LkzRemsN-P6Xs4Jy_DLxQ4w">
+</div>
+<div class="flex-1">
+<div class="font-title-lg text-title-lg text-on-surface">Rahul Sharma</div>
+<div class="font-body-md text-body-md text-on-surface-variant">Delivery Partner</div>
+</div>
+</section>
+<hr class="border-t border-outline-variant/30 my-sm">
+<!-- Rating Section -->
+<section class="flex flex-col items-center gap-md">
+<h3 class="font-title-lg text-title-lg text-on-surface text-center">How would you rate this delivery?</h3>
+<div class="star-rating flex items-center justify-center gap-unit" id="star-container">
+<!-- Stars rendered via JS for interactive toggle -->
+</div>
+</section>
+<!-- Quick Feedback Tags -->
+<section class="flex flex-col gap-sm">
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Quick Feedback</h4>
+<div class="flex flex-wrap gap-sm">
+<button class="feedback-chip px-md py-sm rounded-full border border-outline-variant text-on-surface font-body-md text-body-md hover:bg-surface-container-low active:scale-95 transition-all">Fast delivery</button>
+<button class="feedback-chip px-md py-sm rounded-full border border-outline-variant text-on-surface font-body-md text-body-md hover:bg-surface-container-low active:scale-95 transition-all">Professional</button>
+<button class="feedback-chip px-md py-sm rounded-full border border-outline-variant text-on-surface font-body-md text-body-md hover:bg-surface-container-low active:scale-95 transition-all">Package handled carefully</button>
+<button class="feedback-chip px-md py-sm rounded-full border border-outline-variant text-on-surface font-body-md text-body-md hover:bg-surface-container-low active:scale-95 transition-all">Good communication</button>
+<button class="feedback-chip px-md py-sm rounded-full border border-outline-variant text-on-surface font-body-md text-body-md hover:bg-surface-container-low active:scale-95 transition-all">On time</button>
+</div>
+</section>
+<!-- Written Review -->
+<section class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider" for="review-text">Tell us about your experience</label>
+<textarea class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface p-md font-body-md text-body-md placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none" id="review-text" placeholder="Write a short review..." rows="4"></textarea>
+</section>
+</main>
+<!-- Bottom Submit Button Container -->
+<div class="fixed bottom-0 left-0 w-[390px] bg-surface-container-lowest/90 backdrop-blur-md p-margin-mobile border-t border-outline-variant/30 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] z-20">
+<button class="w-full bg-primary text-on-primary font-title-lg text-title-lg py-md rounded-lg flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all">
+            Submit Feedback
+        </button>
+</div>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Star Rating Logic
+            const starContainer = document.getElementById('star-container');
+            const totalStars = 5;
+            let currentRating = 0;
+
+            for (let i = 1; i <= totalStars; i++) {
+                const starLabel = document.createElement('label');
+                starLabel.setAttribute('for', `star${i}`);
+                starLabel.className = 'w-12 h-12 flex items-center justify-center text-outline-variant transition-colors cursor-pointer active:scale-90';
+                
+                const starIcon = document.createElement('span');
+                starIcon.className = 'material-symbols-outlined text-[40px]';
+                starIcon.setAttribute('data-icon', 'star');
+                starIcon.style.fontVariationSettings = "'FILL' 0";
+                starIcon.textContent = 'star';
+                
+                starLabel.appendChild(starIcon);
+
+                starLabel.addEventListener('click', () => {
+                    currentRating = i;
+                    updateStars();
+                });
+
+                starContainer.appendChild(starLabel);
+            }
+
+            function updateStars() {
+                const labels = starContainer.querySelectorAll('label');
+                labels.forEach((label, index) => {
+                    const icon = label.querySelector('span');
+                    if (index < currentRating) {
+                        label.classList.remove('text-outline-variant');
+                        label.classList.add('text-primary');
+                        icon.style.fontVariationSettings = "'FILL' 1";
+                    } else {
+                        label.classList.remove('text-primary');
+                        label.classList.add('text-outline-variant');
+                        icon.style.fontVariationSettings = "'FILL' 0";
+                    }
+                });
+            }
+
+            // Chip Selection Logic
+            const chips = document.querySelectorAll('.feedback-chip');
+            chips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chip.classList.toggle('bg-primary-container');
+                    chip.classList.toggle('text-on-primary-container');
+                    chip.classList.toggle('border-primary-container');
+                    chip.classList.toggle('border-outline-variant');
+                });
+            });
+        });
+    </script>
+</body></html>

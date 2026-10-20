@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/senderDashboardFragment"
+        android:icon="@drawable/ic_grid_view"
+        android:title="Home" />
+    <item
+        android:id="@+id/deliveriesFragment"
+        android:icon="@drawable/ic_local_shipping"
+        android:title="Deliveries" />
+    <item
+        android:id="@+id/orderHistorySenderFragment"
+        android:icon="@drawable/ic_history"
+        android:title="History" />
+    <item
+        android:id="@+id/senderProfileFragment"
+        android:icon="@drawable/ic_user_circle"
+        android:title="Profile" />
+</menu>

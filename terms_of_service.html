@@ -1,0 +1,220 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Terms of Service - QuickDrop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&amp;family=Courier+Prime&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#3730a3",
+                      "secondary-fixed-dim": "#4edea3",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed-variant": "#3b35a7",
+                      "inverse-surface": "#213145",
+                      "tertiary-container": "#603b00",
+                      "on-tertiary": "#ffffff",
+                      "surface-bright": "#f8f9ff",
+                      "surface-variant": "#d3e4fe",
+                      "surface-tint": "#544fc0",
+                      "error-container": "#ffdad6",
+                      "on-secondary": "#ffffff",
+                      "background": "#f8f9ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "secondary": "#006c49",
+                      "surface": "#f8f9ff",
+                      "surface-container-low": "#eff4ff",
+                      "on-secondary-fixed": "#002113",
+                      "surface-dim": "#cbdbf5",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-surface": "#0b1c30",
+                      "on-surface-variant": "#464553",
+                      "on-secondary-container": "#00714d",
+                      "inverse-primary": "#c3c0ff",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "outline": "#777584",
+                      "on-tertiary-container": "#f49d09",
+                      "primary-fixed": "#e2dfff",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "tertiary": "#422700",
+                      "on-primary-container": "#a9a7ff",
+                      "outline-variant": "#c8c4d5",
+                      "on-primary-fixed": "#0f0069",
+                      "secondary-fixed": "#6ffbbe",
+                      "primary": "#1f108e",
+                      "surface-container": "#e5eeff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#6cf8bb",
+                      "on-background": "#0b1c30",
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed": "#2a1700"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "2xl": "48px",
+                      "xs": "4px",
+                      "gutter": "16px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "margin-mobile": "16px",
+                      "md": "16px",
+                      "unit": "4px",
+                      "margin-desktop": "32px",
+                      "sm": "8px"
+              },
+              "fontFamily": {
+                      "headline-lg-mobile": ["Public Sans"],
+                      "body-lg": ["Public Sans"],
+                      "display-lg": ["Public Sans"],
+                      "label-md": ["Public Sans"],
+                      "code-mono": ["Courier Prime"],
+                      "body-md": ["Public Sans"],
+                      "title-lg": ["Public Sans"],
+                      "headline-lg": ["Public Sans"],
+                      "headline-md": ["Public Sans"]
+              },
+              "fontSize": {
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "code-mono": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            /* Mobile screen constraint simulation for preview */
+            max-width: 390px;
+            margin: 0 auto;
+            min-height: 884px;
+            background-color: #f8f9ff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+        .tos-section h2 {
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+        .tos-section p, .tos-section ul {
+            margin-bottom: 16px;
+        }
+        .tos-section ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .tos-section li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+        .tos-section li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #1f108e; /* primary color */
+            font-weight: bold;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface bg-background flex flex-col h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface shadow-sm z-50 flex items-center justify-between px-margin-mobile py-sm">
+<button aria-label="Go back" class="text-primary hover:bg-surface-container-low transition-colors active:scale-95 transition-transform p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary flex-1 text-center pr-10">Terms of Service</h1>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto px-margin-mobile py-lg pb-2xl bg-surface-container-lowest rounded-t-xl mt-sm shadow-[0px_-4px_12px_rgba(0,0,0,0.05)] h-full relative z-10">
+<div class="mb-lg border-b border-outline-variant pb-md">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-xs">QuickDrop Terms of Service</h1>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-md">Last updated: August 2026</p>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">These Terms of Service govern your use of QuickDrop's delivery services and platform.</p>
+</div>
+<div class="tos-section text-on-surface-variant font-body-md space-y-md">
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">1. About QuickDrop</h2>
+<p>QuickDrop provides a platform that connects senders seeking delivery services with independent delivery partners willing to provide such services.</p>
+</section>
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">2. Sender Responsibilities</h2>
+<ul>
+<li>Provide accurate pickup and delivery information.</li>
+<li>Ensure items are securely and appropriately packaged.</li>
+<li>Do not send prohibited items.</li>
+<li>Provide correct receiver contact information.</li>
+<li>Make required payments for the requested services.</li>
+</ul>
+</section>
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">3. Delivery Partner Responsibilities</h2>
+<ul>
+<li>Accept delivery requests based on personal availability.</li>
+<li>Collect packages from the correct sender.</li>
+<li>Verify the One-Time Password (OTP) during pickup.</li>
+<li>Handle all items with care during transit.</li>
+<li>Verify the receiver's OTP at the destination.</li>
+<li>Provide proof of delivery as required by the platform.</li>
+</ul>
+</section>
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">4. Prohibited Items</h2>
+<p>Users are strictly prohibited from using the platform to send illegal goods, dangerous materials, weapons, or explosives. Violation of this term will result in immediate account termination and potential legal action.</p>
+</section>
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">5. Payments</h2>
+<p>Payments for services must be made using the supported methods listed within the application. Transaction records will be maintained and accessible via your user account.</p>
+</section>
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">6. Delivery and Liability</h2>
+<p>Delivery times are estimates and subject to variation due to external factors such as traffic and weather conditions. Users are responsible for the accuracy of provided information. QuickDrop maintains limited liability for delays or damages caused by events outside its reasonable control.</p>
+</section>
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">7. Account Use</h2>
+<p>You must maintain accurate account information, protect your login credentials, and use the platform only for lawful purposes.</p>
+</section>
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">8. Suspension or Termination</h2>
+<p>QuickDrop reserves the right to suspend or terminate accounts for violations of these Terms, suspected fraud, or misuse of the platform.</p>
+</section>
+<section>
+<h2 class="font-title-lg text-title-lg text-on-surface">9. Changes to These Terms</h2>
+<p>We may update these terms periodically. Updates will be made available through the platform, and continued use constitutes acceptance of the new terms.</p>
+</section>
+<section class="pb-xl">
+<h2 class="font-title-lg text-title-lg text-on-surface">10. Contact</h2>
+<p>For inquiries or concerns regarding these Terms of Service, please contact us through the dedicated support channel within the app.</p>
+</section>
+</div>
+</main>
+</body></html>
