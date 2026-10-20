@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
+import com.example.quick_drop.utils.UserSession;
 
 public class EditPartnerProfileFragment extends Fragment {
 
@@ -22,11 +24,28 @@ public class EditPartnerProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        EditText etFullName = view.findViewById(R.id.etFullName);
+        EditText etPhone = view.findViewById(R.id.etPhone);
+
+        if (etFullName != null) {
+            etFullName.setText(UserSession.getUserName(requireContext()));
+        }
+        if (etPhone != null) {
+            etPhone.setText(UserSession.getUserPhone(requireContext()));
+        }
+
         view.findViewById(R.id.btnBack).setOnClickListener(v -> 
             Navigation.findNavController(v).navigateUp());
 
-        view.findViewById(R.id.btnSave).setOnClickListener(v -> 
-            Navigation.findNavController(v).navigateUp());
+        view.findViewById(R.id.btnSave).setOnClickListener(v -> {
+            if (etFullName != null && etFullName.getText() != null) {
+                String newName = etFullName.getText().toString().trim();
+                if (!newName.isEmpty()) {
+                    UserSession.registerUser(requireContext(), newName, UserSession.getUserPhone(requireContext()), UserSession.getUserRole(requireContext()), UserSession.getToken(requireContext()));
+                }
+            }
+            Navigation.findNavController(v).navigateUp();
+        });
 
         view.findViewById(R.id.btnCancel).setOnClickListener(v -> 
             Navigation.findNavController(v).navigateUp());

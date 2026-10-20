@@ -142,7 +142,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPersonName"
-                            android:text="Alex Sharma"
+                            android:hint="Full Name"
                             android:textColor="@color/vf_on_surface" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -169,7 +169,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="phone"
-                            android:text="+91 XXXXX XXXXX"
+                            android:hint="Phone Number"
                             android:textColor="@color/vf_on_surface" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -196,7 +196,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textEmailAddress"
-                            android:text="Not added"
+                            android:hint="Email Address"
                             android:textColor="@color/vf_on_surface_variant" />
                     </com.google.android.material.textfield.TextInputLayout>
 
