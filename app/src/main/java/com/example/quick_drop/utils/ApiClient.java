@@ -9,15 +9,22 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ApiClient {
-    // TODO: Replace this with your PC's actual IPv4 address obtained via 'ipconfig' (e.g. "192.168.1.50")
-    private static final String PHYSICAL_PC_LAN_IP = "192.168.0.101";
+    // Production Render Backend URL over HTTPS
+    private static final String PRODUCTION_URL = "https://quickdrop-bhd9.onrender.com";
+
+    // Local development configuration (Set USE_LOCAL_DEV to true when running Flask locally)
+    private static final boolean USE_LOCAL_DEV = false;
+    private static final String LOCAL_PC_LAN_IP = "192.168.0.101";
 
     private static String getBaseUrl() {
-        if (isEmulator()) {
-            return "http://10.0.2.2:5000";
-        } else {
-            return "http://" + PHYSICAL_PC_LAN_IP + ":5000";
+        if (USE_LOCAL_DEV) {
+            if (isEmulator()) {
+                return "http://10.0.2.2:5000";
+            } else {
+                return "http://" + LOCAL_PC_LAN_IP + ":5000";
+            }
         }
+        return PRODUCTION_URL;
     }
 
     private static boolean isEmulator() {
