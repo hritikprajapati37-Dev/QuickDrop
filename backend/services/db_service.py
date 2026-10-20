@@ -1,4 +1,5 @@
 import os
+import sys
 from pymongo import MongoClient
 import certifi
 from dotenv import load_dotenv
@@ -121,8 +122,9 @@ def init_db(testing=False):
     if db is not None and not testing:
         return db
 
-    # If testing mode, always use singleton mock DB
-    if testing:
+    is_running_tests = 'unittest' in sys.modules or testing or os.environ.get("FLASK_ENV") == "testing"
+
+    if is_running_tests:
         if _mock_db_singleton is None:
             _mock_db_singleton = MockDatabase()
         db = _mock_db_singleton
@@ -131,22 +133,16 @@ def init_db(testing=False):
     try:
         uri = MONGO_URI.strip() if MONGO_URI else ""
         if not uri:
-            if _mock_db_singleton is None:
-                _mock_db_singleton = MockDatabase()
-            db = _mock_db_singleton
-            return db
+            raise ValueError("MONGO_URI environment variable is not set.")
 
-        mongo_client = MongoClient(uri, tlsCAFile=certifi.where(), serverSelectionTimeoutMS=3000)
+        mongo_client = MongoClient(uri, tlsCAFile=certifi.where(), serverSelectionTimeoutMS=5000)
         mongo_client.admin.command('ping')
         db = mongo_client["quick_dropDB"]
         print("Successfully connected to MongoDB Atlas database: quick_dropDB")
         return db
     except Exception as e:
-        print(f"Failed to connect to MongoDB Atlas ({e}). Falling back to in-memory mock database.")
-        if _mock_db_singleton is None:
-            _mock_db_singleton = MockDatabase()
-        db = _mock_db_singleton
-        return db
+        print(f"CRITICAL: Failed to connect to MongoDB Atlas: {e}")
+        raise e
 
 def get_db():
     global db, _mock_db_singleton
