@@ -122,7 +122,8 @@
                 style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/stitch_sm">
+                android:layout_marginTop="@dimen/stitch_sm"
+                android:visibility="gone">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -134,7 +135,7 @@
                         style="@style/Stitch.Typography.CodeMono"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="#QD-9284"
+                        android:text=""
                         android:textColor="@color/vf_on_surface_variant"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -178,7 +179,7 @@
                         style="@style/Stitch.Typography.TitleLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2:30 PM"
+                        android:text=""
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvEstLabel" />
 
@@ -238,7 +239,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="123 Tech Park"
+                            android:text=""
                             android:textColor="@color/vf_on_background"
                             app:layout_constraintStart_toStartOf="@id/tvPickupLabel"
                             app:layout_constraintTop_toBottomOf="@id/tvPickupLabel" />
@@ -269,7 +270,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="456 Elm Street"
+                            android:text=""
                             android:textColor="@color/vf_on_background"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="@id/tvPickupLabel"
