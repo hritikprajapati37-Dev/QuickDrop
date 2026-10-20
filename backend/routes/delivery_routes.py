@@ -38,7 +38,6 @@ def verify_pickup():
     if order.get("pickup_otp_attempts", 0) >= 3:
         return jsonify({"error": "Too many failed attempts. Request new OTP."}), 429
 
-    print("EXPIRY CHECK NOW:", datetime.utcnow(), "EXPIRY:", order.get("pickup_otp_expiry"))
     if datetime.utcnow() > order.get("pickup_otp_expiry", datetime.min):
         return jsonify({"error": "Pickup OTP has expired"}), 400
 
@@ -133,4 +132,57 @@ def verify_delivery():
     return jsonify({
         "message": "Delivery and handover confirmed successfully",
         "status": "DELIVERED"
+    }), 200
+
+@delivery_bp.route("/api/partner/available", methods=["GET"], endpoint="partner_available")
+@token_required
+@role_required("PARTNER")
+def partner_available():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    orders = list(db["orders"].find({"$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}, {"status": "CREATED"}]}).sort("created_at", -1))
+    for o in orders:
+        o["order_id"] = str(o["_id"])
+        del o["_id"]
+    return jsonify({"requests": orders}), 200
+
+@delivery_bp.route("/api/delivery/accept", methods=["POST"], endpoint="partner_accept")
+@token_required
+@role_required("PARTNER")
+def partner_accept():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    order_id = data.get("order_id")
+    partner_phone = request.user.get("phone")
+    if not order_id:
+        return jsonify({"error": "Missing order_id"}), 400
+    try:
+        obj_id = ObjectId(order_id)
+    except Exception:
+        return jsonify({"error": "Invalid order ID"}), 400
+    result = db["orders"].update_one(
+        {"_id": obj_id},
+        {"$set": {"assigned_partner": partner_phone, "status": "ASSIGNED"}}
+    )
+    if result.modified_count == 0:
+        return jsonify({"error": "Order not found or already assigned"}), 400
+    return jsonify({"message": "Order accepted successfully"}), 200
+
+@delivery_bp.route("/api/partner/earnings", methods=["GET"], endpoint="partner_earnings")
+@token_required
+@role_required("PARTNER")
+def partner_earnings():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    phone = request.user.get("phone")
+    completed_orders = list(db["orders"].find({"assigned_partner": phone, "delivered": True}))
+    total_earnings = len(completed_orders) * 150.0
+    return jsonify({
+        "total_earnings": total_earnings,
+        "completed_deliveries": len(completed_orders),
+        "currency": "₹"
     }), 200
