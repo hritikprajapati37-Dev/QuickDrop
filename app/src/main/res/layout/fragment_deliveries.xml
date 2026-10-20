@@ -50,18 +50,21 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvActiveCount"
                 style="@style/Stitch.Typography.BodyMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="1 active delivery" />
+                android:text="0 active deliveries" />
 
             <!-- Active Delivery Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardDelivery"
                 style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/stitch_lg"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/white"
                 app:cardElevation="6dp"
                 app:strokeWidth="0dp">
@@ -82,7 +85,7 @@
                             style="@style/Stitch.Typography.CodeMono"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="#QD-9284"
+                            android:text=""
                             android:textStyle="bold"
                             android:textColor="@color/vf_on_surface"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -141,10 +144,11 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
+                            android:id="@+id/tvETA"
                             style="@style/Stitch.Typography.HeadlineMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2:30 PM"
+                            android:text=""
                             android:textColor="@color/vf_primary"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -190,10 +194,11 @@
                             app:layout_constraintTop_toTopOf="@id/ivPickup" />
 
                         <TextView
+                            android:id="@+id/tvPickupVal"
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="123 Tech Park"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="@id/tvPickupLabel"
@@ -220,10 +225,11 @@
                             app:layout_constraintTop_toTopOf="@id/ivDest" />
 
                         <TextView
+                            android:id="@+id/tvDestVal"
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="456 Elm Street"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="@id/tvDestLabel"
