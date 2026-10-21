@@ -27,8 +27,13 @@ import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -74,6 +79,11 @@ public class CreateDeliveryFragment extends Fragment {
         tvPickupPrimary = view.findViewById(R.id.tvPickupPrimary);
         tvPickupSecondary = view.findViewById(R.id.tvPickupSecondary);
 
+        TextInputLayout tilDeliveryAddress = view.findViewById(R.id.tilDeliveryAddress);
+        if (tilDeliveryAddress != null) {
+            tilDeliveryAddress.setEndIconOnClickListener(v -> showLocationPickerOptions());
+        }
+
         // Initially empty until loaded from past orders or user taps current location
         if (tvPickupPrimary != null) tvPickupPrimary.setText("No pickup location selected");
         if (tvPickupSecondary != null) tvPickupSecondary.setText("Tap 'Use Current Location' below");
@@ -86,6 +96,75 @@ public class CreateDeliveryFragment extends Fragment {
         }
 
         view.findViewById(R.id.btnNext).setOnClickListener(this::submitOrder);
+    }
+
+    private void showLocationPickerOptions() {
+        CharSequence[] options = new CharSequence[]{"Type Address Manually", "Pick Location on Map"};
+        new MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Select Delivery Location Method")
+            .setItems(options, (dialog, which) -> {
+                if (which == 0) {
+                    if (etDeliveryAddress != null) {
+                        etDeliveryAddress.requestFocus();
+                        Toast.makeText(getContext(), "Please type your complete delivery address", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    showMapPickerDialog();
+                }
+            })
+            .show();
+    }
+
+    private void showMapPickerDialog() {
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_map_picker, null);
+        MapView dialogMapView = dialogView.findViewById(R.id.dialogMapView);
+        
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Tap destination on map (Max 5 km radius)")
+            .setView(dialogView)
+            .setNegativeButton("Cancel", null);
+
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        if (dialogMapView != null) {
+            dialogMapView.onCreate(null);
+            dialogMapView.onResume();
+            dialogMapView.getMapAsync(map -> {
+                LatLng defaultLoc = new LatLng(currentLat, currentLng);
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLoc, 14f));
+                map.getUiSettings().setZoomControlsEnabled(true);
+                map.setOnMapClickListener(latLng -> {
+                    map.clear();
+                    map.addMarker(new MarkerOptions().position(latLng).title("Selected Delivery Location"));
+                    
+                    try {
+                        Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                        List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                        String addrStr = "Location (" + String.format(Locale.getDefault(), "%.4f", latLng.latitude) + ", " + String.format(Locale.getDefault(), "%.4f", latLng.longitude) + ")";
+                        if (addresses != null && !addresses.isEmpty()) {
+                            String line = addresses.get(0).getAddressLine(0);
+                            if (line != null) addrStr = line;
+                        }
+                        
+                        float[] results = new float[1];
+                        android.location.Location.distanceBetween(currentLat, currentLng, latLng.latitude, latLng.longitude, results);
+                        float distKm = results[0] / 1000f;
+                        
+                        if (distKm > 5.0f) {
+                            Toast.makeText(getContext(), "Selected location is out of range (> 5 km radius limit: " + String.format(Locale.getDefault(), "%.1f", distKm) + " km)", Toast.LENGTH_LONG).show();
+                        } else {
+                            if (etDeliveryAddress != null) etDeliveryAddress.setText(addrStr);
+                            Toast.makeText(getContext(), "Delivery location selected successfully!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
+                    } catch (Exception e) {
+                        if (etDeliveryAddress != null) etDeliveryAddress.setText("Lat: " + latLng.latitude + ", Lng: " + latLng.longitude);
+                        dialog.dismiss();
+                    }
+                });
+            });
+        }
     }
 
     private void loadPastPickupAddress() {
@@ -234,7 +313,6 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
-        // Forward geocode delivery address to calculate 5 km radius limit
         double deliveryLat = currentLat + 0.01;
         double deliveryLng = currentLng + 0.01;
         try {

@@ -255,6 +255,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilDeliveryAddress"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -265,10 +266,10 @@
                         app:boxStrokeWidthFocused="0dp"
                         app:endIconDrawable="@drawable/ic_location"
                         app:endIconMode="custom"
-                        app:endIconTint="@color/vf_outline"
+                        app:endIconTint="@color/vf_primary"
                         app:expandedHintEnabled="false"
                         app:hintTextColor="@color/vf_primary"
-                        app:placeholderText="Enter complete delivery address">
+                        app:placeholderText="Tap icon for Map / manual address">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etDeliveryAddress"
