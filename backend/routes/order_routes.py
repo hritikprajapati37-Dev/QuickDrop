@@ -137,6 +137,10 @@ def user_dashboard():
     phone = request.user.get("phone")
     role = request.user.get("role", "SENDER")
 
+    users_collection = db["users"]
+    user_doc = users_collection.find_one({"phone": phone})
+    name = user_doc.get("name", "User") if user_doc else request.user.get("name", "User")
+
     orders_collection = db["orders"]
 
     if role == "SENDER":
@@ -175,7 +179,7 @@ def user_dashboard():
         recent_orders.append(o)
 
     return jsonify({
-        "name": request.user.get("name", "User"),
+        "name": name,
         "phone": phone,
         "role": role,
         "counts": {
