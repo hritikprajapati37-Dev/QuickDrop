@@ -347,29 +347,46 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
-        double deliveryLat = currentLat + 0.01;
-        double deliveryLng = currentLng + 0.01;
+        // 1. Geocode pickupAddressStr to resolve true pickup coordinates
+        double pickupLat = currentLat;
+        double pickupLng = currentLng;
         try {
             Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
-            List<Address> addresses = geocoder.getFromLocationName(deliveryAddress, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address addr = addresses.get(0);
-                deliveryLat = addr.getLatitude();
-                deliveryLng = addr.getLongitude();
+            List<Address> pickupAddrs = geocoder.getFromLocationName(pickupAddressStr, 1);
+            if (pickupAddrs != null && !pickupAddrs.isEmpty()) {
+                Address pAddr = pickupAddrs.get(0);
+                pickupLat = pAddr.getLatitude();
+                pickupLng = pAddr.getLongitude();
+            }
+        } catch (Exception e) {
+            // fallback
+        }
+
+        // 2. Geocode deliveryAddress to resolve true delivery coordinates
+        double deliveryLat = pickupLat + 0.01;
+        double deliveryLng = pickupLng + 0.01;
+        try {
+            Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+            List<Address> deliveryAddrs = geocoder.getFromLocationName(deliveryAddress, 1);
+            if (deliveryAddrs != null && !deliveryAddrs.isEmpty()) {
+                Address dAddr = deliveryAddrs.get(0);
+                deliveryLat = dAddr.getLatitude();
+                deliveryLng = dAddr.getLongitude();
             }
         } catch (Exception e) {
             // fallback offset
         }
 
+        // 3. Compute accurate distance between true pickup and true delivery locations
         float[] results = new float[1];
-        android.location.Location.distanceBetween(currentLat, currentLng, deliveryLat, deliveryLng, results);
+        android.location.Location.distanceBetween(pickupLat, pickupLng, deliveryLat, deliveryLng, results);
         float distanceInKm = results[0] / 1000f;
 
         if (distanceInKm > 5.0f) {
             if (etDeliveryAddress != null) {
                 etDeliveryAddress.setError("Out of range (> 5 km radius limit)");
             }
-            Toast.makeText(getContext(), "Delivery address is out of range. Maximum allowed radius is 5 km (Calculated: " + String.format(Locale.getDefault(), "%.1f", distanceInKm) + " km).", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Pickup and delivery locations are " + String.format(Locale.getDefault(), "%.1f", distanceInKm) + " km apart. Maximum allowed radius is 5.0 km.", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -381,7 +398,7 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
-        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, currentLat, currentLng, deliveryLat, deliveryLng, new ApiClient.ApiCallback() {
+        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, pickupLat, pickupLng, deliveryLat, deliveryLng, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
