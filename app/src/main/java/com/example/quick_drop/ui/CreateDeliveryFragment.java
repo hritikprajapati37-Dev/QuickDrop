@@ -102,7 +102,7 @@ public class CreateDeliveryFragment extends Fragment {
                         JSONObject latestOrder = orders.optJSONObject(0);
                         if (latestOrder != null) {
                             String pastPickup = latestOrder.optString("pickup_address", "");
-                            if (!pastPickup.isEmpty() && !pastPickup.contains("123 Tech Park")) {
+                            if (!pastPickup.isEmpty() && !pastPickup.contains("No pickup")) {
                                 pickupAddressStr = pastPickup;
                                 if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
                                 if (tvPickupSecondary != null) tvPickupSecondary.setText("From your previous order");
@@ -234,6 +234,33 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
+        // Forward geocode delivery address to calculate 5 km radius limit
+        double deliveryLat = currentLat + 0.01;
+        double deliveryLng = currentLng + 0.01;
+        try {
+            Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocationName(deliveryAddress, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address addr = addresses.get(0);
+                deliveryLat = addr.getLatitude();
+                deliveryLng = addr.getLongitude();
+            }
+        } catch (Exception e) {
+            // fallback offset
+        }
+
+        float[] results = new float[1];
+        android.location.Location.distanceBetween(currentLat, currentLng, deliveryLat, deliveryLng, results);
+        float distanceInKm = results[0] / 1000f;
+
+        if (distanceInKm > 5.0f) {
+            if (etDeliveryAddress != null) {
+                etDeliveryAddress.setError("Out of range (> 5 km radius limit)");
+            }
+            Toast.makeText(getContext(), "Delivery address is out of range. Maximum allowed radius is 5 km (Calculated: " + String.format(Locale.getDefault(), "%.1f", distanceInKm) + " km).", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         String itemDesc = (!itemName.isEmpty() ? itemName : "Package") + " (" + category + ")";
 
         String token = UserSession.getToken(requireContext());
@@ -242,12 +269,12 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
-        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, currentLat, currentLng, currentLat + 0.02, currentLng + 0.02, new ApiClient.ApiCallback() {
+        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, currentLat, currentLng, deliveryLat, deliveryLng, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Order created successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Order created successfully within 5 km radius!", Toast.LENGTH_SHORT).show();
                     Navigation.findNavController(v).navigate(R.id.action_createDelivery_to_orderConfirmation);
                 });
             }
