@@ -85,7 +85,8 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     app:srcCompat="@drawable/ic_my_location"
-                    app:tint="@color/vf_primary" />
+                    app:tint="@color/vf_primary"
+                    android:contentDescription="Pickup Icon" />
 
                 <TextView
                     style="@style/Stitch.Typography.TitleLarge"
@@ -125,7 +126,8 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             app:srcCompat="@drawable/ic_location"
-                            app:tint="@color/vf_outline" />
+                            app:tint="@color/vf_outline"
+                            android:contentDescription="Location Icon" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -176,7 +178,8 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     app:srcCompat="@drawable/ic_user"
-                    app:tint="@color/vf_primary" />
+                    app:tint="@color/vf_primary"
+                    android:contentDescription="Receiver Icon" />
 
                 <TextView
                     style="@style/Stitch.Typography.TitleLarge"
@@ -216,6 +219,7 @@
                         app:placeholderText="Enter receiver name">
 
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etReceiverName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingTop="24dp"
@@ -239,6 +243,7 @@
                         app:placeholderText="Enter 10-digit phone number">
 
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etReceiverPhone"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="phone"
@@ -263,6 +268,7 @@
                         app:placeholderText="Enter complete delivery address">
 
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDeliveryAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPostalAddress"
@@ -284,7 +290,8 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     app:srcCompat="@drawable/ic_package"
-                    app:tint="@color/vf_primary" />
+                    app:tint="@color/vf_primary"
+                    android:contentDescription="Package Icon" />
 
                 <TextView
                     style="@style/Stitch.Typography.TitleLarge"
@@ -347,6 +354,7 @@
                         app:placeholderText="Enter item name">
 
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etItemName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingTop="24dp"
