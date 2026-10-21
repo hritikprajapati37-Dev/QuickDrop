@@ -103,13 +103,14 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
+                            android:id="@+id/tvOrderNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@drawable/shape_pill_white"
                             android:backgroundTint="#E8EFFF"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="4dp"
-                            android:text="#QD-9284"
+                            android:text=""
                             android:textColor="@color/vf_primary"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
@@ -123,6 +124,7 @@
                         android:layout_marginVertical="@dimen/stitch_md"
                         android:background="@color/vf_surface_container" />
 
+                    <!-- Delivery Charge -->
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
@@ -134,19 +136,50 @@
                             android:text="Delivery Charge" />
 
                         <TextView
+                            android:id="@+id/tvDeliveryCharge"
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:text="₹75"
+                            android:text="₹0.00"
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
+                    <!-- Platform Fee -->
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/stitch_md">
+                        android:layout_marginTop="@dimen/stitch_sm">
+
+                        <TextView
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Platform Fee" />
+
+                        <TextView
+                            android:id="@+id/tvPlatformFee"
+                            style="@style/Stitch.Typography.BodyMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="₹2.00"
+                            android:textColor="@color/vf_on_surface"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="@dimen/stitch_md"
+                        android:background="@drawable/dashed_divider"
+                        android:alpha="0.3" />
+
+                    <!-- Total Payable -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
                         <TextView
                             style="@style/Stitch.Typography.TitleLarge"
@@ -156,11 +189,12 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvTotalPayable"
                             style="@style/Stitch.Typography.TitleLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:text="₹75"
+                            android:text="₹0.00"
                             android:textColor="@color/vf_primary"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -214,7 +248,8 @@
                             android:background="#F0F4FF"
                             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
                             app:srcCompat="@drawable/ic_payments"
-                            app:tint="@color/vf_primary" />
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="UPI Icon" />
 
                         <TextView
                             style="@style/Stitch.Typography.BodyLarge"
@@ -252,7 +287,8 @@
                             android:background="#F0F4FF"
                             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
                             app:srcCompat="@drawable/ic_credit_card"
-                            app:tint="@color/vf_primary" />
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="Card Icon" />
 
                         <TextView
                             style="@style/Stitch.Typography.BodyLarge"
@@ -290,7 +326,8 @@
                             android:background="#F0F4FF"
                             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
                             app:srcCompat="@drawable/ic_bank"
-                            app:tint="@color/vf_primary" />
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="Bank Icon" />
 
                         <TextView
                             style="@style/Stitch.Typography.BodyLarge"
@@ -323,7 +360,8 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         app:srcCompat="@drawable/ic_verified"
-                        app:tint="@color/vf_primary" />
+                        app:tint="@color/vf_primary"
+                        android:contentDescription="Verified Icon" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -359,7 +397,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_margin="@dimen/stitch_margin_mobile"
-        android:text="Pay ₹75"
+        android:text="Pay ₹0.00"
         android:textStyle="bold"
         app:cornerRadius="28dp"
         app:icon="@drawable/ic_arrow_forward"
