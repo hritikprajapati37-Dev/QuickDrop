@@ -50,7 +50,8 @@
                     android:layout_height="48dp"
                     android:layout_gravity="center"
                     app:srcCompat="@drawable/ic_check_circle"
-                    app:tint="@color/vf_secondary" />
+                    app:tint="@color/vf_secondary"
+                    android:contentDescription="Success Icon" />
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
@@ -102,10 +103,11 @@
                             android:text="Order Number" />
 
                         <TextView
+                            android:id="@+id/tvOrderNumber"
                             style="@style/Stitch.Typography.CodeMono"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="#QD-9284"
+                            android:text=""
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -123,10 +125,11 @@
                             android:text="Amount Paid" />
 
                         <TextView
+                            android:id="@+id/tvAmountPaid"
                             style="@style/Stitch.Typography.BodyLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₹75"
+                            android:text="₹0.00"
                             android:textStyle="bold"
                             android:textColor="@color/vf_primary" />
                     </LinearLayout>
@@ -190,10 +193,11 @@
                             app:layout_constraintTop_toTopOf="@id/pickupPoint" />
 
                         <TextView
+                            android:id="@+id/tvPickupAddress"
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="123 Tech Park"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="@id/tvPickupLabel"
@@ -221,10 +225,11 @@
                             app:layout_constraintTop_toTopOf="@id/destPoint" />
 
                         <TextView
+                            android:id="@+id/tvDeliveryAddress"
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="456 Elm Street"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="@id/tvDestLabel"
@@ -248,7 +253,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     app:srcCompat="@drawable/ic_fact_check"
-                    app:tint="@color/vf_primary" />
+                    app:tint="@color/vf_primary"
+                    android:contentDescription="Info Icon" />
 
                 <TextView
                     style="@style/Stitch.Typography.BodyMedium"
