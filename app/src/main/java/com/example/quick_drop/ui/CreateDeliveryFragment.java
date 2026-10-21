@@ -118,23 +118,41 @@ public class CreateDeliveryFragment extends Fragment {
     }
 
     private void showMapPickerDialog() {
+        // Resolve true pickup coordinates from pickupAddressStr first
+        double pickupLat = currentLat;
+        double pickupLng = currentLng;
+        try {
+            Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocationName(pickupAddressStr, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address addr = addresses.get(0);
+                pickupLat = addr.getLatitude();
+                pickupLng = addr.getLongitude();
+            }
+        } catch (Exception e) {
+            // fallback
+        }
+
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_map_picker, null);
         MapView dialogMapView = dialogView.findViewById(R.id.dialogMapView);
         
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Select Destination (5 km blue boundary)")
+            .setTitle("Select Destination (Centered on Pickup - 5 km limit)")
             .setView(dialogView)
             .setNegativeButton("Cancel", null);
 
         androidx.appcompat.app.AlertDialog dialog = builder.create();
         dialog.show();
 
+        final double finalPickupLat = pickupLat;
+        final double finalPickupLng = pickupLng;
+
         if (dialogMapView != null) {
             dialogMapView.onCreate(null);
             dialogMapView.onResume();
             dialogMapView.getMapAsync(map -> {
-                LatLng currentLoc = new LatLng(currentLat, currentLng);
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLoc, 14f));
+                LatLng pickupLoc = new LatLng(finalPickupLat, finalPickupLng);
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(pickupLoc, 14f));
                 map.getUiSettings().setZoomControlsEnabled(true);
                 map.getUiSettings().setCompassEnabled(true);
 
@@ -144,15 +162,15 @@ public class CreateDeliveryFragment extends Fragment {
                     // ignore
                 }
 
-                // Add current location marker ("You Are Here")
+                // Add Pickup location marker
                 map.addMarker(new MarkerOptions()
-                    .position(currentLoc)
-                    .title("You Are Here (Pickup)")
+                    .position(pickupLoc)
+                    .title("Pickup Location")
                     .snippet("Delivery allowed within 5 km radius"));
 
-                // Draw 5 km radius boundary circle
+                // Draw 5 km radius boundary circle centered on Pickup location
                 map.addCircle(new CircleOptions()
-                    .center(currentLoc)
+                    .center(pickupLoc)
                     .radius(5000.0) // 5000 meters = 5 km
                     .strokeColor(Color.argb(255, 33, 150, 243))
                     .fillColor(Color.argb(35, 33, 150, 243))
@@ -160,10 +178,10 @@ public class CreateDeliveryFragment extends Fragment {
 
                 map.setOnMapClickListener(latLng -> {
                     map.clear();
-                    // Re-add current location marker and 5 km circle
-                    map.addMarker(new MarkerOptions().position(currentLoc).title("You Are Here (Pickup)"));
+                    // Re-add pickup marker and 5 km circle centered on pickup
+                    map.addMarker(new MarkerOptions().position(pickupLoc).title("Pickup Location"));
                     map.addCircle(new CircleOptions()
-                        .center(currentLoc)
+                        .center(pickupLoc)
                         .radius(5000.0)
                         .strokeColor(Color.argb(255, 33, 150, 243))
                         .fillColor(Color.argb(35, 33, 150, 243))
@@ -174,19 +192,19 @@ public class CreateDeliveryFragment extends Fragment {
                     
                     try {
                         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
-                        List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                        List<Address> addrs = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                         String addrStr = "Location (" + String.format(Locale.getDefault(), "%.4f", latLng.latitude) + ", " + String.format(Locale.getDefault(), "%.4f", latLng.longitude) + ")";
-                        if (addresses != null && !addresses.isEmpty()) {
-                            String line = addresses.get(0).getAddressLine(0);
+                        if (addrs != null && !addrs.isEmpty()) {
+                            String line = addrs.get(0).getAddressLine(0);
                             if (line != null) addrStr = line;
                         }
                         
                         float[] results = new float[1];
-                        android.location.Location.distanceBetween(currentLat, currentLng, latLng.latitude, latLng.longitude, results);
+                        android.location.Location.distanceBetween(finalPickupLat, finalPickupLng, latLng.latitude, latLng.longitude, results);
                         float distKm = results[0] / 1000f;
                         
                         if (distKm > 5.0f) {
-                            Toast.makeText(getContext(), "Selected location is out of range (> 5 km radius limit: " + String.format(Locale.getDefault(), "%.1f", distKm) + " km)", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Selected location is out of range (> 5 km from pickup: " + String.format(Locale.getDefault(), "%.1f", distKm) + " km)", Toast.LENGTH_LONG).show();
                         } else {
                             if (etDeliveryAddress != null) etDeliveryAddress.setText(addrStr);
                             Toast.makeText(getContext(), "Delivery location selected successfully!", Toast.LENGTH_SHORT).show();
