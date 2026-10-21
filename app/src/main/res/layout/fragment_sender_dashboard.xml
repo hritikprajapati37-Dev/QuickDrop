@@ -34,7 +34,7 @@
                     style="@style/Stitch.Typography.HeadlineMedium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Good Morning, Alex"
+                    android:text="Good Morning, User"
                     android:textStyle="bold" />
 
                 <TextView
@@ -60,10 +60,54 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Shimmer Skeleton Loading -->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmerContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:shimmer_auto_start="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/stitch_margin_mobile"
+            android:paddingBottom="24dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="@dimen/stitch_md"
+                android:background="@drawable/shape_rounded_md"
+                android:backgroundTint="@color/vf_surface_container" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginTop="@dimen/stitch_xl"
+                android:background="@drawable/shape_rounded_md"
+                android:backgroundTint="@color/vf_surface_container" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="@dimen/stitch_xl"
+                android:background="@drawable/shape_rounded_md"
+                android:backgroundTint="@color/vf_surface_container" />
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <!-- Real Content Container -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/layoutContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -153,7 +197,8 @@
                             android:layout_width="12dp"
                             android:layout_height="12dp"
                             app:srcCompat="@drawable/ic_local_shipping"
-                            app:tint="@color/vf_primary" />
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="Shipping" />
 
                         <TextView
                             style="@style/Stitch.Typography.LabelMedium"
@@ -506,6 +551,34 @@
                 tools:listitem="@layout/item_recent_delivery" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Error/Retry View -->
+    <LinearLayout
+        android:id="@+id/layoutError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout">
+
+        <TextView
+            style="@style/Stitch.Typography.BodyLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Failed to load dashboard." />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetry"
+            style="@style/Stitch.Button.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Retry" />
+    </LinearLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
