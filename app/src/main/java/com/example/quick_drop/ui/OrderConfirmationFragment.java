@@ -14,10 +14,11 @@ import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.Locale;
 
 public class OrderConfirmationFragment extends Fragment {
 
-    private TextView tvPickupAddress, tvReceiverName, tvDeliveryAddress, tvItemDescription, tvTotalPayable;
+    private TextView tvPickupAddress, tvReceiverName, tvDeliveryAddress, tvItemDescription, tvDeliveryCharge, tvTotalPayable;
 
     @Nullable
     @Override
@@ -36,6 +37,7 @@ public class OrderConfirmationFragment extends Fragment {
         tvReceiverName = view.findViewById(R.id.tvReceiverName);
         tvDeliveryAddress = view.findViewById(R.id.tvDeliveryAddress);
         tvItemDescription = view.findViewById(R.id.tvItemDescription);
+        tvDeliveryCharge = view.findViewById(R.id.tvDeliveryCharge);
         tvTotalPayable = view.findViewById(R.id.tvTotalPayable);
 
         loadLatestOrder();
@@ -61,7 +63,17 @@ public class OrderConfirmationFragment extends Fragment {
                             if (tvReceiverName != null) tvReceiverName.setText("Phone: " + order.optString("receiver_phone", ""));
                             if (tvDeliveryAddress != null) tvDeliveryAddress.setText(order.optString("delivery_address", ""));
                             if (tvItemDescription != null) tvItemDescription.setText(order.optString("item_description", "Standard Package"));
-                            if (tvTotalPayable != null) tvTotalPayable.setText("₹75");
+
+                            double deliveryCharge = order.optDouble("delivery_charge", 75.0);
+                            double platformFee = order.optDouble("platform_fee", 2.0);
+                            double totalAmount = order.optDouble("total_amount", deliveryCharge + platformFee);
+
+                            if (tvDeliveryCharge != null) {
+                                tvDeliveryCharge.setText(String.format(Locale.getDefault(), "₹%.2f", deliveryCharge));
+                            }
+                            if (tvTotalPayable != null) {
+                                tvTotalPayable.setText(String.format(Locale.getDefault(), "₹%.2f", totalAmount));
+                            }
                         }
                     }
                 });

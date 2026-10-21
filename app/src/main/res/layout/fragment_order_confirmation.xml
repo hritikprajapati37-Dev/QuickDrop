@@ -340,11 +340,12 @@
                             android:layout_height="wrap_content"
                             android:text="Delivery Charge" />
                         <TextView
+                            android:id="@+id/tvDeliveryCharge"
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:text="₹75"
+                            android:text="₹0.00"
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold" />
                     </RelativeLayout>
@@ -372,7 +373,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:layout_alignParentEnd="true"
-                            android:text="₹75"
+                            android:text="₹0.00"
                             android:textColor="@color/vf_primary"
                             android:textStyle="bold"
                             android:textSize="24sp" />
