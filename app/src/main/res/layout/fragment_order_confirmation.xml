@@ -135,7 +135,8 @@
                             android:layout_height="24dp"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/shape_circle_outline" />
+                            app:srcCompat="@drawable/shape_circle_outline"
+                            android:contentDescription="Pickup Icon" />
 
                         <TextView
                             android:id="@+id/tvPickupLabel"
@@ -149,10 +150,11 @@
                             app:layout_constraintTop_toTopOf="@id/ivPickup" />
 
                         <TextView
+                            android:id="@+id/tvPickupAddress"
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="123 Tech Park, Sharma Heights, Bengaluru, Karnataka 560001"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/tvPickupLabel"
@@ -166,7 +168,8 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/ivPickup"
                             app:srcCompat="@drawable/ic_location"
-                            app:tint="@color/vf_primary" />
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="Destination Icon" />
 
                         <TextView
                             android:id="@+id/tvDestLabel"
@@ -185,7 +188,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Rahul Sharma"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -193,10 +196,11 @@
                             app:layout_constraintTop_toBottomOf="@id/tvDestLabel" />
 
                         <TextView
+                            android:id="@+id/tvDeliveryAddress"
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="456 Elm Street, Apt 4B, Sharma Heights"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/tvReceiverName"
@@ -273,7 +277,8 @@
                                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
                                 app:srcCompat="@drawable/ic_package"
                                 app:tint="@color/vf_primary"
-                                android:background="#E5EDFF" />
+                                android:background="#E5EDFF"
+                                android:contentDescription="Package Icon" />
 
                             <LinearLayout
                                 android:layout_width="0dp"
@@ -290,10 +295,11 @@
                                     android:textAllCaps="true" />
 
                                 <TextView
+                                    android:id="@+id/tvItemDescription"
                                     style="@style/Stitch.Typography.BodyLarge"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Document Express"
+                                    android:text=""
                                     android:textStyle="bold" />
                             </LinearLayout>
                         </LinearLayout>
@@ -360,6 +366,7 @@
                             android:text="Total Payable"
                             android:textStyle="bold" />
                         <TextView
+                            android:id="@+id/tvTotalPayable"
                             style="@style/Stitch.Typography.HeadlineMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -378,28 +385,42 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/stitch_md"
-                app:cardBackgroundColor="#F5F7FF"
+                app:cardBackgroundColor="#F0F4FF"
                 app:cardCornerRadius="@dimen/stitch_rounded_md"
-                app:strokeWidth="0dp"
-                app:cardElevation="0dp">
+                app:strokeWidth="0dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:padding="@dimen/stitch_md">
+
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        app:srcCompat="@drawable/ic_notifications_active"
-                        app:tint="@color/vf_primary" />
+                        app:srcCompat="@drawable/ic_bell"
+                        app:tint="@color/vf_primary"
+                        android:contentDescription="Info Icon" />
+
                     <TextView
                         style="@style/Stitch.Typography.BodyMedium"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="@dimen/stitch_md"
+                        android:layout_weight="1"
+                        android:text="Payment is required before delivery processing. After successful payment, your delivery request will be processed and made available to a delivery partner."
+                        android:textColor="@color/vf_on_surface"
+                        android:visibility="gone" />
+
+                    <TextView
+                        style="@style/Stitch.Typography.BodyMedium"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/stitch_md"
+                        android:layout_weight="1"
                         android:text="Payment is required before delivery processing. After successful payment, your delivery request will be processed and made available to a delivery partner."
-                        android:textSize="12sp"
-                        android:textColor="@color/vf_on_surface_variant" />
+                        android:textColor="@color/vf_on_surface" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -410,10 +431,9 @@
         android:id="@+id/llBottomActions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="@dimen/stitch_margin_mobile"
-        android:background="@color/white"
-        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.google.android.material.button.MaterialButton
@@ -422,10 +442,11 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Proceed to Payment"
+            android:textSize="18sp"
             android:textStyle="bold"
-            app:cornerRadius="28dp"
             app:icon="@drawable/ic_arrow_forward"
-            app:iconGravity="textEnd" />
+            app:iconGravity="textEnd"
+            app:cornerRadius="28dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
