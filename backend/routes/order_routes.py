@@ -25,7 +25,6 @@ def create_order():
     try:
         pickup_lat = float(data.get("pickup_lat", 12.9716))
         pickup_lng = float(data.get("pickup_lng", 77.5946))
-        # Default fallback delivery lat/lng close to pickup for tests (~1.2 km)
         delivery_lat = float(data.get("delivery_lat", 12.9780))
         delivery_lng = float(data.get("delivery_lng", 77.6000))
     except (TypeError, ValueError):
@@ -34,9 +33,8 @@ def create_order():
     if not receiver_phone or not pickup_address or not delivery_address:
         return jsonify({"error": "Missing required order fields"}), 400
 
-    # Authoritative backend distance calculation (Haversine formula with urban routing multiplier 1.2x)
     def haversine(lat1, lon1, lat2, lon2):
-        R = 6371.0 # Earth radius in km
+        R = 6371.0
         dlat = math.radians(lat2 - lat1)
         dlon = math.radians(lon2 - lon1)
         a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
@@ -46,11 +44,9 @@ def create_order():
     straight_km = haversine(pickup_lat, pickup_lng, delivery_lat, delivery_lng)
     distance_km = round(max(0.5, straight_km * 1.2), 2)
 
-    # Enforce authoritative 5 km radius limit server-side
     if distance_km > 5.0:
         return jsonify({"error": f"Delivery distance ({distance_km} km) exceeds maximum allowed 5 km radius limit."}), 400
 
-    # Official Pricing Logic: ₹5/km delivery charge + fixed ₹2 platform fee
     delivery_charge = round(distance_km * 5.0, 2)
     platform_fee = 2.0
     total_amount = round(delivery_charge + platform_fee, 2)
@@ -106,6 +102,26 @@ def create_order():
         "platform_fee": platform_fee,
         "total_amount": total_amount
     }), 201
+
+@order_bp.route("/api/orders/<order_id>/pay", methods=["POST"], endpoint="pay_order")
+@token_required
+@role_required("SENDER")
+def pay_order(order_id):
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    try:
+        obj_id = ObjectId(order_id)
+    except Exception:
+        return jsonify({"error": "Invalid order ID"}), 400
+
+    result = db["orders"].update_one(
+        {"_id": obj_id},
+        {"$set": {"payment_status": "SUCCESS", "status": "CONFIRMED"}}
+    )
+    if result.modified_count == 0:
+        return jsonify({"error": "Order not found"}), 404
+    return jsonify({"message": "Payment recorded successfully", "payment_status": "SUCCESS"}), 200
 
 @order_bp.route("/api/orders/<order_id>/otps", methods=["GET"], endpoint="get_order_otps")
 @token_required

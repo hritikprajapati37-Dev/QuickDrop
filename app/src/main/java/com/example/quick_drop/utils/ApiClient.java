@@ -344,6 +344,43 @@ public class ApiClient {
         }).start();
     }
 
+    public static void payOrder(String token, String orderId, ApiCallback callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(getBaseUrl() + "/api/orders/" + orderId + "/pay");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoOutput(true);
+
+                int code = conn.getResponseCode();
+                BufferedReader br;
+                if (code >= 200 && code < 300) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
+                }
+
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    callback.onSuccess(resJson);
+                } else {
+                    callback.onError(resJson.optString("error", "Payment failed"));
+                }
+            } catch (Exception e) {
+                Log.e("ApiClient", "Payment error", e);
+                callback.onError(e.getMessage());
+            }
+        }).start();
+    }
+
     public static void getPartnerEarnings(String token, ApiCallback callback) {
         new Thread(() -> {
             try {

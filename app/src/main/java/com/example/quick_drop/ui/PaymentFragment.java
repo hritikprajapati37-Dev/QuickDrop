@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,6 +22,7 @@ public class PaymentFragment extends Fragment {
 
     private TextView tvOrderNumber, tvDeliveryCharge, tvPlatformFee, tvTotalPayable;
     private MaterialButton btnPayNow;
+    private String currentOrderId = "";
 
     @Nullable
     @Override
@@ -44,8 +46,7 @@ public class PaymentFragment extends Fragment {
         loadLatestOrderPayment();
 
         if (btnPayNow != null) {
-            btnPayNow.setOnClickListener(v -> 
-                Navigation.findNavController(v).navigate(R.id.action_paymentFragment_to_paymentSuccess));
+            btnPayNow.setOnClickListener(v -> processPayment(v));
         }
     }
 
@@ -62,8 +63,8 @@ public class PaymentFragment extends Fragment {
                     if (orders != null && orders.length() > 0) {
                         JSONObject order = orders.optJSONObject(0);
                         if (order != null) {
-                            String orderId = order.optString("order_id", "");
-                            String shortId = orderId;
+                            currentOrderId = order.optString("order_id", "");
+                            String shortId = currentOrderId;
                             if (shortId.length() > 6) shortId = shortId.substring(shortId.length() - 6);
                             if (tvOrderNumber != null) tvOrderNumber.setText("#" + shortId);
 
@@ -90,6 +91,42 @@ public class PaymentFragment extends Fragment {
 
             @Override
             public void onError(String error) {}
+        });
+    }
+
+    private void processPayment(View v) {
+        String token = UserSession.getToken(requireContext());
+        if (token.isEmpty() || currentOrderId.isEmpty()) {
+            Toast.makeText(getContext(), "Invalid order or session", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (btnPayNow != null) {
+            btnPayNow.setEnabled(false);
+            btnPayNow.setText("Processing Payment...");
+        }
+
+        ApiClient.payOrder(token, currentOrderId, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Payment confirmed & saved to database!", Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(v).navigate(R.id.action_paymentFragment_to_paymentSuccess);
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (btnPayNow != null) {
+                        btnPayNow.setEnabled(true);
+                        btnPayNow.setText("Retry Payment");
+                    }
+                    Toast.makeText(getContext(), "Payment failed: " + error, Toast.LENGTH_LONG).show();
+                });
+            }
         });
     }
 }
