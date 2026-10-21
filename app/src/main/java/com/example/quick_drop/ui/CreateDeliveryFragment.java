@@ -30,19 +30,20 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.List;
 import java.util.Locale;
 
 public class CreateDeliveryFragment extends Fragment {
 
-    private TextInputEditText etReceiverName, etReceiverPhone, etDeliveryAddress, etItemName;
+    private TextInputEditText etReceiverPhone, etDeliveryAddress, etItemName;
     private AutoCompleteTextView actvCategory;
     private TextView tvPickupPrimary, tvPickupSecondary;
     private FusedLocationProviderClient fusedLocationClient;
     private double currentLat = 12.9716;
     private double currentLng = 77.5946;
-    private String pickupAddressStr = "123 Tech Park, Sharma Heights, Bengaluru";
+    private String pickupAddressStr = "";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
 
     @Nullable
@@ -67,12 +68,17 @@ public class CreateDeliveryFragment extends Fragment {
             actvCategory.setAdapter(adapter);
         }
 
-        etReceiverName = view.findViewById(R.id.etReceiverName);
         etReceiverPhone = view.findViewById(R.id.etReceiverPhone);
         etDeliveryAddress = view.findViewById(R.id.etDeliveryAddress);
         etItemName = view.findViewById(R.id.etItemName);
         tvPickupPrimary = view.findViewById(R.id.tvPickupPrimary);
         tvPickupSecondary = view.findViewById(R.id.tvPickupSecondary);
+
+        // Initially empty until loaded from past orders or user taps current location
+        if (tvPickupPrimary != null) tvPickupPrimary.setText("No pickup location selected");
+        if (tvPickupSecondary != null) tvPickupSecondary.setText("Tap 'Use Current Location' below");
+
+        loadPastPickupAddress();
 
         MaterialButton btnUseCurrentLocation = view.findViewById(R.id.btnUseCurrentLocation);
         if (btnUseCurrentLocation != null) {
@@ -80,6 +86,37 @@ public class CreateDeliveryFragment extends Fragment {
         }
 
         view.findViewById(R.id.btnNext).setOnClickListener(this::submitOrder);
+    }
+
+    private void loadPastPickupAddress() {
+        String token = UserSession.getToken(requireContext());
+        if (token.isEmpty()) return;
+
+        ApiClient.getOrdersList(token, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    JSONArray orders = response.optJSONArray("orders");
+                    if (orders != null && orders.length() > 0) {
+                        JSONObject latestOrder = orders.optJSONObject(0);
+                        if (latestOrder != null) {
+                            String pastPickup = latestOrder.optString("pickup_address", "");
+                            if (!pastPickup.isEmpty() && !pastPickup.contains("123 Tech Park")) {
+                                pickupAddressStr = pastPickup;
+                                if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
+                                if (tvPickupSecondary != null) tvPickupSecondary.setText("From your previous order");
+                                currentLat = latestOrder.optDouble("pickup_lat", 12.9716);
+                                currentLng = latestOrder.optDouble("pickup_lng", 77.5946);
+                            }
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {}
+        });
     }
 
     private boolean isGpsEnabled() {
@@ -116,7 +153,7 @@ public class CreateDeliveryFragment extends Fragment {
                     currentLng = location.getLongitude();
                     reverseGeocode(currentLat, currentLng);
                 } else {
-                    Toast.makeText(getContext(), "Unable to retrieve current location. Using default GPS.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Unable to retrieve current location. Using GPS.", Toast.LENGTH_SHORT).show();
                 }
             });
         } catch (SecurityException e) {
@@ -162,7 +199,7 @@ public class CreateDeliveryFragment extends Fragment {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 checkGpsAndFetchLocation();
             } else {
-                Toast.makeText(getContext(), "Location permission denied. Using default pickup.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Location permission denied.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -173,8 +210,27 @@ public class CreateDeliveryFragment extends Fragment {
         String itemName = etItemName != null && etItemName.getText() != null ? etItemName.getText().toString().trim() : "";
         String category = actvCategory != null ? actvCategory.getText().toString().trim() : "General";
 
-        if (receiverPhone.isEmpty() || deliveryAddress.isEmpty()) {
-            Toast.makeText(getContext(), "Please fill in receiver phone and delivery address", Toast.LENGTH_SHORT).show();
+        boolean hasError = false;
+
+        if (pickupAddressStr.isEmpty() || pickupAddressStr.contains("No pickup location")) {
+            Toast.makeText(getContext(), "Please select a pickup location or use current location", Toast.LENGTH_SHORT).show();
+            hasError = true;
+        }
+
+        if (receiverPhone.isEmpty()) {
+            if (etReceiverPhone != null) etReceiverPhone.setError("Receiver phone is required");
+            hasError = true;
+        } else if (receiverPhone.length() < 10) {
+            if (etReceiverPhone != null) etReceiverPhone.setError("Enter a valid 10-digit phone number");
+            hasError = true;
+        }
+
+        if (deliveryAddress.isEmpty()) {
+            if (etDeliveryAddress != null) etDeliveryAddress.setError("Delivery address is required");
+            hasError = true;
+        }
+
+        if (hasError) {
             return;
         }
 
