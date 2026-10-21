@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
@@ -29,6 +30,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.button.MaterialButton;
@@ -120,7 +122,7 @@ public class CreateDeliveryFragment extends Fragment {
         MapView dialogMapView = dialogView.findViewById(R.id.dialogMapView);
         
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Tap destination on map (Max 5 km radius)")
+            .setTitle("Select Destination (5 km blue boundary)")
             .setView(dialogView)
             .setNegativeButton("Cancel", null);
 
@@ -131,11 +133,43 @@ public class CreateDeliveryFragment extends Fragment {
             dialogMapView.onCreate(null);
             dialogMapView.onResume();
             dialogMapView.getMapAsync(map -> {
-                LatLng defaultLoc = new LatLng(currentLat, currentLng);
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLoc, 14f));
+                LatLng currentLoc = new LatLng(currentLat, currentLng);
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLoc, 14f));
                 map.getUiSettings().setZoomControlsEnabled(true);
+                map.getUiSettings().setCompassEnabled(true);
+
+                try {
+                    map.setMyLocationEnabled(true);
+                } catch (SecurityException e) {
+                    // ignore
+                }
+
+                // Add current location marker ("You Are Here")
+                map.addMarker(new MarkerOptions()
+                    .position(currentLoc)
+                    .title("You Are Here (Pickup)")
+                    .snippet("Delivery allowed within 5 km radius"));
+
+                // Draw 5 km radius boundary circle
+                map.addCircle(new CircleOptions()
+                    .center(currentLoc)
+                    .radius(5000.0) // 5000 meters = 5 km
+                    .strokeColor(Color.argb(255, 33, 150, 243))
+                    .fillColor(Color.argb(35, 33, 150, 243))
+                    .strokeWidth(3f));
+
                 map.setOnMapClickListener(latLng -> {
                     map.clear();
+                    // Re-add current location marker and 5 km circle
+                    map.addMarker(new MarkerOptions().position(currentLoc).title("You Are Here (Pickup)"));
+                    map.addCircle(new CircleOptions()
+                        .center(currentLoc)
+                        .radius(5000.0)
+                        .strokeColor(Color.argb(255, 33, 150, 243))
+                        .fillColor(Color.argb(35, 33, 150, 243))
+                        .strokeWidth(3f));
+
+                    // Add destination marker
                     map.addMarker(new MarkerOptions().position(latLng).title("Selected Delivery Location"));
                     
                     try {
