@@ -1,13 +1,20 @@
 package com.example.quick_drop.ui;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,16 +27,23 @@ import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONObject;
+import java.util.List;
+import java.util.Locale;
 
 public class CreateDeliveryFragment extends Fragment {
 
     private TextInputEditText etReceiverName, etReceiverPhone, etDeliveryAddress, etItemName;
     private AutoCompleteTextView actvCategory;
+    private TextView tvPickupPrimary, tvPickupSecondary;
     private FusedLocationProviderClient fusedLocationClient;
     private double currentLat = 12.9716;
     private double currentLng = 77.5946;
+    private String pickupAddressStr = "123 Tech Park, Sharma Heights, Bengaluru";
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
 
     @Nullable
     @Override
@@ -42,7 +56,6 @@ public class CreateDeliveryFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
-        fetchLocation();
 
         view.findViewById(R.id.btnBack).setOnClickListener(v -> 
             Navigation.findNavController(v).navigateUp());
@@ -58,23 +71,103 @@ public class CreateDeliveryFragment extends Fragment {
         etReceiverPhone = view.findViewById(R.id.etReceiverPhone);
         etDeliveryAddress = view.findViewById(R.id.etDeliveryAddress);
         etItemName = view.findViewById(R.id.etItemName);
+        tvPickupPrimary = view.findViewById(R.id.tvPickupPrimary);
+        tvPickupSecondary = view.findViewById(R.id.tvPickupSecondary);
 
-        view.findViewById(R.id.btnNext).setOnClickListener(v -> submitOrder(v));
+        MaterialButton btnUseCurrentLocation = view.findViewById(R.id.btnUseCurrentLocation);
+        if (btnUseCurrentLocation != null) {
+            btnUseCurrentLocation.setOnClickListener(v -> checkGpsAndFetchLocation());
+        }
+
+        view.findViewById(R.id.btnNext).setOnClickListener(this::submitOrder);
     }
 
-    private void fetchLocation() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+    private boolean isGpsEnabled() {
+        LocationManager locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
+        return locationManager != null && (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+    }
+
+    private void checkGpsAndFetchLocation() {
+        if (!isGpsEnabled()) {
+            new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("GPS is Disabled")
+                .setMessage("Please enable GPS/Location services to use your current location for pickup.")
+                .setPositiveButton("Open Settings", (dialog, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+            return;
+        }
+
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            fetchCurrentLocation();
+        }
+    }
+
+    private void fetchCurrentLocation() {
+        try {
             fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
                 if (location != null) {
                     currentLat = location.getLatitude();
                     currentLng = location.getLongitude();
+                    reverseGeocode(currentLat, currentLng);
+                } else {
+                    Toast.makeText(getContext(), "Unable to retrieve current location. Using default GPS.", Toast.LENGTH_SHORT).show();
                 }
             });
+        } catch (SecurityException e) {
+            Toast.makeText(getContext(), "Location permission not granted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void reverseGeocode(double lat, double lng) {
+        try {
+            Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                String line1 = address.getAddressLine(0);
+                if (line1 != null && !line1.isEmpty()) {
+                    pickupAddressStr = line1;
+                } else {
+                    pickupAddressStr = "Lat: " + lat + ", Lng: " + lng;
+                }
+            } else {
+                pickupAddressStr = "GPS Location (" + String.format(Locale.getDefault(), "%.4f", lat) + ", " + String.format(Locale.getDefault(), "%.4f", lng) + ")";
+            }
+
+            if (tvPickupPrimary != null) {
+                tvPickupPrimary.setText(pickupAddressStr);
+            }
+            if (tvPickupSecondary != null) {
+                tvPickupSecondary.setText("Lat: " + String.format(Locale.getDefault(), "%.4f", lat) + ", Lng: " + String.format(Locale.getDefault(), "%.4f", lng));
+            }
+            Toast.makeText(getContext(), "Current location set as pickup!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            pickupAddressStr = "GPS Location (" + lat + ", " + lng + ")";
+            if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
+            if (tvPickupSecondary != null) tvPickupSecondary.setText("Lat: " + lat + ", Lng: " + lng);
+            Toast.makeText(getContext(), "Current location captured successfully!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkGpsAndFetchLocation();
+            } else {
+                Toast.makeText(getContext(), "Location permission denied. Using default pickup.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     private void submitOrder(View v) {
-        String receiverName = etReceiverName != null && etReceiverName.getText() != null ? etReceiverName.getText().toString().trim() : "";
         String receiverPhone = etReceiverPhone != null && etReceiverPhone.getText() != null ? etReceiverPhone.getText().toString().trim() : "";
         String deliveryAddress = etDeliveryAddress != null && etDeliveryAddress.getText() != null ? etDeliveryAddress.getText().toString().trim() : "";
         String itemName = etItemName != null && etItemName.getText() != null ? etItemName.getText().toString().trim() : "";
@@ -86,7 +179,6 @@ public class CreateDeliveryFragment extends Fragment {
         }
 
         String itemDesc = (!itemName.isEmpty() ? itemName : "Package") + " (" + category + ")";
-        String pickupAddress = "123 Tech Park, Sharma Heights, Bengaluru";
 
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) {
@@ -94,7 +186,7 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
-        ApiClient.createOrder(token, receiverPhone, pickupAddress, deliveryAddress, itemDesc, currentLat, currentLng, currentLat + 0.02, currentLng + 0.02, new ApiClient.ApiCallback() {
+        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, currentLat, currentLng, currentLat + 0.02, currentLng + 0.02, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
