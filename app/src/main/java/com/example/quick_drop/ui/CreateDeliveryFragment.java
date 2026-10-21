@@ -430,7 +430,15 @@ public class CreateDeliveryFragment extends Fragment {
             public void onError(String error) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Failed to create order: " + error, Toast.LENGTH_LONG).show();
+                    if (error != null && (error.contains("token") || error.contains("auth") || error.contains("expired"))) {
+                        Toast.makeText(getContext(), "Session expired. Please log in again.", Toast.LENGTH_LONG).show();
+                        UserSession.clearSession(requireContext());
+                        try {
+                            Navigation.findNavController(v).navigate(R.id.action_global_to_login);
+                        } catch (Exception ignored) {}
+                    } else {
+                        Toast.makeText(getContext(), "Failed to create order: " + error, Toast.LENGTH_LONG).show();
+                    }
                 });
             }
         });
