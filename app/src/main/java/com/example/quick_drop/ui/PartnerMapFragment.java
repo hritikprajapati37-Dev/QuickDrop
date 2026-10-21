@@ -1,7 +1,6 @@
 package com.example.quick_drop.ui;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,48 +13,48 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.quick_drop.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
-public class PartnerMapFragment extends Fragment {
+public class PartnerMapFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mapView;
-    private MyLocationNewOverlay mLocationOverlay;
+    private GoogleMap googleMap;
+    private FusedLocationProviderClient fusedLocationClient;
     private static final int PERMISSION_REQUEST_CODE = 100;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Context ctx = requireActivity().getApplicationContext();
-        Configuration.getInstance().load(ctx, ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE));
-        Configuration.getInstance().setUserAgentValue(ctx.getPackageName());
-
-        return inflater.inflate(R.layout.fragment_partner_map, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_partner_map, container, false);
 
         mapView = view.findViewById(R.id.mapView);
         if (mapView != null) {
-            mapView.setTileSource(TileSourceFactory.MAPNIK);
-            mapView.setMultiTouchControls(true);
-            
-            GeoPoint startPoint = new GeoPoint(12.9716, 77.5946);
-            mapView.getController().setZoom(15.0);
-            mapView.getController().setCenter(startPoint);
+            mapView.onCreate(savedInstanceState);
+            mapView.getMapAsync(this);
         }
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         FloatingActionButton fabLocation = view.findViewById(R.id.fabLocation);
         if (fabLocation != null) {
             fabLocation.setOnClickListener(v -> checkLocationPermissionAndCenter());
         }
+
+        return view;
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap map) {
+        googleMap = map;
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setCompassEnabled(true);
 
         checkLocationPermissionAndCenter();
     }
@@ -69,17 +68,22 @@ public class PartnerMapFragment extends Fragment {
     }
 
     private void enableLocationOverlay() {
-        if (mapView == null) return;
-        if (mLocationOverlay == null) {
-            mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(requireContext()), mapView);
-            mLocationOverlay.enableMyLocation();
-            mLocationOverlay.enableFollowLocation();
-            mapView.getOverlays().add(mLocationOverlay);
-        } else {
-            mLocationOverlay.enableMyLocation();
-            mLocationOverlay.enableFollowLocation();
+        if (googleMap == null) return;
+        try {
+            googleMap.setMyLocationEnabled(true);
+            fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+                if (location != null) {
+                    LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15.0f));
+                } else {
+                    LatLng defaultLatLng = new LatLng(12.9716, 77.5946);
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultLatLng, 15.0f));
+                }
+            });
+            Toast.makeText(getContext(), "Centering on current location", Toast.LENGTH_SHORT).show();
+        } catch (SecurityException e) {
+            Toast.makeText(getContext(), "Location permission required", Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(getContext(), "Centering on current location", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -101,8 +105,38 @@ public class PartnerMapFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (mapView != null) mapView.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mapView != null) mapView.onStop();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         if (mapView != null) mapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mapView != null) mapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if (mapView != null) mapView.onLowMemory();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mapView != null) mapView.onSaveInstanceState(outState);
     }
 }
