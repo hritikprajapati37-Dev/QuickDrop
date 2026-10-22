@@ -49,6 +49,7 @@ def verify_pickup():
     delivery_otp_plain = str(secrets.randbelow(900000) + 100000)
     delivery_otp_hash = hash_secret(delivery_otp_plain)
     delivery_otp_expiry = datetime.utcnow() + timedelta(minutes=10)
+    pickup_time_iso = datetime.utcnow().isoformat()
 
     result = orders_collection.update_one(
         {"_id": obj_id, "pickup_verified": False},
@@ -57,6 +58,7 @@ def verify_pickup():
                 "pickup_verified": True,
                 "status": "PICKED_UP",
                 "assigned_partner": partner_phone,
+                "pickup_time": pickup_time_iso,
                 "delivery_otp_hash": delivery_otp_hash,
                 "delivery_otp_expiry": delivery_otp_expiry,
                 "delivery_otp_attempts": 0,
@@ -115,12 +117,15 @@ def verify_delivery():
         orders_collection.update_one({"_id": obj_id}, {"$inc": {"delivery_otp_attempts": 1}})
         return jsonify({"error": "Invalid OTP"}), 400
 
+    complete_time_iso = datetime.utcnow().isoformat()
+
     result = orders_collection.update_one(
         {"_id": obj_id, "pickup_verified": True, "delivered": False},
         {
             "$set": {
                 "delivered": True,
                 "status": "DELIVERED",
+                "complete_order_time": complete_time_iso,
                 "delivery_otp_hash": None
             }
         }

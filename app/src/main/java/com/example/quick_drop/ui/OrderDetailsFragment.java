@@ -136,44 +136,35 @@ public class OrderDetailsFragment extends Fragment {
             tvPaymentStatus.setText(paymentStatus);
         }
 
-        String createdAt = order.optString("created_at", "");
-        String orderPlacedTime = formatOrderTime(createdAt, 0);
-        if (tvTime1 != null) tvTime1.setText(orderPlacedTime);
+        // Bind exact stored database timestamps
+        String orderTime = order.optString("order_time", order.optString("created_at", ""));
+        String pickupTime = order.optString("pickup_time", "");
+        String completeTime = order.optString("complete_order_time", "");
 
-        boolean pickupVerified = order.optBoolean("pickup_verified", false);
-        if (tvTime2 != null) {
-            tvTime2.setText(pickupVerified ? formatOrderTime(createdAt, 15) : "Pending");
-        }
-
-        boolean delivered = order.optBoolean("delivered", false);
-        if (tvTime3 != null) {
-            tvTime3.setText(delivered ? formatOrderTime(createdAt, 35) : "Pending");
-        }
+        if (tvTime1 != null) tvTime1.setText(formatStoredTime(orderTime));
+        if (tvTime2 != null) tvTime2.setText(formatStoredTime(pickupTime));
+        if (tvTime3 != null) tvTime3.setText(formatStoredTime(completeTime));
     }
 
-    private String formatOrderTime(String createdAtIso, int addMins) {
+    private String formatStoredTime(String isoTime) {
+        if (isoTime == null || isoTime.isEmpty() || "null".equals(isoTime)) {
+            return "Pending";
+        }
         try {
-            if (createdAtIso != null && !createdAtIso.isEmpty()) {
-                String cleanIso = createdAtIso.replace("Z", "");
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-                java.util.Date date;
-                try {
-                    date = sdf.parse(cleanIso);
-                } catch (Exception e) {
-                    java.text.SimpleDateFormat sdf2 = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                    date = sdf2.parse(cleanIso);
-                }
-                if (date != null) {
-                    long targetTimeMillis = date.getTime() + (addMins * 60L * 1000L);
-                    java.text.SimpleDateFormat timeSdf = new java.text.SimpleDateFormat("h:mm a", Locale.getDefault());
-                    return timeSdf.format(new java.util.Date(targetTimeMillis));
-                }
+            String cleanIso = isoTime.replace("Z", "");
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            java.util.Date date;
+            try {
+                date = sdf.parse(cleanIso);
+            } catch (Exception e) {
+                java.text.SimpleDateFormat sdf2 = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                date = sdf2.parse(cleanIso);
+            }
+            if (date != null) {
+                java.text.SimpleDateFormat timeSdf = new java.text.SimpleDateFormat("h:mm a", Locale.getDefault());
+                return timeSdf.format(date);
             }
         } catch (Exception ignored) {}
-        
-        long now = System.currentTimeMillis();
-        long target = now + (addMins * 60L * 1000L);
-        java.text.SimpleDateFormat timeSdf = new java.text.SimpleDateFormat("h:mm a", Locale.getDefault());
-        return timeSdf.format(new java.util.Date(target));
+        return isoTime;
     }
 }

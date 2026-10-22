@@ -21,6 +21,7 @@ def create_order():
     pickup_address = str(data.get("pickup_address", "")).strip()
     delivery_address = str(data.get("delivery_address", "")).strip()
     item_description = str(data.get("item_description", "")).strip()
+    item_weight = str(data.get("item_weight", "1.0 kg")).strip()
 
     try:
         pickup_lat = float(data.get("pickup_lat", 12.9716))
@@ -64,6 +65,7 @@ def create_order():
         "pickup_address": pickup_address,
         "delivery_address": delivery_address,
         "item_description": item_description,
+        "item_weight": item_weight if item_weight else "1.0 kg",
         "pickup_lat": pickup_lat,
         "pickup_lng": pickup_lng,
         "delivery_lat": delivery_lat,
@@ -168,6 +170,9 @@ def orders_list():
     for o in orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
+        # Format datetime object to ISO string if present
+        if isinstance(o.get("created_at"), datetime):
+            o["created_at"] = o["created_at"].isoformat()
     return jsonify({"orders": orders}), 200
 
 @order_bp.route("/api/orders/<order_id>", methods=["GET"], endpoint="get_order_details")
@@ -187,6 +192,8 @@ def get_order_details(order_id):
 
     order["order_id"] = str(order["_id"])
     del order["_id"]
+    if isinstance(order.get("created_at"), datetime):
+        order["created_at"] = order["created_at"].isoformat()
     return jsonify(order), 200
 
 @order_bp.route("/api/user/dashboard", methods=["GET"], endpoint="user_dashboard")
@@ -223,6 +230,9 @@ def user_dashboard():
     for o in orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
+        if isinstance(o.get("created_at"), datetime):
+            o["created_at"] = o["created_at"].isoformat()
+
         status = o.get("status", "CREATED")
         delivered = o.get("delivered", False)
         pickup_verified = o.get("pickup_verified", False)
