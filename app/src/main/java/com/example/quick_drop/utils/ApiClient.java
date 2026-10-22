@@ -209,6 +209,42 @@ public class ApiClient {
         }).start();
     }
 
+    public static void getOrderDetails(String token, String orderId, ApiCallback callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(getBaseUrl() + "/api/orders/" + orderId);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Accept", "application/json");
+
+                int code = conn.getResponseCode();
+                BufferedReader br;
+                if (code >= 200 && code < 300) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
+                }
+
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    callback.onSuccess(resJson);
+                } else {
+                    callback.onError(resJson.optString("error", "Failed to fetch order details"));
+                }
+            } catch (Exception e) {
+                Log.e("ApiClient", "Order details error", e);
+                callback.onError(e.getMessage());
+            }
+        }).start();
+    }
+
     public static void getAvailableRequests(String token, ApiCallback callback) {
         new Thread(() -> {
             try {
@@ -291,7 +327,7 @@ public class ApiClient {
         }).start();
     }
 
-    public static void createOrder(String token, String receiverPhone, String pickupAddress, String deliveryAddress, String itemDescription, double pickupLat, double pickupLng, double deliveryLat, double deliveryLng, ApiCallback callback) {
+    public static void createOrder(String token, String receiverPhone, String pickupAddress, String deliveryAddress, String itemDescription, String itemWeight, double pickupLat, double pickupLng, double deliveryLat, double deliveryLng, ApiCallback callback) {
         new Thread(() -> {
             try {
                 URL url = new URL(getBaseUrl() + "/api/orders");
@@ -307,6 +343,7 @@ public class ApiClient {
                 jsonParam.put("pickup_address", pickupAddress);
                 jsonParam.put("delivery_address", deliveryAddress);
                 jsonParam.put("item_description", itemDescription);
+                jsonParam.put("item_weight", itemWeight);
                 jsonParam.put("pickup_lat", pickupLat);
                 jsonParam.put("pickup_lng", pickupLng);
                 jsonParam.put("delivery_lat", deliveryLat);

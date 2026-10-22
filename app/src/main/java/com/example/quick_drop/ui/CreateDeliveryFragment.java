@@ -44,7 +44,7 @@ import java.util.Locale;
 
 public class CreateDeliveryFragment extends Fragment {
 
-    private TextInputEditText etReceiverPhone, etDeliveryAddress, etItemName;
+    private TextInputEditText etReceiverPhone, etDeliveryAddress, etItemName, etItemWeight;
     private AutoCompleteTextView actvCategory;
     private TextView tvPickupPrimary, tvPickupSecondary;
     private FusedLocationProviderClient fusedLocationClient;
@@ -78,6 +78,7 @@ public class CreateDeliveryFragment extends Fragment {
         etReceiverPhone = view.findViewById(R.id.etReceiverPhone);
         etDeliveryAddress = view.findViewById(R.id.etDeliveryAddress);
         etItemName = view.findViewById(R.id.etItemName);
+        etItemWeight = view.findViewById(R.id.etItemWeight);
         tvPickupPrimary = view.findViewById(R.id.tvPickupPrimary);
         tvPickupSecondary = view.findViewById(R.id.tvPickupSecondary);
 
@@ -118,7 +119,6 @@ public class CreateDeliveryFragment extends Fragment {
     }
 
     private void showMapPickerDialog() {
-        // Resolve true pickup coordinates from pickupAddressStr first
         double pickupLat = currentLat;
         double pickupLng = currentLng;
         try {
@@ -162,23 +162,20 @@ public class CreateDeliveryFragment extends Fragment {
                     // ignore
                 }
 
-                // Add Pickup location marker
                 map.addMarker(new MarkerOptions()
                     .position(pickupLoc)
                     .title("Pickup Location")
                     .snippet("Delivery allowed within 5 km radius"));
 
-                // Draw 5 km radius boundary circle centered on Pickup location
                 map.addCircle(new CircleOptions()
                     .center(pickupLoc)
-                    .radius(5000.0) // 5000 meters = 5 km
+                    .radius(5000.0)
                     .strokeColor(Color.argb(255, 33, 150, 243))
                     .fillColor(Color.argb(35, 33, 150, 243))
                     .strokeWidth(3f));
 
                 map.setOnMapClickListener(latLng -> {
                     map.clear();
-                    // Re-add pickup marker and 5 km circle centered on pickup
                     map.addMarker(new MarkerOptions().position(pickupLoc).title("Pickup Location"));
                     map.addCircle(new CircleOptions()
                         .center(pickupLoc)
@@ -187,7 +184,6 @@ public class CreateDeliveryFragment extends Fragment {
                         .fillColor(Color.argb(35, 33, 150, 243))
                         .strokeWidth(3f));
 
-                    // Add destination marker
                     map.addMarker(new MarkerOptions().position(latLng).title("Selected Delivery Location"));
                     
                     try {
@@ -339,6 +335,7 @@ public class CreateDeliveryFragment extends Fragment {
         String receiverPhone = etReceiverPhone != null && etReceiverPhone.getText() != null ? etReceiverPhone.getText().toString().trim() : "";
         String deliveryAddress = etDeliveryAddress != null && etDeliveryAddress.getText() != null ? etDeliveryAddress.getText().toString().trim() : "";
         String itemName = etItemName != null && etItemName.getText() != null ? etItemName.getText().toString().trim() : "";
+        String itemWeight = etItemWeight != null && etItemWeight.getText() != null ? etItemWeight.getText().toString().trim() : "1.0 kg";
         String category = actvCategory != null ? actvCategory.getText().toString().trim() : "General";
 
         boolean hasError = false;
@@ -409,6 +406,7 @@ public class CreateDeliveryFragment extends Fragment {
         }
 
         String itemDesc = (!itemName.isEmpty() ? itemName : "Package") + " (" + category + ")";
+        if (itemWeight.isEmpty()) itemWeight = "1.0 kg";
 
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) {
@@ -416,7 +414,7 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
-        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, pickupLat, pickupLng, deliveryLat, deliveryLng, new ApiClient.ApiCallback() {
+        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, itemWeight, pickupLat, pickupLng, deliveryLat, deliveryLng, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
@@ -432,7 +430,7 @@ public class CreateDeliveryFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     if (error != null && (error.contains("token") || error.contains("auth") || error.contains("expired"))) {
                         Toast.makeText(getContext(), "Session expired. Please log in again.", Toast.LENGTH_LONG).show();
-                        UserSession.clearSession(requireContext());
+                        UserSession.registerUser(requireContext(), "", "", "", "");
                         try {
                             Navigation.findNavController(v).navigate(R.id.action_global_to_login);
                         } catch (Exception ignored) {}

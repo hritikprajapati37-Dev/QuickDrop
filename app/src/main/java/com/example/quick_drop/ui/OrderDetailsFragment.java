@@ -20,7 +20,7 @@ import java.util.Locale;
 
 public class OrderDetailsFragment extends Fragment {
 
-    private TextView tvOrderID, tvPickupAddress, tvDestName, tvDestPhone, tvDropAddress, tvPartnerName, tvItemName, tvPaymentAmount, tvPaymentStatus;
+    private TextView tvOrderID, tvPickupAddress, tvDestName, tvDestPhone, tvDropAddress, tvPartnerName, tvItemName, tvItemWeight, tvPaymentAmount, tvPaymentStatus;
     private TextView tvTime1, tvTime2, tvTime3, tvTime4, tvTime5, tvTime6;
 
     @Nullable
@@ -46,6 +46,7 @@ public class OrderDetailsFragment extends Fragment {
         tvDropAddress = view.findViewById(R.id.tvDropAddress);
         tvPartnerName = view.findViewById(R.id.tvPartnerName);
         tvItemName = view.findViewById(R.id.tvItemName);
+        tvItemWeight = view.findViewById(R.id.tvItemWeight);
         tvPaymentAmount = view.findViewById(R.id.tvPaymentAmount);
         tvPaymentStatus = view.findViewById(R.id.tvPaymentStatus);
 
@@ -126,6 +127,7 @@ public class OrderDetailsFragment extends Fragment {
         }
 
         if (tvItemName != null) tvItemName.setText(order.optString("item_description", "Package"));
+        if (tvItemWeight != null) tvItemWeight.setText(order.optString("item_weight", "1.0 kg"));
 
         double totalAmount = order.optDouble("total_amount", 0.0);
         if (tvPaymentAmount != null) {
@@ -138,50 +140,41 @@ public class OrderDetailsFragment extends Fragment {
         }
 
         String createdAt = order.optString("created_at", "");
-        String baseTime = formatOrderTime(createdAt);
+        String baseTime = formatOrderTime(createdAt, 0);
         if (tvTime1 != null) tvTime1.setText(baseTime);
-        if (tvTime2 != null) tvTime2.setText(addMinutes(createdAt, 1));
-        if (tvTime3 != null) tvTime3.setText(addMinutes(createdAt, 5));
-        if (tvTime4 != null) tvTime4.setText(addMinutes(createdAt, 15));
-        if (tvTime5 != null) tvTime5.setText(addMinutes(createdAt, 25));
+        if (tvTime2 != null) tvTime2.setText(formatOrderTime(createdAt, 1));
+        if (tvTime3 != null) tvTime3.setText(formatOrderTime(createdAt, 5));
+        if (tvTime4 != null) tvTime4.setText(formatOrderTime(createdAt, 15));
+        if (tvTime5 != null) tvTime5.setText(formatOrderTime(createdAt, 25));
         if (tvTime6 != null) {
             boolean delivered = order.optBoolean("delivered", false);
-            tvTime6.setText(delivered ? addMinutes(createdAt, 40) : "Pending");
+            tvTime6.setText(delivered ? formatOrderTime(createdAt, 40) : "Pending");
         }
     }
 
-    private String formatOrderTime(String createdAtIso) {
+    private String formatOrderTime(String createdAtIso, int addMins) {
         try {
-            if (createdAtIso != null && createdAtIso.length() >= 19) {
-                String timePart = createdAtIso.substring(11, 16);
-                String[] parts = timePart.split(":");
-                int hour = Integer.parseInt(parts[0]);
-                int minute = Integer.parseInt(parts[1]);
-                String ampm = hour >= 12 ? "PM" : "AM";
-                hour = hour % 12;
-                if (hour == 0) hour = 12;
-                return String.format(Locale.getDefault(), "%d:%02d %s", hour, minute, ampm);
+            if (createdAtIso != null && !createdAtIso.isEmpty()) {
+                String cleanIso = createdAtIso.replace("Z", "");
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                java.util.Date date;
+                try {
+                    date = sdf.parse(cleanIso);
+                } catch (Exception e) {
+                    java.text.SimpleDateFormat sdf2 = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                    date = sdf2.parse(cleanIso);
+                }
+                if (date != null) {
+                    long targetTimeMillis = date.getTime() + (addMins * 60L * 1000L);
+                    java.text.SimpleDateFormat timeSdf = new java.text.SimpleDateFormat("h:mm a", Locale.getDefault());
+                    return timeSdf.format(new java.util.Date(targetTimeMillis));
+                }
             }
         } catch (Exception ignored) {}
-        return "Just now";
-    }
-
-    private String addMinutes(String createdAtIso, int addMins) {
-        try {
-            if (createdAtIso != null && createdAtIso.length() >= 19) {
-                String timePart = createdAtIso.substring(11, 16);
-                String[] parts = timePart.split(":");
-                int hour = Integer.parseInt(parts[0]);
-                int minute = Integer.parseInt(parts[1]) + addMins;
-                hour += minute / 60;
-                minute = minute % 60;
-                hour = hour % 24;
-                String ampm = hour >= 12 ? "PM" : "AM";
-                hour = hour % 12;
-                if (hour == 0) hour = 12;
-                return String.format(Locale.getDefault(), "%d:%02d %s", hour, minute, ampm);
-            }
-        } catch (Exception ignored) {}
-        return "Shortly";
+        
+        long now = System.currentTimeMillis();
+        long target = now + (addMins * 60L * 1000L);
+        java.text.SimpleDateFormat timeSdf = new java.text.SimpleDateFormat("h:mm a", Locale.getDefault());
+        return timeSdf.format(new java.util.Date(target));
     }
 }
