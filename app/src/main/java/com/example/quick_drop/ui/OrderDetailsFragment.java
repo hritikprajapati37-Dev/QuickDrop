@@ -16,7 +16,10 @@ import com.example.quick_drop.utils.UserSession;
 import com.google.android.material.button.MaterialButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class OrderDetailsFragment extends Fragment {
 
@@ -136,7 +139,6 @@ public class OrderDetailsFragment extends Fragment {
             tvPaymentStatus.setText(paymentStatus);
         }
 
-        // Bind exact stored database timestamps
         String orderTime = order.optString("order_time", order.optString("created_at", ""));
         String pickupTime = order.optString("pickup_time", "");
         String completeTime = order.optString("complete_order_time", "");
@@ -152,16 +154,19 @@ public class OrderDetailsFragment extends Fragment {
         }
         try {
             String cleanIso = isoTime.replace("Z", "");
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-            java.util.Date date;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // Parse stored UTC database timestamp
+            Date date;
             try {
                 date = sdf.parse(cleanIso);
             } catch (Exception e) {
-                java.text.SimpleDateFormat sdf2 = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                sdf2.setTimeZone(TimeZone.getTimeZone("UTC"));
                 date = sdf2.parse(cleanIso);
             }
             if (date != null) {
-                java.text.SimpleDateFormat timeSdf = new java.text.SimpleDateFormat("h:mm a", Locale.getDefault());
+                SimpleDateFormat timeSdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
+                timeSdf.setTimeZone(TimeZone.getDefault()); // Convert to user's local timezone (e.g. IST)
                 return timeSdf.format(date);
             }
         } catch (Exception ignored) {}
