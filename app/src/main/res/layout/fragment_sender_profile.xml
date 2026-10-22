@@ -18,35 +18,18 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/vf_primary">
-
-            <TextView
-                style="@style/Stitch.Typography.TitleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Profile"
-                android:textColor="@color/vf_primary"
-                android:textStyle="bold" />
-        </com.google.android.material.appbar.MaterialToolbar>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/vf_surface_container" />
+            android:layout_height="?attr/actionBarSize"
+            app:title="Profile"
+            app:titleCentered="true"
+            app:titleTextColor="@color/vf_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollContent"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:clipToPadding="false"
         android:fillViewport="true"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
         <LinearLayout
@@ -61,66 +44,52 @@
                 style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white">
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/stitch_rounded_lg"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="@dimen/stitch_lg">
 
-                    <View
-                        android:layout_width="match_parent"
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:alpha="0.1"
-                        android:background="@drawable/header_panel_background" />
+                        android:scaleType="centerCrop"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                        app:srcCompat="@drawable/ic_user_circle"
+                        app:tint="@color/vf_primary"
+                        android:contentDescription="Avatar" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/tvName"
+                        style="@style/Stitch.Typography.TitleLarge"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="-40dp"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingBottom="@dimen/stitch_lg">
+                        android:layout_marginTop="@dimen/stitch_md"
+                        android:text="User Name"
+                        android:textStyle="bold" />
 
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/ivAvatar"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:background="@color/vf_surface_container"
-                            android:padding="2dp"
-                            android:scaleType="centerCrop"
-                            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                            app:srcCompat="@drawable/ic_user_circle"
-                            app:strokeColor="@color/white"
-                            app:strokeWidth="4dp" />
+                    <TextView
+                        style="@style/Stitch.Typography.BodyMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Sender"
+                        android:textColor="@color/vf_outline" />
 
-                        <TextView
-                            android:id="@+id/tvName"
-                            style="@style/Stitch.Typography.TitleLarge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:text="Alex Sharma"
-                            android:textColor="@color/vf_on_surface"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyMedium"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Sender"
-                            android:textColor="@color/vf_on_surface_variant" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyMedium"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="+91 XXXXX XXXXX"
-                            android:textColor="@color/vf_outline"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvPhone"
+                        style="@style/Stitch.Typography.BodyMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="+91 XXXXX XXXXX"
+                        android:textColor="@color/vf_on_surface_variant" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -192,6 +161,7 @@
                                 android:textAllCaps="false" />
 
                             <TextView
+                                android:id="@+id/tvEmail"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -228,8 +198,7 @@
                 style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/stitch_md"
-                app:cardBackgroundColor="@color/white">
+                android:layout_marginTop="@dimen/stitch_md">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -241,49 +210,43 @@
                         style="@style/Stitch.Typography.TitleLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
                         android:text="Account"
-                        android:textColor="@color/vf_on_surface"
+                        android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginVertical="16dp"
-                        android:alpha="0.3"
-                        android:background="@color/vf_outline_variant" />
+                        android:background="@color/vf_surface_container" />
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
-
                         <TextView
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Account Status"
-                            android:textColor="@color/vf_on_surface_variant" />
-
+                            android:text="Account Status" />
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
-
                             <ImageView
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
                                 app:srcCompat="@drawable/ic_check_circle"
-                                app:tint="@color/vf_secondary" />
-
+                                app:tint="@color/vf_success"
+                                android:contentDescription="Active Icon" />
                             <TextView
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="4dp"
                                 android:text="Active"
-                                android:textColor="@color/vf_secondary"
+                                android:textColor="@color/vf_success"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </RelativeLayout>
@@ -291,15 +254,12 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp">
-
+                        android:layout_marginTop="@dimen/stitch_md">
                         <TextView
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Member Since"
-                            android:textColor="@color/vf_on_surface_variant" />
-
+                            android:text="Member Since" />
                         <TextView
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
@@ -312,121 +272,104 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Actions Section -->
+            <!-- Edit Profile Action Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnEditProfile"
                 style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/stitch_lg"
-                app:cardBackgroundColor="@color/white">
+                android:layout_marginTop="@dimen/stitch_md"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/stitch_md">
 
-                    <LinearLayout
-                        android:id="@+id/btnEditProfile"
-                        android:layout_width="match_parent"
-                        android:layout_height="64dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="@dimen/stitch_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:srcCompat="@drawable/ic_user"
+                        app:tint="@color/vf_primary"
+                        android:contentDescription="User Icon" />
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            app:srcCompat="@drawable/ic_person_outline"
-                            app:tint="@color/vf_outline" />
+                    <TextView
+                        style="@style/Stitch.Typography.BodyLarge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/stitch_md"
+                        android:layout_weight="1"
+                        android:text="Edit Profile"
+                        android:textStyle="bold" />
 
-                        <TextView
-                            style="@style/Stitch.Typography.BodyLarge"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="Edit Profile"
-                            android:textColor="@color/vf_on_surface"
-                            android:textStyle="bold" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            app:srcCompat="@drawable/ic_chevron_right"
-                            app:tint="@color/vf_outline" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="56dp"
-                        android:alpha="0.3"
-                        android:background="@color/vf_outline_variant" />
-
-                    <LinearLayout
-                        android:id="@+id/btnTermsPrivacy"
-                        android:layout_width="match_parent"
-                        android:layout_height="64dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="@dimen/stitch_md">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            app:srcCompat="@drawable/ic_gavel"
-                            app:tint="@color/vf_outline" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyLarge"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="Terms &amp; Privacy"
-                            android:textColor="@color/vf_on_surface"
-                            android:textStyle="bold" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            app:srcCompat="@drawable/ic_chevron_right"
-                            app:tint="@color/vf_outline" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="56dp"
-                        android:alpha="0.3"
-                        android:background="@color/vf_outline_variant" />
-
-                    <LinearLayout
-                        android:id="@+id/btnLogout"
-                        android:layout_width="match_parent"
-                        android:layout_height="64dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="@dimen/stitch_md">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            app:srcCompat="@drawable/ic_logout"
-                            app:tint="#B71C1C" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyLarge"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="Logout"
-                            android:textColor="#B71C1C"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        app:srcCompat="@drawable/ic_arrow_forward"
+                        app:tint="@color/vf_outline"
+                        android:contentDescription="Arrow Forward" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Terms & Privacy Action Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnTermsPrivacy"
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/stitch_md">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:srcCompat="@drawable/ic_fact_check"
+                        app:tint="@color/vf_primary"
+                        android:contentDescription="TOS Icon" />
+
+                    <TextView
+                        style="@style/Stitch.Typography.BodyLarge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/stitch_md"
+                        android:layout_weight="1"
+                        android:text="Terms of Service &amp; Privacy"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        app:srcCompat="@drawable/ic_arrow_forward"
+                        app:tint="@color/vf_outline"
+                        android:contentDescription="Arrow Forward" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Logout Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="@dimen/stitch_lg"
+                android:text="Log Out"
+                android:textColor="@color/vf_error"
+                android:textStyle="bold"
+                app:icon="@drawable/ic_logout"
+                app:iconTint="@color/vf_error" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -441,8 +384,6 @@
         app:itemTextColor="@color/bottom_nav_text_selector"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/sender_bottom_nav" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
