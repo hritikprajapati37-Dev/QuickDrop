@@ -112,6 +112,10 @@ def update_user_profile():
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
     phone = request.user.get("phone")
+    user = db["users"].find_one({"phone": phone})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
     data = request.get_json(force=True, silent=True) or {}
     name = str(data.get("name", "")).strip()
     email = str(data.get("email", "")).strip()
@@ -127,9 +131,7 @@ def update_user_profile():
     else:
         update_fields["email"] = ""
 
-    result = db["users"].update_one({"phone": phone}, {"$set": update_fields})
-    if result.matched_count == 0:
-        return jsonify({"error": "User not found"}), 404
+    db["users"].update_one({"phone": phone}, {"$set": update_fields})
 
     updated_user = db["users"].find_one({"phone": phone})
     return jsonify({
