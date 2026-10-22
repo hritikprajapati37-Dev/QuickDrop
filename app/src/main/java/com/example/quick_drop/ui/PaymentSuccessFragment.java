@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +30,21 @@ public class PaymentSuccessFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Google Pay / Phone Pay style success checkmark bounce animation
+        View checkCard = view.findViewById(R.id.cardCheckmark);
+        if (checkCard != null) {
+            checkCard.setScaleX(0f);
+            checkCard.setScaleY(0f);
+            checkCard.setRotation(-45f);
+            checkCard.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .rotation(0f)
+                .setDuration(800)
+                .setInterpolator(new OvershootInterpolator(1.8f))
+                .start();
+        }
 
         tvOrderNumber = view.findViewById(R.id.tvOrderNumber);
         tvAmountPaid = view.findViewById(R.id.tvAmountPaid);

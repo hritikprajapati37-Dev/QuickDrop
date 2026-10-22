@@ -349,18 +349,19 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/stitch_md"
-                        android:hint="Item Name"
+                        android:hint="Total Weight (e.g. 1.0 kg)"
                         app:boxBackgroundColor="#F5F7FF"
                         app:boxStrokeWidth="0dp"
                         app:boxStrokeWidthFocused="0dp"
                         app:expandedHintEnabled="false"
                         app:hintTextColor="@color/vf_primary"
-                        app:placeholderText="Enter item name">
+                        app:placeholderText="Enter total weight">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etItemName"
+                            android:id="@+id/etItemWeight"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:inputType="text"
                             android:paddingTop="24dp"
                             android:paddingBottom="12dp" />
                     </com.google.android.material.textfield.TextInputLayout>

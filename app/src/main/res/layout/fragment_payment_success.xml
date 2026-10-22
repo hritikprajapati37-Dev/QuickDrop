@@ -37,6 +37,7 @@
             android:padding="@dimen/stitch_margin_mobile">
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardCheckmark"
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:layout_marginTop="@dimen/stitch_xl"
