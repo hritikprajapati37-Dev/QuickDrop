@@ -20,8 +20,8 @@ import java.util.Locale;
 
 public class OrderDetailsFragment extends Fragment {
 
-    private TextView tvOrderID, tvPickupAddress, tvDestName, tvDestPhone, tvDropAddress, tvPartnerName, tvItemName, tvItemWeight, tvPaymentAmount, tvPaymentStatus;
-    private TextView tvTime1, tvTime2, tvTime3, tvTime4, tvTime5, tvTime6;
+    private TextView tvOrderID, tvPickupAddress, tvDestName, tvDestPhone, tvDropAddress, tvPartnerName, tvItemType, tvItemWeight, tvPaymentAmount, tvPaymentStatus;
+    private TextView tvTime1, tvTime2, tvTime3;
 
     @Nullable
     @Override
@@ -45,7 +45,7 @@ public class OrderDetailsFragment extends Fragment {
         tvDestPhone = view.findViewById(R.id.tvDestPhone);
         tvDropAddress = view.findViewById(R.id.tvDropAddress);
         tvPartnerName = view.findViewById(R.id.tvPartnerName);
-        tvItemName = view.findViewById(R.id.tvItemName);
+        tvItemType = view.findViewById(R.id.tvItemType);
         tvItemWeight = view.findViewById(R.id.tvItemWeight);
         tvPaymentAmount = view.findViewById(R.id.tvPaymentAmount);
         tvPaymentStatus = view.findViewById(R.id.tvPaymentStatus);
@@ -53,9 +53,6 @@ public class OrderDetailsFragment extends Fragment {
         tvTime1 = view.findViewById(R.id.tvTime1);
         tvTime2 = view.findViewById(R.id.tvTime2);
         tvTime3 = view.findViewById(R.id.tvTime3);
-        tvTime4 = view.findViewById(R.id.tvTime4);
-        tvTime5 = view.findViewById(R.id.tvTime5);
-        tvTime6 = view.findViewById(R.id.tvTime6);
 
         String orderId = getArguments() != null ? getArguments().getString("order_id", "") : "";
         loadOrderDetails(orderId);
@@ -126,7 +123,7 @@ public class OrderDetailsFragment extends Fragment {
             tvPartnerName.setText(partner == null || partner.isEmpty() || "null".equals(partner) ? "Unassigned Partner" : partner);
         }
 
-        if (tvItemName != null) tvItemName.setText(order.optString("item_description", "Package"));
+        if (tvItemType != null) tvItemType.setText(order.optString("item_description", "Package"));
         if (tvItemWeight != null) tvItemWeight.setText(order.optString("item_weight", "1.0 kg"));
 
         double totalAmount = order.optDouble("total_amount", 0.0);
@@ -140,15 +137,17 @@ public class OrderDetailsFragment extends Fragment {
         }
 
         String createdAt = order.optString("created_at", "");
-        String baseTime = formatOrderTime(createdAt, 0);
-        if (tvTime1 != null) tvTime1.setText(baseTime);
-        if (tvTime2 != null) tvTime2.setText(formatOrderTime(createdAt, 1));
-        if (tvTime3 != null) tvTime3.setText(formatOrderTime(createdAt, 5));
-        if (tvTime4 != null) tvTime4.setText(formatOrderTime(createdAt, 15));
-        if (tvTime5 != null) tvTime5.setText(formatOrderTime(createdAt, 25));
-        if (tvTime6 != null) {
-            boolean delivered = order.optBoolean("delivered", false);
-            tvTime6.setText(delivered ? formatOrderTime(createdAt, 40) : "Pending");
+        String orderPlacedTime = formatOrderTime(createdAt, 0);
+        if (tvTime1 != null) tvTime1.setText(orderPlacedTime);
+
+        boolean pickupVerified = order.optBoolean("pickup_verified", false);
+        if (tvTime2 != null) {
+            tvTime2.setText(pickupVerified ? formatOrderTime(createdAt, 15) : "Pending");
+        }
+
+        boolean delivered = order.optBoolean("delivered", false);
+        if (tvTime3 != null) {
+            tvTime3.setText(delivered ? formatOrderTime(createdAt, 35) : "Pending");
         }
     }
 
