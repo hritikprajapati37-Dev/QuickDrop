@@ -21,6 +21,7 @@ import java.util.Locale;
 public class OrderDetailsFragment extends Fragment {
 
     private TextView tvOrderID, tvPickupAddress, tvDestName, tvDestPhone, tvDropAddress, tvPartnerName, tvItemName, tvPaymentAmount, tvPaymentStatus;
+    private TextView tvTime1, tvTime2, tvTime3, tvTime4, tvTime5, tvTime6;
 
     @Nullable
     @Override
@@ -48,10 +49,17 @@ public class OrderDetailsFragment extends Fragment {
         tvPaymentAmount = view.findViewById(R.id.tvPaymentAmount);
         tvPaymentStatus = view.findViewById(R.id.tvPaymentStatus);
 
+        tvTime1 = view.findViewById(R.id.tvTime1);
+        tvTime2 = view.findViewById(R.id.tvTime2);
+        tvTime3 = view.findViewById(R.id.tvTime3);
+        tvTime4 = view.findViewById(R.id.tvTime4);
+        tvTime5 = view.findViewById(R.id.tvTime5);
+        tvTime6 = view.findViewById(R.id.tvTime6);
+
         String orderId = getArguments() != null ? getArguments().getString("order_id", "") : "";
         loadOrderDetails(orderId);
 
-        MaterialButton btnFeedback = view.findViewById(R.id.btnLiveTrack);
+        MaterialButton btnFeedback = view.findViewById(R.id.btnGiveFeedback);
         if (btnFeedback != null) {
             btnFeedback.setOnClickListener(v -> 
                 Navigation.findNavController(v).navigate(R.id.feedbackFragment));
@@ -103,9 +111,9 @@ public class OrderDetailsFragment extends Fragment {
 
     private void bindOrderData(JSONObject order) {
         String orderId = order.optString("order_id", "");
-        String shortId = orderId;
-        if (shortId.length() > 6) shortId = shortId.substring(shortId.length() - 6);
-        if (tvOrderID != null) tvOrderID.setText("Order #" + shortId);
+        String sId = orderId;
+        if (sId.length() > 6) sId = sId.substring(sId.length() - 6);
+        if (tvOrderID != null) tvOrderID.setText("Order #" + sId);
 
         if (tvPickupAddress != null) tvPickupAddress.setText(order.optString("pickup_address", ""));
         if (tvDestName != null) tvDestName.setText("Receiver");
@@ -114,7 +122,7 @@ public class OrderDetailsFragment extends Fragment {
 
         String partner = order.optString("assigned_partner", "");
         if (tvPartnerName != null) {
-            tvPartnerName.setText(partner.isEmpty() ? "Unassigned" : partner);
+            tvPartnerName.setText(partner == null || partner.isEmpty() || "null".equals(partner) ? "Unassigned Partner" : partner);
         }
 
         if (tvItemName != null) tvItemName.setText(order.optString("item_description", "Package"));
@@ -128,5 +136,52 @@ public class OrderDetailsFragment extends Fragment {
         if (tvPaymentStatus != null) {
             tvPaymentStatus.setText(paymentStatus);
         }
+
+        String createdAt = order.optString("created_at", "");
+        String baseTime = formatOrderTime(createdAt);
+        if (tvTime1 != null) tvTime1.setText(baseTime);
+        if (tvTime2 != null) tvTime2.setText(addMinutes(createdAt, 1));
+        if (tvTime3 != null) tvTime3.setText(addMinutes(createdAt, 5));
+        if (tvTime4 != null) tvTime4.setText(addMinutes(createdAt, 15));
+        if (tvTime5 != null) tvTime5.setText(addMinutes(createdAt, 25));
+        if (tvTime6 != null) {
+            boolean delivered = order.optBoolean("delivered", false);
+            tvTime6.setText(delivered ? addMinutes(createdAt, 40) : "Pending");
+        }
+    }
+
+    private String formatOrderTime(String createdAtIso) {
+        try {
+            if (createdAtIso != null && createdAtIso.length() >= 19) {
+                String timePart = createdAtIso.substring(11, 16);
+                String[] parts = timePart.split(":");
+                int hour = Integer.parseInt(parts[0]);
+                int minute = Integer.parseInt(parts[1]);
+                String ampm = hour >= 12 ? "PM" : "AM";
+                hour = hour % 12;
+                if (hour == 0) hour = 12;
+                return String.format(Locale.getDefault(), "%d:%02d %s", hour, minute, ampm);
+            }
+        } catch (Exception ignored) {}
+        return "Just now";
+    }
+
+    private String addMinutes(String createdAtIso, int addMins) {
+        try {
+            if (createdAtIso != null && createdAtIso.length() >= 19) {
+                String timePart = createdAtIso.substring(11, 16);
+                String[] parts = timePart.split(":");
+                int hour = Integer.parseInt(parts[0]);
+                int minute = Integer.parseInt(parts[1]) + addMins;
+                hour += minute / 60;
+                minute = minute % 60;
+                hour = hour % 24;
+                String ampm = hour >= 12 ? "PM" : "AM";
+                hour = hour % 12;
+                if (hour == 0) hour = 12;
+                return String.format(Locale.getDefault(), "%d:%02d %s", hour, minute, ampm);
+            }
+        } catch (Exception ignored) {}
+        return "Shortly";
     }
 }

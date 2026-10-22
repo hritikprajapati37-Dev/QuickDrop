@@ -48,7 +48,7 @@
                         style="@style/Stitch.Typography.BodyMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Order #QD-9284" />
+                        android:text="" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -73,6 +73,7 @@
                         android:backgroundTint="@color/white" />
 
                     <TextView
+                        android:id="@+id/tvStatusBadge"
                         style="@style/Stitch.Typography.LabelMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -128,7 +129,8 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/tvProgressTitle"
                         app:srcCompat="@drawable/ic_local_shipping"
-                        app:tint="@color/vf_primary" />
+                        app:tint="@color/vf_primary"
+                        android:contentDescription="Shipping Icon" />
 
                     <!-- Progress Stepper -->
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -166,7 +168,8 @@
                             app:layout_constraintHorizontal_chainStyle="spread_inside"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_timeline_checked" />
+                            app:srcCompat="@drawable/ic_timeline_checked"
+                            android:contentDescription="Step 1" />
 
                         <ImageView
                             android:id="@+id/ivStep2"
@@ -175,7 +178,8 @@
                             app:layout_constraintEnd_toStartOf="@id/ivStep3"
                             app:layout_constraintStart_toEndOf="@id/ivStep1"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_timeline_checked" />
+                            app:srcCompat="@drawable/ic_timeline_checked"
+                            android:contentDescription="Step 2" />
 
                         <ImageView
                             android:id="@+id/ivStep3"
@@ -184,7 +188,8 @@
                             app:layout_constraintEnd_toStartOf="@id/ivStep4"
                             app:layout_constraintStart_toEndOf="@id/ivStep2"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_timeline_active" />
+                            app:srcCompat="@drawable/ic_timeline_active"
+                            android:contentDescription="Step 3" />
 
                         <ImageView
                             android:id="@+id/ivStep4"
@@ -193,7 +198,8 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/ivStep3"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_timeline_pending" />
+                            app:srcCompat="@drawable/ic_timeline_pending"
+                            android:contentDescription="Step 4" />
 
                         <TextView
                             android:id="@+id/tvStep1"
@@ -289,7 +295,8 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/ic_timeline_pending"
-                            app:tint="@color/vf_primary" />
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="Pickup Icon" />
 
                         <TextView
                             style="@style/Stitch.Typography.LabelMedium"
@@ -307,7 +314,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/stitch_md"
                             android:layout_marginTop="16dp"
-                            android:text="123 Tech Park, Sharma Heights\nBengaluru, Karnataka 560001"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -322,7 +329,8 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/tvPickupAddress"
                             app:srcCompat="@drawable/ic_location"
-                            app:tint="@color/vf_primary" />
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="Destination Icon" />
 
                         <TextView
                             android:id="@+id/tvDestLabel"
@@ -339,7 +347,7 @@
                             style="@style/Stitch.Typography.BodyLarge"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="Rahul Sharma"
+                            android:text="Receiver"
                             android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/tvDestLabel"
@@ -350,7 +358,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="+91 XXXXX XXXXX"
+                            android:text=""
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/tvDestName"
                             app:layout_constraintTop_toBottomOf="@id/tvDestName" />
@@ -361,7 +369,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="456 Elm Street, Apt 4B, Sharma Heights"
+                            android:text=""
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/tvDestPhone"
                             app:layout_constraintTop_toBottomOf="@id/tvDestPhone" />
@@ -389,7 +397,8 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                        app:srcCompat="@drawable/ic_user_circle" />
+                        app:srcCompat="@drawable/ic_user_circle"
+                        android:contentDescription="Partner Avatar" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -412,7 +421,7 @@
                             style="@style/Stitch.Typography.BodyLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Rahul Sharma"
+                            android:text="Unassigned"
                             android:textStyle="bold" />
 
                         <LinearLayout
@@ -425,7 +434,8 @@
                                 android:layout_width="14dp"
                                 android:layout_height="14dp"
                                 app:srcCompat="@drawable/ic_star"
-                                app:tint="@color/vf_warning" />
+                                app:tint="@color/vf_warning"
+                                android:contentDescription="Star Rating" />
 
                             <TextView
                                 android:id="@+id/tvPartnerRating"
@@ -447,7 +457,10 @@
                         app:iconTint="@color/vf_on_secondary_container"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:contentDescription="Call Partner" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -481,7 +494,8 @@
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 app:srcCompat="@drawable/ic_package"
-                                app:tint="@color/vf_outline" />
+                                app:tint="@color/vf_outline"
+                                android:contentDescription="Package Icon" />
 
                             <TextView
                                 style="@style/Stitch.Typography.LabelMedium"
@@ -503,7 +517,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Document Express"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold" />
 
@@ -519,7 +533,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Small Package"
+                            android:text="Standard Package"
                             android:textColor="@color/vf_on_surface" />
 
                         <TextView
@@ -534,7 +548,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0.5 kg"
+                            android:text="1.0 kg"
                             android:textColor="@color/vf_on_surface" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -562,7 +576,8 @@
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 app:srcCompat="@drawable/ic_credit_card"
-                                app:tint="@color/vf_outline" />
+                                app:tint="@color/vf_outline"
+                                android:contentDescription="Payment Icon" />
 
                             <TextView
                                 style="@style/Stitch.Typography.LabelMedium"
@@ -584,7 +599,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="UPI"
+                            android:text="Online Gateway"
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold" />
 
@@ -600,7 +615,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="₹75"
+                            android:text=""
                             android:textColor="@color/vf_on_surface"
                             android:textStyle="bold" />
 
@@ -616,7 +631,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Paid"
+                            android:text=""
                             android:textColor="@color/vf_success"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -658,7 +673,8 @@
                                 android:id="@+id/ivIcon1"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                app:srcCompat="@drawable/ic_timeline_checked" />
+                                app:srcCompat="@drawable/ic_timeline_checked"
+                                android:contentDescription="Icon 1" />
                             <TextView
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
@@ -668,11 +684,12 @@
                                 android:text="Order Placed"
                                 android:textColor="@color/vf_on_surface" />
                             <TextView
+                                android:id="@+id/tvTime1"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:text="1:45 PM" />
+                                android:text="" />
                         </RelativeLayout>
 
                         <RelativeLayout
@@ -683,7 +700,8 @@
                                 android:id="@+id/ivIcon2"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                app:srcCompat="@drawable/ic_timeline_checked" />
+                                app:srcCompat="@drawable/ic_timeline_checked"
+                                android:contentDescription="Icon 2" />
                             <TextView
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
@@ -693,11 +711,12 @@
                                 android:text="Payment Confirmed"
                                 android:textColor="@color/vf_on_surface" />
                             <TextView
+                                android:id="@+id/tvTime2"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:text="1:46 PM" />
+                                android:text="" />
                         </RelativeLayout>
 
                         <RelativeLayout
@@ -708,7 +727,8 @@
                                 android:id="@+id/ivIcon3"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                app:srcCompat="@drawable/ic_timeline_checked" />
+                                app:srcCompat="@drawable/ic_timeline_checked"
+                                android:contentDescription="Icon 3" />
                             <TextView
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
@@ -718,11 +738,12 @@
                                 android:text="Order Accepted"
                                 android:textColor="@color/vf_on_surface" />
                             <TextView
+                                android:id="@+id/tvTime3"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:text="1:50 PM" />
+                                android:text="" />
                         </RelativeLayout>
 
                         <RelativeLayout
@@ -733,7 +754,8 @@
                                 android:id="@+id/ivIcon4"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                app:srcCompat="@drawable/ic_timeline_checked" />
+                                app:srcCompat="@drawable/ic_timeline_checked"
+                                android:contentDescription="Icon 4" />
                             <TextView
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
@@ -743,11 +765,12 @@
                                 android:text="Package Picked Up"
                                 android:textColor="@color/vf_on_surface" />
                             <TextView
+                                android:id="@+id/tvTime4"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:text="2:00 PM" />
+                                android:text="" />
                         </RelativeLayout>
 
                         <RelativeLayout
@@ -758,7 +781,8 @@
                                 android:id="@+id/ivIcon5"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                app:srcCompat="@drawable/ic_timeline_active" />
+                                app:srcCompat="@drawable/ic_timeline_active"
+                                android:contentDescription="Icon 5" />
                             <TextView
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
@@ -769,11 +793,12 @@
                                 android:textColor="@color/vf_primary"
                                 android:textStyle="bold" />
                             <TextView
+                                android:id="@+id/tvTime5"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:text="2:10 PM"
+                                android:text=""
                                 android:textColor="@color/vf_primary"
                                 android:textStyle="bold" />
                         </RelativeLayout>
@@ -785,7 +810,8 @@
                                 android:id="@+id/ivIcon6"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                app:srcCompat="@drawable/ic_timeline_pending" />
+                                app:srcCompat="@drawable/ic_timeline_pending"
+                                android:contentDescription="Icon 6" />
                             <TextView
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
@@ -794,39 +820,26 @@
                                 android:layout_marginStart="12dp"
                                 android:text="Delivered" />
                             <TextView
+                                android:id="@+id/tvTime6"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentEnd="true"
-                                android:text="Pending" />
+                                android:text="" />
                         </RelativeLayout>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Feedback Section -->
-            <TextView
-                style="@style/Stitch.Typography.TitleLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/stitch_xl"
-                android:text="How was your delivery?" />
-
-            <TextView
-                style="@style/Stitch.Typography.BodyMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Share your experience to help us improve." />
-
+            <!-- Give Feedback Button -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLiveTrack"
+                android:id="@+id/btnGiveFeedback"
                 style="@style/Stitch.Button.Primary"
                 android:layout_width="match_parent"
-                android:layout_marginTop="@dimen/stitch_md"
+                android:layout_height="56dp"
+                android:layout_marginTop="@dimen/stitch_lg"
                 android:text="Give Feedback"
-                app:icon="@drawable/ic_star"
-                app:iconGravity="textStart" />
+                app:cornerRadius="28dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
