@@ -67,37 +67,13 @@ def login():
     phone = str(data.get("phone", "")).strip()
     password = str(data.get("password", "")).strip()
 
-    if not phone:
-        return jsonify({"error": "Phone number is required"}), 400
+    if not phone or not password:
+        return jsonify({"error": "Invalid credentials"}), 401
 
     users_collection = db["users"]
     user = users_collection.find_one({"phone": phone})
 
-    if not user:
-        # Auto-register user on OTP login if they don't exist yet
-        name = "User " + phone[-4:]
-        role = "PARTNER" if "partner" in phone.lower() else "SENDER"
-        hashed_pw = hash_secret("password123")
-        user_doc = {
-            "name": name,
-            "phone": phone,
-            "password": hashed_pw,
-            "email": "",
-            "role": role,
-            "created_at": datetime.utcnow()
-        }
-        result = users_collection.insert_one(user_doc)
-        user_id = str(result.inserted_id)
-        token = generate_token(user_id, role, phone)
-        return jsonify({
-            "message": "Login successful (Auto-registered)",
-            "token": token,
-            "role": role,
-            "name": name,
-            "email": ""
-        }), 200
-
-    if password and password != "password123" and not verify_secret(password, user.get("password", "")):
+    if not user or not verify_secret(password, user.get("password", "")):
         return jsonify({"error": "Invalid credentials"}), 401
 
     user_id = str(user["_id"])

@@ -9,15 +9,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ApiClient {
-    // Production Render Backend URL over HTTPS
+    private static final String TAG = "ApiClient";
+
+    // Production Render Backend URL over HTTPS (Authoritative Deployed Environment)
     private static final String PRODUCTION_URL = "https://quickdrop-bhd9.onrender.com";
 
-    // Local development configuration (Set USE_LOCAL_DEV to true when running Flask locally)
-    private static final boolean USE_LOCAL_DEV = true;
+    // Local development configuration (Set USE_LOCAL_DEV to true only when running local Flask instance)
+    private static final boolean USE_LOCAL_DEV = false;
+    private static final String LOCAL_PC_LAN_IP = "10.0.2.2"; // Emulator loopback alias
 
     private static String getBaseUrl() {
         if (USE_LOCAL_DEV) {
-            return "http://10.0.2.2:5000";
+            return "http://" + LOCAL_PC_LAN_IP + ":5000";
         }
         return PRODUCTION_URL;
     }
@@ -27,25 +30,27 @@ public class ApiClient {
         void onError(String error);
     }
 
-    private static String handleException(Exception e, String defaultMsg) {
-        Log.e("ApiClient", defaultMsg, e);
+    private static String handleException(Exception e, String endpoint) {
+        Log.e(TAG, "Network request failed for endpoint: " + endpoint, e);
         String msg = e.getMessage();
-        if (msg != null && (msg.contains("Unable to resolve host") || msg.contains("failed to connect"))) {
-            return "Cannot connect to server. Please ensure local Flask backend is running on port 5000.";
+        if (msg != null && (msg.contains("Unable to resolve host") || msg.contains("failed to connect") || msg.contains("Connection refused"))) {
+            return "Cannot connect to server (" + getBaseUrl() + "). Please check your internet connection.";
         }
-        return msg != null ? msg : defaultMsg;
+        return msg != null ? msg : "Unknown network error";
     }
 
     public static void signup(String name, String phone, String password, String role, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/auth/signup";
             try {
-                URL url = new URL(getBaseUrl() + "/api/auth/signup");
+                URL url = new URL(getBaseUrl() + endpoint);
+                Log.d(TAG, "Executing POST " + url.toString());
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -60,6 +65,7 @@ public class ApiClient {
                 }
 
                 int code = conn.getResponseCode();
+                Log.d(TAG, "Response code " + code + " for " + endpoint);
                 BufferedReader br;
                 if (code >= 200 && code < 300) {
                     br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
@@ -80,21 +86,23 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Signup failed"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Signup error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void login(String phone, String password, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/auth/login";
             try {
-                URL url = new URL(getBaseUrl() + "/api/auth/login");
+                URL url = new URL(getBaseUrl() + endpoint);
+                Log.d(TAG, "Executing POST " + url.toString());
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -107,6 +115,7 @@ public class ApiClient {
                 }
 
                 int code = conn.getResponseCode();
+                Log.d(TAG, "Response code " + code + " for " + endpoint);
                 BufferedReader br;
                 if (code >= 200 && code < 300) {
                     br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
@@ -127,21 +136,22 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Login failed"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Login error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void getDashboard(String token, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/user/dashboard";
             try {
-                URL url = new URL(getBaseUrl() + "/api/user/dashboard");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -164,21 +174,22 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to load dashboard"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Dashboard error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void getOrdersList(String token, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/orders/list";
             try {
-                URL url = new URL(getBaseUrl() + "/api/orders/list");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -201,21 +212,22 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to fetch orders"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Orders list error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void getOrderDetails(String token, String orderId, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/orders/" + orderId;
             try {
-                URL url = new URL(getBaseUrl() + "/api/orders/" + orderId);
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -238,21 +250,22 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to fetch order details"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Order details error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void getAvailableRequests(String token, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/partner/available";
             try {
-                URL url = new URL(getBaseUrl() + "/api/partner/available");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -275,22 +288,23 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to fetch available requests"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Available requests error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void acceptRequest(String token, String orderId, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/delivery/accept";
             try {
-                URL url = new URL(getBaseUrl() + "/api/delivery/accept");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -322,22 +336,23 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to accept order"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Accept request error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void createOrder(String token, String receiverPhone, String pickupAddress, String deliveryAddress, String itemDescription, String itemWeight, double pickupLat, double pickupLng, double deliveryLat, double deliveryLng, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/orders";
             try {
-                URL url = new URL(getBaseUrl() + "/api/orders");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -377,21 +392,22 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Order creation failed"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Create order error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void payOrder(String token, String orderId, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/orders/" + orderId + "/pay";
             try {
-                URL url = new URL(getBaseUrl() + "/api/orders/" + orderId + "/pay");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setDoOutput(true);
 
                 int code = conn.getResponseCode();
@@ -415,21 +431,22 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Payment failed"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Payment error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void getPartnerEarnings(String token, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/partner/earnings";
             try {
-                URL url = new URL(getBaseUrl() + "/api/partner/earnings");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -452,21 +469,22 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to fetch earnings"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Earnings error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void getProfile(String token, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/user/profile";
             try {
-                URL url = new URL(getBaseUrl() + "/api/user/profile");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -489,22 +507,23 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to load profile"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Get profile error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
 
     public static void updateProfile(String token, String name, String email, ApiCallback callback) {
         new Thread(() -> {
+            String endpoint = "/api/user/profile";
             try {
-                URL url = new URL(getBaseUrl() + "/api/user/profile");
+                URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("PUT");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -537,7 +556,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to update profile"));
                 }
             } catch (Exception e) {
-                callback.onError(handleException(e, "Update profile error"));
+                callback.onError(handleException(e, endpoint));
             }
         }).start();
     }
