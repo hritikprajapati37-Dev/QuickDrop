@@ -44,7 +44,7 @@ import java.util.Locale;
 
 public class CreateDeliveryFragment extends Fragment {
 
-    private TextInputEditText etReceiverPhone, etDeliveryAddress, etItemName, etItemWeight;
+    private TextInputEditText etReceiverPhone, etDeliveryAddress, etItemWeight;
     private AutoCompleteTextView actvCategory;
     private TextView tvPickupPrimary, tvPickupSecondary;
     private FusedLocationProviderClient fusedLocationClient;
@@ -77,7 +77,6 @@ public class CreateDeliveryFragment extends Fragment {
 
         etReceiverPhone = view.findViewById(R.id.etReceiverPhone);
         etDeliveryAddress = view.findViewById(R.id.etDeliveryAddress);
-        etItemName = view.findViewById(R.id.etItemName);
         etItemWeight = view.findViewById(R.id.etItemWeight);
         tvPickupPrimary = view.findViewById(R.id.tvPickupPrimary);
         tvPickupSecondary = view.findViewById(R.id.tvPickupSecondary);
@@ -334,7 +333,6 @@ public class CreateDeliveryFragment extends Fragment {
     private void submitOrder(View v) {
         String receiverPhone = etReceiverPhone != null && etReceiverPhone.getText() != null ? etReceiverPhone.getText().toString().trim() : "";
         String deliveryAddress = etDeliveryAddress != null && etDeliveryAddress.getText() != null ? etDeliveryAddress.getText().toString().trim() : "";
-        String itemName = etItemName != null && etItemName.getText() != null ? etItemName.getText().toString().trim() : "";
         String itemWeight = etItemWeight != null && etItemWeight.getText() != null ? etItemWeight.getText().toString().trim() : "1.0 kg";
         String category = actvCategory != null ? actvCategory.getText().toString().trim() : "General";
 
@@ -405,7 +403,7 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
-        String itemDesc = (!itemName.isEmpty() ? itemName : "Package") + " (" + category + ")";
+        String itemDesc = category + " Package";
         if (itemWeight.isEmpty()) itemWeight = "1.0 kg";
 
         String token = UserSession.getToken(requireContext());

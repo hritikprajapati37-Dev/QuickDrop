@@ -80,6 +80,10 @@ public class PartnerSignUpFragment extends Fragment {
                 etPhone.setError("Phone number is required");
                 return;
             }
+            if (phone.length() != 10) {
+                etPhone.setError("Enter a valid 10-digit mobile number");
+                return;
+            }
             otpSent = true;
             llOtpContainer.setVisibility(View.VISIBLE);
             etOtp.setText(MOCK_OTP);
@@ -102,6 +106,10 @@ public class PartnerSignUpFragment extends Fragment {
             }
             if (phone.isEmpty()) {
                 etPhone.setError("Phone number is required");
+                return;
+            }
+            if (phone.length() != 10) {
+                etPhone.setError("Enter a valid 10-digit mobile number");
                 return;
             }
             if (aadhaar.isEmpty()) {

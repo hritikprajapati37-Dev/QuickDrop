@@ -45,6 +45,10 @@ public class LoginFragment extends Fragment {
                 etPhone.setError("Please enter your mobile number");
                 return;
             }
+            if (phone.length() != 10) {
+                etPhone.setError("Enter a valid 10-digit mobile number");
+                return;
+            }
             otpSent = true;
             llOtpContainer.setVisibility(View.VISIBLE);
             etOtp.setText(MOCK_OTP); // Auto-fill for convenience/demo
@@ -55,6 +59,10 @@ public class LoginFragment extends Fragment {
             String phone = etPhone.getText().toString().trim();
             if (phone.isEmpty()) {
                 etPhone.setError("Please enter your mobile number");
+                return;
+            }
+            if (phone.length() != 10) {
+                etPhone.setError("Enter a valid 10-digit mobile number");
                 return;
             }
             if (!otpSent) {

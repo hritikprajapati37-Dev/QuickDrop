@@ -21,8 +21,8 @@ def signup():
     if not phone or not name or not password:
         return jsonify({"error": "Missing required fields (name, phone, password)"}), 400
 
-    if len(phone) < 10:
-        return jsonify({"error": "Invalid phone number format"}), 400
+    if len(phone) != 10:
+        return jsonify({"error": "Phone number must be exactly 10 digits"}), 400
 
     if email:
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
@@ -69,6 +69,9 @@ def login():
 
     if not phone or not password:
         return jsonify({"error": "Invalid credentials"}), 401
+
+    if len(phone) != 10:
+        return jsonify({"error": "Phone number must be exactly 10 digits"}), 400
 
     users_collection = db["users"]
     user = users_collection.find_one({"phone": phone})

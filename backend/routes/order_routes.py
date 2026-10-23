@@ -34,6 +34,9 @@ def create_order():
     if not receiver_phone or not pickup_address or not delivery_address:
         return jsonify({"error": "Missing required order fields"}), 400
 
+    if len(receiver_phone) != 10:
+        return jsonify({"error": "Receiver phone number must be exactly 10 digits"}), 400
+
     def haversine(lat1, lon1, lat2, lon2):
         R = 6371.0
         dlat = math.radians(lat2 - lat1)
@@ -58,6 +61,7 @@ def create_order():
     pickup_otp_expiry = datetime.utcnow() + timedelta(minutes=10)
 
     tracking_token = secrets.token_urlsafe(32)
+    now_iso = datetime.utcnow().isoformat()
 
     order_doc = {
         "sender_phone": sender_phone,
@@ -79,6 +83,9 @@ def create_order():
         "payment_status": "PENDING",
         "pickup_verified": False,
         "delivered": False,
+        "order_time": now_iso,
+        "pickup_time": None,
+        "complete_order_time": None,
         "assigned_partner": data.get("assigned_partner", None),
         "tracking_token": tracking_token,
         "pickup_otp_hash": pickup_otp_hash,
@@ -170,7 +177,6 @@ def orders_list():
     for o in orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
-        # Format datetime object to ISO string if present
         if isinstance(o.get("created_at"), datetime):
             o["created_at"] = o["created_at"].isoformat()
     return jsonify({"orders": orders}), 200
