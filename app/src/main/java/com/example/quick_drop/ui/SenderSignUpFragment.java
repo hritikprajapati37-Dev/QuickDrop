@@ -1,6 +1,7 @@
 package com.example.quick_drop.ui;
 
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,11 @@ public class SenderSignUpFragment extends Fragment {
         EditText etName = view.findViewById(R.id.etFullName);
         EditText etPhone = view.findViewById(R.id.etPhone);
         EditText etOtp = view.findViewById(R.id.etOtp);
+
+        if (etPhone != null) {
+            etPhone.setFilters(new InputFilter[]{ new InputFilter.LengthFilter(10) });
+        }
+
         LinearLayout llOtpContainer = view.findViewById(R.id.llOtpContainer);
         View btnSendOtp = view.findViewById(R.id.btnSendOtp);
 
