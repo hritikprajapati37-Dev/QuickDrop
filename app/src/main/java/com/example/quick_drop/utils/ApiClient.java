@@ -203,6 +203,56 @@ public class ApiClient {
         }).start();
     }
 
+    public static void submitFeedback(String token, String orderId, float rating, String comment, ApiCallback callback) {
+        new Thread(() -> {
+            String endpoint = "/api/feedbacks";
+            try {
+                URL url = new URL(getBaseUrl() + endpoint);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
+                conn.setDoOutput(true);
+
+                JSONObject jsonParam = new JSONObject();
+                jsonParam.put("order_id", orderId);
+                jsonParam.put("rating", rating);
+                jsonParam.put("comment", comment);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonParam.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                int code = conn.getResponseCode();
+                BufferedReader br;
+                if (code >= 200 && code < 300) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
+                }
+
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    if (callback != null) callback.onSuccess(resJson);
+                } else {
+                    if (callback != null) callback.onError(resJson.optString("error", "Failed to submit feedback"));
+                }
+            } catch (Exception e) {
+                if (callback != null) callback.onError(handleException(e, endpoint));
+            }
+        }).start();
+    }
+
     public static void arrivedPickup(String token, String orderId, ApiCallback callback) {
         new Thread(() -> {
             String endpoint = "/api/delivery/arrived-pickup";

@@ -39,23 +39,48 @@ def signup():
 
     hashed_pw = hash_secret(password)
     user_doc = {
-        "name": name,
         "phone": phone,
         "password": hashed_pw,
-        "email": email,
         "role": role,
+        "status": "active",
         "created_at": datetime.utcnow()
     }
     result = users_collection.insert_one(user_doc)
     user_id = str(result.inserted_id)
+
+    # Store profile in role-specific collection
+    if role == "SENDER":
+        consignor_doc = {
+            "user_id": user_id,
+            "name": name,
+            "phone": phone,
+            "email": email,
+            "created_at": datetime.utcnow()
+        }
+        db["consignors"].insert_one(consignor_doc)
+    elif role == "PARTNER":
+        partner_doc = {
+            "user_id": user_id,
+            "name": name,
+            "phone": phone,
+            "email": email,
+            "is_online": True,
+            "partner_lat": 12.9716,
+            "partner_lng": 77.5946,
+            "vehicle_type": "Motorcycle",
+            "vehicle_number": "MH 01 AB 1234",
+            "created_at": datetime.utcnow()
+        }
+        db["delivery_boy_schemas"].insert_one(partner_doc)
+
     token = generate_token(user_id, role, phone)
 
     return jsonify({
         "message": "User registered successfully",
         "token": token,
         "role": role,
-        "name": user_doc["name"],
-        "email": user_doc["email"]
+        "name": name,
+        "email": email
     }), 201
 
 @auth_bp.route("/api/auth/login", methods=["POST"], endpoint="login")
@@ -81,14 +106,29 @@ def login():
 
     user_id = str(user["_id"])
     role = user.get("role", "SENDER")
+
+    # Fetch name and email from profile collection
+    name = "User"
+    email = ""
+    if role == "SENDER":
+        profile = db["consignors"].find_one({"$or": [{"user_id": user_id}, {"phone": phone}]})
+        if profile:
+            name = profile.get("name", "User")
+            email = profile.get("email", "")
+    elif role == "PARTNER":
+        profile = db["delivery_boy_schemas"].find_one({"$or": [{"user_id": user_id}, {"phone": phone}]})
+        if profile:
+            name = profile.get("name", "Partner")
+            email = profile.get("email", "")
+
     token = generate_token(user_id, role, phone)
 
     return jsonify({
         "message": "Login successful",
         "token": token,
         "role": role,
-        "name": user.get("name", "User"),
-        "email": user.get("email", "")
+        "name": name,
+        "email": email
     }), 200
 
 @auth_bp.route("/api/user/profile", methods=["GET"], endpoint="get_user_profile")
@@ -98,14 +138,34 @@ def get_user_profile():
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
     phone = request.user.get("phone")
+    role = request.user.get("role", "SENDER")
     user = db["users"].find_one({"phone": phone})
     if not user:
         return jsonify({"error": "User not found"}), 404
+
+    user_id = str(user["_id"])
+    name = "User"
+    email = ""
+    is_online = True
+
+    if role == "SENDER":
+        profile = db["consignors"].find_one({"$or": [{"user_id": user_id}, {"phone": phone}]})
+        if profile:
+            name = profile.get("name", "User")
+            email = profile.get("email", "")
+    elif role == "PARTNER":
+        profile = db["delivery_boy_schemas"].find_one({"$or": [{"user_id": user_id}, {"phone": phone}]})
+        if profile:
+            name = profile.get("name", "Partner")
+            email = profile.get("email", "")
+            is_online = profile.get("is_online", True)
+
     return jsonify({
-        "name": user.get("name", "User"),
-        "phone": user.get("phone", ""),
-        "email": user.get("email", ""),
-        "role": user.get("role", "SENDER")
+        "name": name,
+        "phone": phone,
+        "email": email,
+        "role": role,
+        "is_online": is_online
     }), 200
 
 @auth_bp.route("/api/user/profile", methods=["PUT", "POST"], endpoint="update_user_profile")
@@ -115,10 +175,12 @@ def update_user_profile():
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
     phone = request.user.get("phone")
+    role = request.user.get("role", "SENDER")
     user = db["users"].find_one({"phone": phone})
     if not user:
         return jsonify({"error": "User not found"}), 404
 
+    user_id = str(user["_id"])
     data = request.get_json(force=True, silent=True) or {}
     name = str(data.get("name", "")).strip()
     email = str(data.get("email", "")).strip()
@@ -126,7 +188,6 @@ def update_user_profile():
     update_fields = {}
     if name:
         update_fields["name"] = name
-    
     if email:
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             return jsonify({"error": "Invalid email format"}), 400
@@ -134,13 +195,23 @@ def update_user_profile():
     else:
         update_fields["email"] = ""
 
-    db["users"].update_one({"phone": phone}, {"$set": update_fields})
+    if role == "SENDER":
+        db["consignors"].update_one(
+            {"$or": [{"user_id": user_id}, {"phone": phone}]},
+            {"$set": update_fields},
+            upsert=True
+        )
+    elif role == "PARTNER":
+        db["delivery_boy_schemas"].update_one(
+            {"$or": [{"user_id": user_id}, {"phone": phone}]},
+            {"$set": update_fields},
+            upsert=True
+        )
 
-    updated_user = db["users"].find_one({"phone": phone})
     return jsonify({
         "message": "Profile updated successfully",
-        "name": updated_user.get("name", "User"),
-        "phone": updated_user.get("phone", ""),
-        "email": updated_user.get("email", ""),
-        "role": updated_user.get("role", "SENDER")
+        "name": name if name else "User",
+        "phone": phone,
+        "email": email,
+        "role": role
     }), 200

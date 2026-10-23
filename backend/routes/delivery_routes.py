@@ -12,15 +12,12 @@ def check_and_expire_orders(db):
     if db is None:
         return
     now_iso = datetime.utcnow().isoformat()
-    db["orders"].update_many(
-        {"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}},
-        {"$set": {
-            "status": "EXPIRED",
-            "refund_status": "refunded",
-            "refunded_at": now_iso,
-            "refund_reference": "REF_" + secrets.token_hex(8)
-        }}
-    )
+    expired_orders = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
+    for o in expired_orders:
+        oid = str(o["_id"])
+        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "refunded"}})
+        db["payments"].update_one({"order_id": oid}, {"$set": {"payment_status": "REFUNDED", "refunded_at": now_iso}})
+        db["orderhistories"].insert_one({"order_id": oid, "status": "EXPIRED", "timestamp": now_iso})
 
 @delivery_bp.route("/api/partner/status", methods=["POST"], endpoint="update_partner_status")
 @token_required
@@ -31,15 +28,87 @@ def update_partner_status():
     data = request.get_json(force=True, silent=True) or {}
     is_online = bool(data.get("is_online", False))
     partner_phone = request.user.get("phone")
+    user_id = request.user.get("sub")
 
-    db["users"].update_one(
-        {"phone": partner_phone},
-        {"$set": {"is_online": is_online, "last_active": datetime.utcnow()}}
+    db["delivery_boy_schemas"].update_one(
+        {"$or": [{"user_id": user_id}, {"phone": partner_phone}]},
+        {"$set": {"is_online": is_online, "last_active": datetime.utcnow()}},
+        upsert=True
     )
     return jsonify({
         "message": "Partner status updated successfully in database",
         "is_online": is_online
     }), 200
+
+@delivery_bp.route("/api/partner/location", methods=["POST"], endpoint="update_partner_location")
+@token_required
+@role_required("PARTNER")
+def update_partner_location():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    lat = data.get("lat")
+    lng = data.get("lng")
+    partner_phone = request.user.get("phone")
+    user_id = request.user.get("sub")
+
+    if lat is None or lng is None:
+        return jsonify({"error": "Missing lat/lng"}), 400
+
+    now_iso = datetime.utcnow().isoformat()
+    db["delivery_boy_schemas"].update_one(
+        {"$or": [{"user_id": user_id}, {"phone": partner_phone}]},
+        {"$set": {
+            "partner_lat": float(lat),
+            "partner_lng": float(lng),
+            "location_updated_at": now_iso,
+            "last_active": datetime.utcnow()
+        }},
+        upsert=True
+    )
+
+    db["orders"].update_many(
+        {"assigned_partner": partner_phone, "delivered": False},
+        {"$set": {
+            "partner_lat": float(lat),
+            "partner_lng": float(lng),
+            "partner_location_updated_at": now_iso
+        }}
+    )
+
+    return jsonify({"message": "Location updated successfully", "lat": lat, "lng": lng, "updated_at": now_iso}), 200
+
+@delivery_bp.route("/api/delivery/arrived-pickup", methods=["POST"], endpoint="arrived_pickup")
+@token_required
+@role_required("PARTNER")
+def arrived_pickup():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    order_id = data.get("order_id")
+    partner_phone = request.user.get("phone")
+
+    try:
+        obj_id = ObjectId(order_id)
+    except Exception:
+        return jsonify({"error": "Invalid order ID"}), 400
+
+    now_iso = datetime.utcnow().isoformat()
+    result = db["orders"].update_one(
+        {"_id": obj_id, "assigned_partner": partner_phone, "pickup_verified": False},
+        {"$set": {
+            "status": "ARRIVED_PICKUP",
+            "arrived_pickup_at": now_iso
+        }}
+    )
+    if result.modified_count == 0:
+        return jsonify({"error": "Order not found or not assigned to partner"}), 400
+
+    db["orderhistories"].insert_one({"order_id": order_id, "status": "ARRIVED_PICKUP", "timestamp": now_iso, "created_at": datetime.utcnow()})
+
+    return jsonify({"message": "Arrived at pickup location recorded", "status": "ARRIVED_PICKUP"}), 200
 
 @delivery_bp.route("/api/delivery/verify-pickup", methods=["POST"], endpoint="verify_pickup")
 @token_required
@@ -103,6 +172,8 @@ def verify_pickup():
 
     if result.modified_count == 0:
         return jsonify({"error": "State transition failed or already verified"}), 400
+
+    db["orderhistories"].insert_one({"order_id": order_id, "status": "PICKED_UP", "timestamp": pickup_time_iso, "created_at": datetime.utcnow()})
 
     return jsonify({
         "message": "Pickup verified successfully. Delivery OTP generated for receiver handover.",
@@ -168,6 +239,8 @@ def verify_delivery():
     if result.modified_count == 0:
         return jsonify({"error": "State transition failed or already delivered"}), 400
 
+    db["orderhistories"].insert_one({"order_id": order_id, "status": "DELIVERED", "timestamp": complete_time_iso, "created_at": datetime.utcnow()})
+
     return jsonify({
         "message": "Delivery and handover confirmed successfully",
         "status": "DELIVERED"
@@ -190,7 +263,6 @@ def partner_available():
         "$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]
     }).sort("created_at", -1))
 
-    # Calculate distance to partner if lat/lng are provided
     if partner_lat is not None and partner_lng is not None:
         def calc_dist(o):
             plat = o.get("pickup_lat", 12.9716)
@@ -265,6 +337,8 @@ def partner_accept():
 
     if result.modified_count == 0:
         return jsonify({"error": "Order was already accepted by another partner"}), 400
+
+    db["orderhistories"].insert_one({"order_id": order_id, "status": "ASSIGNED", "timestamp": now_iso, "created_at": datetime.utcnow()})
 
     return jsonify({"message": "Order accepted successfully", "status": "ASSIGNED"}), 200
 

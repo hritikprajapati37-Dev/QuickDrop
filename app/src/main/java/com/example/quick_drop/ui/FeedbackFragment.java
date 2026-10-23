@@ -13,8 +13,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
+import com.example.quick_drop.utils.ApiClient;
+import com.example.quick_drop.utils.UserSession;
+import org.json.JSONObject;
 
 public class FeedbackFragment extends Fragment {
+
+    private String orderId = "";
 
     @Nullable
     @Override
@@ -38,6 +43,10 @@ public class FeedbackFragment extends Fragment {
                 Navigation.findNavController(v).navigateUp());
         }
 
+        if (getArguments() != null) {
+            orderId = getArguments().getString("order_id", "");
+        }
+
         RatingBar ratingBar = view.findViewById(R.id.ratingBar);
         if (ratingBar != null) {
             ratingBar.setIsIndicator(false);
@@ -48,9 +57,32 @@ public class FeedbackFragment extends Fragment {
 
         view.findViewById(R.id.btnSubmit).setOnClickListener(v -> {
             float rating = ratingBar != null ? ratingBar.getRating() : 5.0f;
-            String review = etReview != null ? etReview.getText().toString() : "";
-            Toast.makeText(getContext(), "Rating: " + rating + " submitted successfully!", Toast.LENGTH_SHORT).show();
-            Navigation.findNavController(v).navigate(R.id.action_feedback_to_submitted);
+            String review = etReview != null ? etReview.getText().toString().trim() : "";
+            String token = UserSession.getToken(requireContext());
+
+            if (!token.isEmpty()) {
+                ApiClient.submitFeedback(token, orderId, rating, review, new ApiClient.ApiCallback() {
+                    @Override
+                    public void onSuccess(JSONObject response) {
+                        if (!isAdded()) return;
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Feedback submitted successfully!", Toast.LENGTH_SHORT).show();
+                            Navigation.findNavController(v).navigate(R.id.action_feedback_to_submitted);
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        if (!isAdded()) return;
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(getContext(), "Submitted!", Toast.LENGTH_SHORT).show();
+                            Navigation.findNavController(v).navigate(R.id.action_feedback_to_submitted);
+                        });
+                    }
+                });
+            } else {
+                Navigation.findNavController(v).navigate(R.id.action_feedback_to_submitted);
+            }
         });
     }
 }

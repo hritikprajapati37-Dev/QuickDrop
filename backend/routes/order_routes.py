@@ -12,15 +12,29 @@ def check_and_expire_orders(db):
     if db is None:
         return
     now_iso = datetime.utcnow().isoformat()
-    db["orders"].update_many(
-        {"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}},
-        {"$set": {
-            "status": "EXPIRED",
-            "refund_status": "refunded",
-            "refunded_at": now_iso,
-            "refund_reference": "REF_" + secrets.token_hex(8)
-        }}
-    )
+    expired_orders = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
+    for o in expired_orders:
+        oid = str(o["_id"])
+        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "refunded"}})
+        db["payments"].update_one({"order_id": oid}, {"$set": {"payment_status": "REFUNDED", "refunded_at": now_iso}})
+        db["orderhistories"].insert_one({"order_id": oid, "status": "EXPIRED", "timestamp": now_iso})
+
+@order_bp.route("/api/categories", methods=["GET"], endpoint="get_categories")
+def get_categories():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    cats = list(db["categories"].find({}, {"_id": 0}))
+    if not cats:
+        cats = [
+            {"category_id": "1", "name": "Documents"},
+            {"category_id": "2", "name": "Electronics"},
+            {"category_id": "3", "name": "Food"},
+            {"category_id": "4", "name": "Fragile"},
+            {"category_id": "5", "name": "Clothing"},
+            {"category_id": "6", "name": "General"}
+        ]
+    return jsonify({"categories": cats}), 200
 
 @order_bp.route("/api/orders", methods=["POST"], endpoint="create_order")
 @token_required
@@ -31,6 +45,7 @@ def create_order():
         return jsonify({"error": "Database not connected"}), 500
     data = request.get_json(force=True, silent=True) or {}
     sender_phone = request.user.get("phone")
+    sender_user_id = request.user.get("sub")
     receiver_phone = str(data.get("receiver_phone", "")).strip()
     pickup_address = str(data.get("pickup_address", "")).strip()
     delivery_address = str(data.get("delivery_address", "")).strip()
@@ -78,6 +93,7 @@ def create_order():
     now_iso = datetime.utcnow().isoformat()
 
     order_doc = {
+        "sender_id": sender_user_id,
         "sender_phone": sender_phone,
         "receiver_phone": receiver_phone,
         "pickup_address": pickup_address,
@@ -111,9 +127,51 @@ def create_order():
         "created_at": datetime.utcnow()
     }
 
-    orders_collection = db["orders"]
-    result = orders_collection.insert_one(order_doc)
+    result = db["orders"].insert_one(order_doc)
     order_id = str(result.inserted_id)
+
+    # 1. Insert package item into `items` collection
+    item_doc = {
+        "order_id": order_id,
+        "item_description": item_description,
+        "item_weight": item_weight,
+        "category": "General",
+        "created_at": datetime.utcnow()
+    }
+    db["items"].insert_one(item_doc)
+
+    # 2. Insert recipient details into `consignees` collection
+    consignee_doc = {
+        "order_id": order_id,
+        "name": "Receiver",
+        "receiver_phone": receiver_phone,
+        "delivery_address": delivery_address,
+        "created_at": datetime.utcnow()
+    }
+    db["consignees"].insert_one(consignee_doc)
+
+    # 3. Insert payment record into `payments` collection
+    payment_doc = {
+        "order_id": order_id,
+        "sender_id": sender_user_id,
+        "sender_phone": sender_phone,
+        "delivery_charge": delivery_charge,
+        "platform_fee": platform_fee,
+        "total_amount": total_amount,
+        "payment_status": "PENDING",
+        "refund_status": "none",
+        "created_at": datetime.utcnow()
+    }
+    db["payments"].insert_one(payment_doc)
+
+    # 4. Insert initial history in `orderhistories` collection
+    history_doc = {
+        "order_id": order_id,
+        "status": "CREATED",
+        "timestamp": now_iso,
+        "created_at": datetime.utcnow()
+    }
+    db["orderhistories"].insert_one(history_doc)
 
     return jsonify({
         "message": "Order created successfully",
@@ -156,12 +214,54 @@ def pay_order(order_id):
     if result.modified_count == 0:
         return jsonify({"error": "Order not found"}), 404
 
+    # Update `payments` collection
+    db["payments"].update_one(
+        {"order_id": order_id},
+        {"$set": {
+            "payment_status": "SUCCESS",
+            "paid_at": now_iso
+        }},
+        upsert=True
+    )
+
+    # Log in `orderhistories`
+    db["orderhistories"].insert_one({
+        "order_id": order_id,
+        "status": "MATCHING",
+        "timestamp": now_iso,
+        "created_at": datetime.utcnow()
+    })
+
     return jsonify({
         "message": "Payment recorded successfully and order entered matching",
         "payment_status": "SUCCESS",
         "status": "MATCHING",
         "acceptance_deadline_at": deadline_iso
     }), 200
+
+@order_bp.route("/api/feedbacks", methods=["POST"], endpoint="submit_feedback")
+@token_required
+def submit_feedback():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    order_id = str(data.get("order_id", "")).strip()
+    rating = float(data.get("rating", 5.0))
+    comment = str(data.get("comment", "")).strip()
+    phone = request.user.get("phone")
+    user_id = request.user.get("sub")
+
+    feedback_doc = {
+        "order_id": order_id,
+        "user_id": user_id,
+        "user_phone": phone,
+        "rating": rating,
+        "comment": comment,
+        "created_at": datetime.utcnow()
+    }
+    db["feedbacks"].insert_one(feedback_doc)
+    return jsonify({"message": "Feedback submitted successfully"}), 201
 
 @order_bp.route("/api/orders/<order_id>/otps", methods=["GET"], endpoint="get_order_otps")
 @token_required
@@ -171,14 +271,13 @@ def get_order_otps(order_id):
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
     sender_phone = request.user.get("phone")
-    orders_collection = db["orders"]
 
     try:
         obj_id = ObjectId(order_id)
     except Exception:
         return jsonify({"error": "Invalid order ID"}), 400
 
-    order = orders_collection.find_one({"_id": obj_id, "sender_phone": sender_phone})
+    order = db["orders"].find_one({"_id": obj_id, "sender_phone": sender_phone})
     if not order:
         return jsonify({"error": "Order not found or unauthorized"}), 404
 
@@ -207,6 +306,7 @@ def orders_list():
         query = {"$or": [{"assigned_partner": phone}, {"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]}
     else:
         query = {}
+
     orders = list(db["orders"].find(query).sort("created_at", -1))
     for o in orders:
         o["order_id"] = str(o["_id"])
@@ -251,11 +351,16 @@ def user_dashboard():
     phone = request.user.get("phone")
     role = request.user.get("role", "SENDER")
 
-    users_collection = db["users"]
-    user_doc = users_collection.find_one({"phone": phone})
-    name = user_doc.get("name", "User") if user_doc else request.user.get("name", "User")
-
-    orders_collection = db["orders"]
+    user_doc = db["users"].find_one({"phone": phone})
+    name = "User"
+    if role == "SENDER":
+        consignor = db["consignors"].find_one({"phone": phone})
+        if consignor:
+            name = consignor.get("name", "User")
+    elif role == "PARTNER":
+        partner = db["delivery_boy_schemas"].find_one({"phone": phone})
+        if partner:
+            name = partner.get("name", "Partner")
 
     if role == "SENDER":
         query = {"sender_phone": phone}
@@ -264,7 +369,7 @@ def user_dashboard():
     else:
         query = {}
 
-    orders = list(orders_collection.find(query).sort("created_at", -1))
+    orders = list(db["orders"].find(query).sort("created_at", -1))
 
     active_count = 0
     completed_count = 0
