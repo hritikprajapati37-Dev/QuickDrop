@@ -42,12 +42,6 @@ public class EditPartnerProfileFragment extends Fragment {
             Navigation.findNavController(v).navigateUp());
 
         view.findViewById(R.id.btnSave).setOnClickListener(this::saveProfile);
-
-        View btnCancel = view.findViewById(R.id.btnCancel);
-        if (btnCancel != null) {
-            btnCancel.setOnClickListener(v -> 
-                Navigation.findNavController(v).navigateUp());
-        }
     }
 
     private void loadProfileData() {
