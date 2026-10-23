@@ -21,7 +21,7 @@ import org.json.JSONObject;
 public class PartnerDashboardFragment extends Fragment {
 
     private View cardActiveDelivery;
-    private TextView tvTodayDeliveries, tvCompletedDeliveries, tvPendingDeliveries, tvAvailableSummary, tvOnlineStatus;
+    private TextView tvAvailableCount, tvCompletedDeliveries, tvRejectedCount, tvAvailableSummary, tvOnlineStatus;
     private TextView tvOrderID, tvPickupVal, tvDestVal, tvETA;
     private MaterialSwitch switchOnline;
 
@@ -45,9 +45,9 @@ public class PartnerDashboardFragment extends Fragment {
             }
         }
 
-        tvTodayDeliveries = view.findViewById(R.id.tvTodayDeliveries);
+        tvAvailableCount = view.findViewById(R.id.tvAvailableCount);
         tvCompletedDeliveries = view.findViewById(R.id.tvCompletedDeliveries);
-        tvPendingDeliveries = view.findViewById(R.id.tvPendingDeliveries);
+        tvRejectedCount = view.findViewById(R.id.tvRejectedCount);
         tvAvailableSummary = view.findViewById(R.id.tvAvailableSummary);
         cardActiveDelivery = view.findViewById(R.id.cardActiveOrderPartner);
         tvOrderID = view.findViewById(R.id.tvOrderIDPartner);
@@ -154,9 +154,8 @@ public class PartnerDashboardFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     JSONObject counts = response.optJSONObject("counts");
                     if (counts != null) {
-                        if (tvTodayDeliveries != null) tvTodayDeliveries.setText(String.valueOf(counts.optInt("total", 0)));
                         if (tvCompletedDeliveries != null) tvCompletedDeliveries.setText(String.valueOf(counts.optInt("completed", 0)));
-                        if (tvPendingDeliveries != null) tvPendingDeliveries.setText(String.valueOf(counts.optInt("pending", 0)));
+                        if (tvRejectedCount != null) tvRejectedCount.setText(String.valueOf(counts.optInt("cancelled", counts.optInt("rejected", 0))));
                     }
 
                     JSONObject activeDelivery = response.optJSONObject("active_delivery");
@@ -192,6 +191,9 @@ public class PartnerDashboardFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     JSONArray reqs = response.optJSONArray("requests");
                     int count = reqs != null ? reqs.length() : 0;
+                    if (tvAvailableCount != null) {
+                        tvAvailableCount.setText(String.valueOf(count));
+                    }
                     if (tvAvailableSummary != null) {
                         tvAvailableSummary.setText(count + " delivery request" + (count == 1 ? "" : "s") + " available");
                     }
