@@ -67,8 +67,16 @@ public class EditPartnerProfileFragment extends Fragment {
             public void onError(String error) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    if (etFullName != null) etFullName.setText(UserSession.getUserName(requireContext()));
-                    if (etPhone != null) etPhone.setText(UserSession.getUserPhone(requireContext()));
+                    if (error != null && (error.contains("404") || error.contains("User not found") || error.contains("Invalid authentication token"))) {
+                        UserSession.clearSession(requireContext());
+                        Toast.makeText(getContext(), "Account session expired or invalid. Please log in.", Toast.LENGTH_LONG).show();
+                        try {
+                            Navigation.findNavController(requireView()).navigate(R.id.action_global_to_login);
+                        } catch (Exception ignored) {}
+                    } else {
+                        if (etFullName != null) etFullName.setText(UserSession.getUserName(requireContext()));
+                        if (etPhone != null) etPhone.setText(UserSession.getUserPhone(requireContext()));
+                    }
                 });
             }
         });
@@ -110,7 +118,15 @@ public class EditPartnerProfileFragment extends Fragment {
             public void onError(String error) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Failed to update profile: " + error, Toast.LENGTH_LONG).show();
+                    if (error != null && (error.contains("404") || error.contains("User not found") || error.contains("Invalid authentication token"))) {
+                        UserSession.clearSession(requireContext());
+                        Toast.makeText(getContext(), "Account session expired or invalid. Please log in.", Toast.LENGTH_LONG).show();
+                        try {
+                            Navigation.findNavController(requireView()).navigate(R.id.action_global_to_login);
+                        } catch (Exception ignored) {}
+                    } else {
+                        Toast.makeText(getContext(), "Failed to update profile: " + error, Toast.LENGTH_LONG).show();
+                    }
                 });
             }
         });

@@ -138,7 +138,18 @@ public class PartnerProfileFragment extends Fragment {
             }
 
             @Override
-            public void onError(String error) {}
+            public void onError(String error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (error != null && (error.contains("404") || error.contains("User not found") || error.contains("Invalid authentication token"))) {
+                        UserSession.clearSession(requireContext());
+                        Toast.makeText(getContext(), "Account session expired or invalid. Please log in.", Toast.LENGTH_LONG).show();
+                        try {
+                            Navigation.findNavController(requireView()).navigate(R.id.action_global_to_login);
+                        } catch (Exception ignored) {}
+                    }
+                });
+            }
         });
     }
 }
