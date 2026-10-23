@@ -9,7 +9,6 @@ delivery_bp = Blueprint("delivery_bp", __name__)
 
 @delivery_bp.route("/api/partner/status", methods=["POST"], endpoint="update_partner_status")
 @token_required
-@role_required("PARTNER")
 def update_partner_status():
     db = get_db()
     if db is None:
@@ -161,7 +160,6 @@ def verify_delivery():
 
 @delivery_bp.route("/api/partner/available", methods=["GET"], endpoint="partner_available")
 @token_required
-@role_required("PARTNER")
 def partner_available():
     db = get_db()
     if db is None:
@@ -198,14 +196,15 @@ def partner_accept():
 
 @delivery_bp.route("/api/partner/earnings", methods=["GET"], endpoint="partner_earnings")
 @token_required
-@role_required("PARTNER")
 def partner_earnings():
     db = get_db()
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
     phone = request.user.get("phone")
     completed_orders = list(db["orders"].find({"assigned_partner": phone, "delivered": True}))
-    total_earnings = len(completed_orders) * 150.0
+    total_earnings = 0.0
+    for o in completed_orders:
+        total_earnings += float(o.get("partner_earning", o.get("delivery_charge", 150.0)))
     return jsonify({
         "total_earnings": total_earnings,
         "completed_deliveries": len(completed_orders),
