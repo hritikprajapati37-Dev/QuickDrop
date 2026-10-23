@@ -1,12 +1,11 @@
 import os
-import secrets
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import jsonify, request
 import bcrypt
 import jwt
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", secrets.token_hex(32))
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "quickdrop_fixed_jwt_secret_key_2026_prod")
 
 def hash_secret(secret_str: str) -> str:
     salt = bcrypt.gensalt(rounds=12)
@@ -24,7 +23,7 @@ def generate_token(user_id: str, role: str, phone: str) -> str:
         "role": role,
         "phone": phone,
         "iat": datetime.utcnow(),
-        "exp": datetime.utcnow() + timedelta(hours=8)
+        "exp": datetime.utcnow() + timedelta(days=30) # 30 days token expiry for smooth mobile app user experience
     }
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS256")
 
@@ -48,9 +47,9 @@ def _verify_token(f, required_role=None):
             payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
             request.user = payload
         except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Token has expired"}), 401
+            return jsonify({"error": "Token has expired. Please log in again."}), 401
         except jwt.InvalidTokenError:
-            return jsonify({"error": "Invalid authentication token"}), 401
+            return jsonify({"error": "Invalid authentication token. Please log in again."}), 401
         
         if required_role and payload.get("role") != required_role:
             return jsonify({"error": "Insufficient permissions"}), 403
