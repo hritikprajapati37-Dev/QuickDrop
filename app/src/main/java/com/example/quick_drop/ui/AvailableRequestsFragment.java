@@ -20,6 +20,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.Locale;
 
 public class AvailableRequestsFragment extends Fragment {
 
@@ -30,7 +31,7 @@ public class AvailableRequestsFragment extends Fragment {
         public void run() {
             if (isResumed()) {
                 loadAvailableRequests();
-                pollHandler.postDelayed(this, 4000);
+                pollHandler.postDelayed(this, 3000);
             }
         }
     };
@@ -110,6 +111,8 @@ public class AvailableRequestsFragment extends Fragment {
                                     View itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_delivery_request, llRequests, false);
                                     
                                     TextView tvOrderID = itemView.findViewById(R.id.tvOrderID);
+                                    TextView tvEarnings = itemView.findViewById(R.id.tvEarnings);
+                                    TextView tvDistance = itemView.findViewById(R.id.tvDistance);
                                     TextView tvPickupAddress = itemView.findViewById(R.id.tvPickupAddress);
                                     TextView tvDestAddress = itemView.findViewById(R.id.tvDestAddress);
                                     TextView tvPackageType = itemView.findViewById(R.id.tvPackageType);
@@ -121,6 +124,17 @@ public class AvailableRequestsFragment extends Fragment {
                                         shortId = shortId.substring(shortId.length() - 6);
                                     }
                                     if (tvOrderID != null) tvOrderID.setText("#" + shortId);
+
+                                    double partnerEarning = req.optDouble("partner_earning", req.optDouble("delivery_charge", 0.0));
+                                    if (tvEarnings != null) {
+                                        tvEarnings.setText(String.format(Locale.getDefault(), "₹%.2f", partnerEarning));
+                                    }
+
+                                    double distKm = req.optDouble("distance_km", 0.0);
+                                    if (tvDistance != null) {
+                                        tvDistance.setText(String.format(Locale.getDefault(), "%.1f km away", distKm));
+                                    }
+
                                     if (tvPickupAddress != null) tvPickupAddress.setText(req.optString("pickup_address", ""));
                                     if (tvDestAddress != null) tvDestAddress.setText(req.optString("delivery_address", ""));
                                     if (tvPackageType != null) tvPackageType.setText(req.optString("item_description", "Standard Package"));
