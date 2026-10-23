@@ -1,5 +1,7 @@
 package com.example.quick_drop.ui;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
@@ -23,6 +27,7 @@ public class SenderDashboardFragment extends Fragment {
     private TextView tvGreeting, tvOrderID, tvPickupVal, tvDestVal;
     private TextView tvActiveCount, tvCompletedCount, tvPendingCount;
     private View cardActiveOrder;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     @Nullable
     @Override
@@ -45,6 +50,9 @@ public class SenderDashboardFragment extends Fragment {
         tvCompletedCount = view.findViewById(R.id.tvCompletedCount);
         tvPendingCount = view.findViewById(R.id.tvPendingCount);
         cardActiveOrder = view.findViewById(R.id.cardActiveOrder);
+
+        // Request GPS location permissions for live tracking
+        checkAndRequestGpsPermissions();
 
         // Set initial greeting from UserSession before API loads
         String localName = UserSession.getUserName(requireContext());
@@ -93,6 +101,12 @@ public class SenderDashboardFragment extends Fragment {
 
         view.findViewById(R.id.btnViewAllOrders).setOnClickListener(v -> 
             Navigation.findNavController(v).navigate(R.id.action_senderDashboard_to_orderHistory));
+    }
+
+    private void checkAndRequestGpsPermissions() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
     }
 
     private void loadDashboard() {

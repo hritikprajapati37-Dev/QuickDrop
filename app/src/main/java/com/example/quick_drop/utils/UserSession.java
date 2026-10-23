@@ -26,7 +26,6 @@ public class UserSession {
                     EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             );
         } catch (Exception e) {
-            // Fallback to standard SharedPreferences if encrypted prefs fail on specific devices
             return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         }
     }
@@ -68,5 +67,10 @@ public class UserSession {
 
     public static boolean isRegistered(Context context) {
         return !getEncryptedPrefs(context).getString(KEY_PHONE, "").isEmpty();
+    }
+
+    public static boolean isLoggedIn(Context context) {
+        String token = getToken(context);
+        return token != null && !token.isEmpty();
     }
 }
