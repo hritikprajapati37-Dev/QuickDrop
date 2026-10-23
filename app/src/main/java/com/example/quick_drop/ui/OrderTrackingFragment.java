@@ -2,6 +2,8 @@ package com.example.quick_drop.ui;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,17 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
     private TextView tvHeaderOrderNum, tvStatusBadge, tvETA, tvDistance, tvPartnerName, tvPickupVal, tvDestVal;
     private double pickupLat = 12.9716, pickupLng = 77.5946;
     private double deliveryLat = 12.9352, deliveryLng = 77.6245;
+
+    private final Handler pollHandler = new Handler(Looper.getMainLooper());
+    private final Runnable pollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isResumed()) {
+                loadTrackingData();
+                pollHandler.postDelayed(this, 4000);
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -134,8 +147,14 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                             if (shortId.length() > 6) shortId = shortId.substring(shortId.length() - 6);
                             if (tvHeaderOrderNum != null) tvHeaderOrderNum.setText("Order #" + shortId);
 
-                            String status = order.optString("status", "IN PROGRESS");
-                            if (tvStatusBadge != null) tvStatusBadge.setText(status);
+                            String status = order.optString("status", "MATCHING");
+                            if (tvStatusBadge != null) {
+                                if ("EXPIRED".equalsIgnoreCase(status)) {
+                                    tvStatusBadge.setText("MATCHING EXPIRED (REFUNDED)");
+                                } else {
+                                    tvStatusBadge.setText(status);
+                                }
+                            }
 
                             pickupLat = order.optDouble("pickup_lat", 12.9716);
                             pickupLng = order.optDouble("pickup_lng", 77.5946);
@@ -152,12 +171,20 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                                 tvDistance.setText(String.format(Locale.getDefault(), "%.1f km", dist));
                             }
                             if (tvETA != null) {
-                                tvETA.setText("On Time");
+                                tvETA.setText("EXPIRED".equalsIgnoreCase(status) ? "Refund Issued" : "On Time");
                             }
 
                             String partner = order.optString("assigned_partner", "");
                             if (tvPartnerName != null) {
-                                tvPartnerName.setText(partner.isEmpty() ? "Unassigned Partner" : partner);
+                                if (partner.isEmpty() || "null".equals(partner)) {
+                                    if ("EXPIRED".equalsIgnoreCase(status)) {
+                                        tvPartnerName.setText("No Partner Available (Refunded)");
+                                    } else {
+                                        tvPartnerName.setText("Searching Nearest Partner...");
+                                    }
+                                } else {
+                                    tvPartnerName.setText(partner);
+                                }
                             }
                         }
                     }
@@ -173,6 +200,8 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
     public void onResume() {
         super.onResume();
         if (mapViewTracking != null) mapViewTracking.onResume();
+        pollHandler.removeCallbacks(pollRunnable);
+        pollHandler.post(pollRunnable);
     }
 
     @Override
@@ -191,12 +220,14 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
     public void onPause() {
         super.onPause();
         if (mapViewTracking != null) mapViewTracking.onPause();
+        pollHandler.removeCallbacks(pollRunnable);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (mapViewTracking != null) mapViewTracking.onDestroy();
+        pollHandler.removeCallbacks(pollRunnable);
     }
 
     @Override

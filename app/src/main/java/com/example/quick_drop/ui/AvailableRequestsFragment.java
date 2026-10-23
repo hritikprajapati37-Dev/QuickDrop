@@ -1,6 +1,8 @@
 package com.example.quick_drop.ui;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,16 @@ import org.json.JSONObject;
 public class AvailableRequestsFragment extends Fragment {
 
     private LinearLayout llRequests;
+    private final Handler pollHandler = new Handler(Looper.getMainLooper());
+    private final Runnable pollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isResumed()) {
+                loadAvailableRequests();
+                pollHandler.postDelayed(this, 4000);
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -64,6 +76,19 @@ public class AvailableRequestsFragment extends Fragment {
                 return false;
             });
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        pollHandler.removeCallbacks(pollRunnable);
+        pollHandler.post(pollRunnable);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        pollHandler.removeCallbacks(pollRunnable);
     }
 
     private void loadAvailableRequests() {

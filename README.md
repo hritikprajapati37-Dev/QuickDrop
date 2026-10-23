@@ -1,6 +1,28 @@
-# QuickDrop
+# QuickDrop — Delivery & Matching Engine
 
-QuickDrop is a modern delivery and logistics platform comprising an Android client application and a Python Flask secure backend connected to MongoDB Atlas.
+QuickDrop is a modern delivery platform featuring an Android client application (Java/XML) and a Flask secure backend connected to MongoDB Atlas (`quick_dropDB`).
+
+## Order Lifecycle & State Machine
+The backend enforces a strict server-authoritative state machine:
+`CREATED` → `MATCHING` → `ASSIGNED` → `PICKED_UP` → `IN_TRANSIT` → `DELIVERED`
+Terminal/Exception States: `EXPIRED`, `CANCELLED`, `REFUNDED`
+
+1. **Order Creation & Pricing**:
+   - Road distance is calculated authoritatively on the backend using the Haversine formula with route multiplier.
+   - **Delivery Charge**: Exact distance in km × ₹5 (no arbitrary km rounding).
+   - **Platform Fee**: ₹2.
+   - **Total Payable**: Delivery Charge + Platform Fee.
+2. **Server-Side Verified Payment**:
+   - Order enters matching (`status: MATCHING`) only after server-side payment confirmation via `POST /api/orders/<id>/pay`.
+3. **10-Minute Acceptance Deadline**:
+   - Server initializes `paid_at`, `matching_started_at`, and `acceptance_deadline_at = matching_started_at + 10 mins`.
+   - Persisted in MongoDB Atlas so matching deadlines survive server restarts or redeployments.
+   - If unassigned after 10 minutes, the backend automatically transitions order status to `EXPIRED` and marks `refund_status: "refunded"`.
+4. **Nearest Available Partner Matching**:
+   - `/api/partner/available` queries online partners (`is_online: true`), excludes partners with active deliveries, and prioritizes requests by proximity to pickup coordinates.
+5. **One Active Delivery Per Partner Constraint**:
+   - Enforced atomically in MongoDB Atlas during `POST /api/delivery/accept`. A partner with an active delivery (`ASSIGNED`, `PICKED_UP`, `IN_TRANSIT`) is blocked from accepting a second order.
+   - Simultaneous acceptance attempts by multiple partners are handled atomically using MongoDB `update_one` query filters.
 
 ## Prerequisites
 - Python 3.9+
@@ -10,25 +32,25 @@ QuickDrop is a modern delivery and logistics platform comprising an Android clie
 ## Setup & Configuration
 
 ### 1. Backend Setup (Flask)
-1. Navigate to the project root directory.
-2. Install dependencies:
+1. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-3. Copy `.env.example` to `.env`:
+2. Configure `.env`:
    ```bash
-   cp .env.example .env
+   MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/quick_dropDB
+   JWT_SECRET_KEY=quickdrop_fixed_jwt_secret_key_2026_prod
    ```
-4. Fill in your MongoDB Atlas `MONGO_URI` and a secure `JWT_SECRET_KEY` in `.env`.
-5. Run the Flask server:
+3. Run the Flask server:
    ```bash
    python app.py
    ```
 
-### 2. Android App Setup
-1. Open the project in Android Studio.
-2. Sync project with Gradle files.
-3. Run the app on an emulator or physical device.
+### 2. Testing
+Run the backend test suite:
+```bash
+python -m unittest discover -s backend/tests -p "test_*.py"
+```
 
-## Security
+## Security & Architecture
 For detailed information on security controls, encryption, RBAC, and data protection, please refer to [SECURITY.md](file:///C:/Users/ItsBo/AndroidStudioProjects/Quick_Drop/SECURITY.md).

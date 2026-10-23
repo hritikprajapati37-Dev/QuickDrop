@@ -1,4 +1,5 @@
 import secrets
+import math
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from bson import ObjectId
@@ -6,6 +7,20 @@ from backend.services.db_service import get_db
 from backend.middleware.security import token_required, role_required, hash_secret, verify_secret
 
 delivery_bp = Blueprint("delivery_bp", __name__)
+
+def check_and_expire_orders(db):
+    if db is None:
+        return
+    now_iso = datetime.utcnow().isoformat()
+    db["orders"].update_many(
+        {"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}},
+        {"$set": {
+            "status": "EXPIRED",
+            "refund_status": "refunded",
+            "refunded_at": now_iso,
+            "refund_reference": "REF_" + secrets.token_hex(8)
+        }}
+    )
 
 @delivery_bp.route("/api/partner/status", methods=["POST"], endpoint="update_partner_status")
 @token_required
@@ -164,7 +179,29 @@ def partner_available():
     db = get_db()
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
-    orders = list(db["orders"].find({"$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}, {"status": "CREATED"}]}).sort("created_at", -1))
+
+    check_and_expire_orders(db)
+
+    partner_lat = request.args.get("lat", type=float)
+    partner_lng = request.args.get("lng", type=float)
+
+    orders = list(db["orders"].find({
+        "status": {"$in": ["CREATED", "MATCHING"]},
+        "$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]
+    }).sort("created_at", -1))
+
+    # Calculate distance to partner if lat/lng are provided
+    if partner_lat is not None and partner_lng is not None:
+        def calc_dist(o):
+            plat = o.get("pickup_lat", 12.9716)
+            plng = o.get("pickup_lng", 77.5946)
+            dlat = math.radians(plat - partner_lat)
+            dlng = math.radians(plng - partner_lng)
+            a = math.sin(dlat/2)**2 + math.cos(math.radians(partner_lat)) * math.cos(math.radians(plat)) * math.sin(dlng/2)**2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            return 6371.0 * c
+        orders.sort(key=calc_dist)
+
     for o in orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
@@ -177,22 +214,59 @@ def partner_accept():
     db = get_db()
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
+
     data = request.get_json(force=True, silent=True) or {}
     order_id = data.get("order_id")
     partner_phone = request.user.get("phone")
+
     if not order_id:
         return jsonify({"error": "Missing order_id"}), 400
+
     try:
         obj_id = ObjectId(order_id)
     except Exception:
         return jsonify({"error": "Invalid order ID"}), 400
+
+    # 1. Enforce max 1 active delivery per partner
+    active_delivery = db["orders"].find_one({
+        "assigned_partner": partner_phone,
+        "delivered": False,
+        "status": {"$in": ["ASSIGNED", "PICKED_UP", "IN_TRANSIT"]}
+    })
+    if active_delivery:
+        return jsonify({"error": "You already have an active delivery in progress. Complete it first."}), 400
+
+    # 2. Check order state and matching deadline
+    order = db["orders"].find_one({"_id": obj_id})
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
+
+    now_iso = datetime.utcnow().isoformat()
+    if order.get("status") in ["EXPIRED", "CANCELLED", "DELIVERED"]:
+        return jsonify({"error": "Order is no longer available"}), 400
+
+    deadline = order.get("acceptance_deadline_at")
+    if deadline and deadline <= now_iso:
+        db["orders"].update_one(
+            {"_id": obj_id, "status": "MATCHING"},
+            {"$set": {"status": "EXPIRED", "refund_status": "refunded", "refunded_at": now_iso}}
+        )
+        return jsonify({"error": "Order matching deadline has expired"}), 400
+
+    # 3. Atomically assign order if still unassigned
     result = db["orders"].update_one(
-        {"_id": obj_id},
-        {"$set": {"assigned_partner": partner_phone, "status": "ASSIGNED"}}
+        {"_id": obj_id, "status": {"$in": ["CREATED", "MATCHING"]}},
+        {"$set": {
+            "assigned_partner": partner_phone,
+            "status": "ASSIGNED",
+            "assigned_at": now_iso
+        }}
     )
+
     if result.modified_count == 0:
-        return jsonify({"error": "Order not found or already assigned"}), 400
-    return jsonify({"message": "Order accepted successfully"}), 200
+        return jsonify({"error": "Order was already accepted by another partner"}), 400
+
+    return jsonify({"message": "Order accepted successfully", "status": "ASSIGNED"}), 200
 
 @delivery_bp.route("/api/partner/earnings", methods=["GET"], endpoint="partner_earnings")
 @token_required

@@ -8,6 +8,20 @@ from backend.middleware.security import token_required, role_required, hash_secr
 
 order_bp = Blueprint("order_bp", __name__)
 
+def check_and_expire_orders(db):
+    if db is None:
+        return
+    now_iso = datetime.utcnow().isoformat()
+    db["orders"].update_many(
+        {"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}},
+        {"$set": {
+            "status": "EXPIRED",
+            "refund_status": "refunded",
+            "refunded_at": now_iso,
+            "refund_reference": "REF_" + secrets.token_hex(8)
+        }}
+    )
+
 @order_bp.route("/api/orders", methods=["POST"], endpoint="create_order")
 @token_required
 @role_required("SENDER")
@@ -124,13 +138,30 @@ def pay_order(order_id):
     except Exception:
         return jsonify({"error": "Invalid order ID"}), 400
 
+    now = datetime.utcnow()
+    now_iso = now.isoformat()
+    deadline_iso = (now + timedelta(minutes=10)).isoformat()
+
     result = db["orders"].update_one(
         {"_id": obj_id},
-        {"$set": {"payment_status": "SUCCESS", "status": "CONFIRMED"}}
+        {"$set": {
+            "payment_status": "SUCCESS",
+            "status": "MATCHING",
+            "paid_at": now_iso,
+            "matching_started_at": now_iso,
+            "acceptance_deadline_at": deadline_iso,
+            "refund_status": "none"
+        }}
     )
     if result.modified_count == 0:
         return jsonify({"error": "Order not found"}), 404
-    return jsonify({"message": "Payment recorded successfully", "payment_status": "SUCCESS"}), 200
+
+    return jsonify({
+        "message": "Payment recorded successfully and order entered matching",
+        "payment_status": "SUCCESS",
+        "status": "MATCHING",
+        "acceptance_deadline_at": deadline_iso
+    }), 200
 
 @order_bp.route("/api/orders/<order_id>/otps", methods=["GET"], endpoint="get_order_otps")
 @token_required
@@ -165,6 +196,9 @@ def orders_list():
     db = get_db()
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
+
+    check_and_expire_orders(db)
+
     phone = request.user.get("phone")
     role = request.user.get("role", "SENDER")
     if role == "SENDER":
@@ -187,6 +221,9 @@ def get_order_details(order_id):
     db = get_db()
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
+
+    check_and_expire_orders(db)
+
     try:
         obj_id = ObjectId(order_id)
     except Exception:
@@ -208,6 +245,8 @@ def user_dashboard():
     db = get_db()
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
+
+    check_and_expire_orders(db)
 
     phone = request.user.get("phone")
     role = request.user.get("role", "SENDER")
