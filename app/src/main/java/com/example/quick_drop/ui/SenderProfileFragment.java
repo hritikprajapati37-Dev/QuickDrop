@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -70,8 +71,11 @@ public class SenderProfileFragment extends Fragment {
 
         View btnLogout = view.findViewById(R.id.btnLogout);
         if (btnLogout != null) {
-            btnLogout.setOnClickListener(v -> 
-                Navigation.findNavController(v).navigate(R.id.action_global_to_login));
+            btnLogout.setOnClickListener(v -> {
+                UserSession.clearSession(requireContext());
+                Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+                Navigation.findNavController(v).navigate(R.id.action_global_to_login);
+            });
         }
 
         BottomNavigationView bottomNav = view.findViewById(R.id.bottom_navigation);
