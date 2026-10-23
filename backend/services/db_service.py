@@ -20,20 +20,37 @@ class MockCollection:
     def __init__(self):
         self.documents = []
 
+    def _matches_query(self, doc, query):
+        if not query:
+            return True
+        for k, v in query.items():
+            if k == "$or":
+                sub_match = any(self._matches_query(doc, cond) for cond in v)
+                if not sub_match:
+                    return False
+            else:
+                doc_val = doc.get(k)
+                if isinstance(v, dict):
+                    if "$ne" in v:
+                        if str(doc_val) == str(v["$ne"]):
+                            return False
+                    if "$lte" in v:
+                        if doc_val is None or str(doc_val) > str(v["$lte"]):
+                            return False
+                    if "$gte" in v:
+                        if doc_val is None or str(doc_val) < str(v["$gte"]):
+                            return False
+                    if "$in" in v:
+                        if doc_val not in v["$in"] and str(doc_val) not in [str(x) for x in v["$in"]]:
+                            return False
+                else:
+                    if doc_val != v and str(doc_val) != str(v):
+                        return False
+        return True
+
     def find_one(self, query):
         for doc in self.documents:
-            match = True
-            for k, v in query.items():
-                if k == "$or":
-                    sub_match = any(str(doc.get(sub_k)) == str(sub_v) for cond in v for sub_k, sub_v in cond.items() if sub_k != "$exists")
-                    if not sub_match:
-                        match = False
-                else:
-                    doc_val = doc.get(k)
-                    if doc_val != v and str(doc_val) != str(v):
-                        match = False
-                        break
-            if match:
+            if self._matches_query(doc, query):
                 return doc
         return None
 
@@ -41,18 +58,7 @@ class MockCollection:
         results = []
         query = query or {}
         for doc in self.documents:
-            match = True
-            for k, v in query.items():
-                if k == "$or":
-                    sub_match = any(str(doc.get(sub_k)) == str(sub_v) for cond in v for sub_k, sub_v in cond.items() if sub_k != "$exists")
-                    if not sub_match:
-                        match = False
-                else:
-                    doc_val = doc.get(k)
-                    if doc_val != v and str(doc_val) != str(v):
-                        match = False
-                        break
-            if match:
+            if self._matches_query(doc, query):
                 results.append(doc)
         return MockCursor(results)
 
@@ -87,7 +93,8 @@ class MockCollection:
         elif upsert:
             new_doc = {}
             for k, v in query.items():
-                new_doc[k] = v
+                if not isinstance(v, dict):
+                    new_doc[k] = v
             if "$set" in update:
                 for k, v in update["$set"].items():
                     new_doc[k] = v
@@ -98,13 +105,26 @@ class MockCollection:
                 self.modified_count = modified_count
         return Res(modified)
 
+    def update_many(self, query, update):
+        matched = 0
+        for doc in self.documents:
+            if self._matches_query(doc, query):
+                if "$set" in update:
+                    for k, v in update["$set"].items():
+                        doc[k] = v
+                matched += 1
+        class Res:
+            def __init__(self, modified_count):
+                self.modified_count = modified_count
+        return Res(matched)
+
     def delete_many(self, query):
         if not query:
             count = len(self.documents)
             self.documents.clear()
             return count
         initial_len = len(self.documents)
-        self.documents = [doc for doc in self.documents if not all(str(doc.get(k)) == str(v) for k, v in query.items())]
+        self.documents = [doc for doc in self.documents if not self._matches_query(doc, query)]
         return initial_len - len(self.documents)
 
 class MockDatabase(dict):
@@ -141,7 +161,6 @@ def init_db(testing=False):
         print("Successfully connected to MongoDB Atlas database: quick_dropDB")
         return db
     except Exception as e:
-        # Safe logging without exposing connection strings, credentials, tokens or personal data
         print(f"CRITICAL: Failed to connect to MongoDB Atlas production database. Error: {type(e).__name__}")
         raise e
 
