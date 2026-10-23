@@ -1,5 +1,6 @@
 package com.example.quick_drop.ui;
 
+import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,19 +21,27 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class OrderTrackingFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mapViewTracking;
     private GoogleMap googleMap;
     private TextView tvHeaderOrderNum, tvStatusBadge, tvETA, tvDistance, tvPartnerName, tvPickupVal, tvDestVal;
+    private Marker partnerMarker;
+    private LatLng currentPartnerLatLng;
+
     private double pickupLat = 12.9716, pickupLng = 77.5946;
     private double deliveryLat = 12.9352, deliveryLng = 77.6245;
 
@@ -42,7 +51,7 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
         public void run() {
             if (isResumed()) {
                 loadTrackingData();
-                pollHandler.postDelayed(this, 4000);
+                pollHandler.postDelayed(this, 3000);
             }
         }
     };
@@ -100,11 +109,17 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
             });
         }
 
-        view.findViewById(R.id.btnCall).setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Calling Delivery Partner...", Toast.LENGTH_SHORT).show());
-            
-        view.findViewById(R.id.btnChat).setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Chat feature coming soon!", Toast.LENGTH_SHORT).show());
+        View btnCall = view.findViewById(R.id.btnCall);
+        if (btnCall != null) {
+            btnCall.setOnClickListener(v -> 
+                Toast.makeText(getContext(), "Calling Delivery Partner...", Toast.LENGTH_SHORT).show());
+        }
+
+        View btnChat = view.findViewById(R.id.btnChat);
+        if (btnChat != null) {
+            btnChat.setOnClickListener(v -> 
+                Toast.makeText(getContext(), "Chat feature coming soon!", Toast.LENGTH_SHORT).show());
+        }
     }
 
     @Override
@@ -116,17 +131,44 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
 
     private void updateMapMarkers() {
         if (googleMap == null) return;
-        googleMap.clear();
 
         LatLng pickup = new LatLng(pickupLat, pickupLng);
         LatLng delivery = new LatLng(deliveryLat, deliveryLng);
 
-        googleMap.addMarker(new MarkerOptions().position(pickup).title("Pickup Location"));
-        googleMap.addMarker(new MarkerOptions().position(delivery).title("Destination"));
-        googleMap.addPolyline(new PolylineOptions().add(pickup, delivery).color(Color.parseColor("#4F46E5")).width(8f));
+        if (partnerMarker == null) {
+            googleMap.clear();
+            googleMap.addMarker(new MarkerOptions().position(pickup).title("Pickup Location"));
+            googleMap.addMarker(new MarkerOptions().position(delivery).title("Destination"));
+            googleMap.addPolyline(new PolylineOptions().add(pickup, delivery).color(Color.parseColor("#4F46E5")).width(8f));
 
-        LatLng center = new LatLng((pickupLat + deliveryLat) / 2.0, (pickupLng + deliveryLng) / 2.0);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 13f));
+            LatLng center = new LatLng((pickupLat + deliveryLat) / 2.0, (pickupLng + deliveryLng) / 2.0);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 13f));
+        }
+
+        if (currentPartnerLatLng != null) {
+            if (partnerMarker == null) {
+                partnerMarker = googleMap.addMarker(new MarkerOptions()
+                        .position(currentPartnerLatLng)
+                        .title("Delivery Partner")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            } else {
+                animateMarkerTo(partnerMarker, currentPartnerLatLng);
+            }
+        }
+    }
+
+    private void animateMarkerTo(Marker marker, LatLng finalPosition) {
+        if (marker == null || finalPosition == null) return;
+        LatLng startPosition = marker.getPosition();
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+        valueAnimator.setDuration(1200);
+        valueAnimator.addUpdateListener(animation -> {
+            float v = animation.getAnimatedFraction();
+            double lat = v * finalPosition.latitude + (1 - v) * startPosition.latitude;
+            double lng = v * finalPosition.longitude + (1 - v) * startPosition.longitude;
+            marker.setPosition(new LatLng(lat, lng));
+        });
+        valueAnimator.start();
     }
 
     private void loadTrackingData() {
@@ -148,11 +190,40 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                             if (tvHeaderOrderNum != null) tvHeaderOrderNum.setText("Order #" + shortId);
 
                             String status = order.optString("status", "MATCHING");
-                            if (tvStatusBadge != null) {
-                                if ("EXPIRED".equalsIgnoreCase(status)) {
-                                    tvStatusBadge.setText("MATCHING EXPIRED (REFUNDED)");
-                                } else {
-                                    tvStatusBadge.setText(status);
+                            String deadlineIso = order.optString("acceptance_deadline_at", "");
+
+                            if ("MATCHING".equalsIgnoreCase(status) || "CREATED".equalsIgnoreCase(status)) {
+                                long remainingSecs = getRemainingSeconds(deadlineIso);
+                                long mins = remainingSecs / 60;
+                                long secs = remainingSecs % 60;
+
+                                if (tvStatusBadge != null) tvStatusBadge.setText("FINDING PARTNER");
+                                if (tvETA != null) {
+                                    if (remainingSecs > 0) {
+                                        tvETA.setText(String.format(Locale.getDefault(), "%02d:%02d", mins, secs));
+                                    } else {
+                                        tvETA.setText("Expiring...");
+                                    }
+                                }
+                                if (tvPartnerName != null) tvPartnerName.setText("Searching Nearest Partner...");
+                            } else if ("EXPIRED".equalsIgnoreCase(status) || "REFUNDED".equalsIgnoreCase(status)) {
+                                double amt = order.optDouble("total_amount", 0.0);
+                                if (tvStatusBadge != null) tvStatusBadge.setText("MATCHING EXPIRED");
+                                if (tvETA != null) tvETA.setText("Refund Issued");
+                                if (tvPartnerName != null) tvPartnerName.setText(String.format(Locale.getDefault(), "Refund of ₹%.2f Processed", amt));
+                            } else {
+                                if (tvStatusBadge != null) tvStatusBadge.setText(status);
+                                if (tvETA != null) tvETA.setText("On Time");
+
+                                String partner = order.optString("assigned_partner", "");
+                                if (tvPartnerName != null) {
+                                    tvPartnerName.setText(partner.isEmpty() || "null".equals(partner) ? "Partner Assigned" : partner);
+                                }
+
+                                double pLat = order.optDouble("partner_lat", 0.0);
+                                double pLng = order.optDouble("partner_lng", 0.0);
+                                if (pLat != 0.0 && pLng != 0.0) {
+                                    currentPartnerLatLng = new LatLng(pLat, pLng);
                                 }
                             }
 
@@ -170,22 +241,6 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                             if (tvDistance != null) {
                                 tvDistance.setText(String.format(Locale.getDefault(), "%.1f km", dist));
                             }
-                            if (tvETA != null) {
-                                tvETA.setText("EXPIRED".equalsIgnoreCase(status) ? "Refund Issued" : "On Time");
-                            }
-
-                            String partner = order.optString("assigned_partner", "");
-                            if (tvPartnerName != null) {
-                                if (partner.isEmpty() || "null".equals(partner)) {
-                                    if ("EXPIRED".equalsIgnoreCase(status)) {
-                                        tvPartnerName.setText("No Partner Available (Refunded)");
-                                    } else {
-                                        tvPartnerName.setText("Searching Nearest Partner...");
-                                    }
-                                } else {
-                                    tvPartnerName.setText(partner);
-                                }
-                            }
                         }
                     }
                 });
@@ -194,6 +249,28 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
             @Override
             public void onError(String error) {}
         });
+    }
+
+    private long getRemainingSeconds(String deadlineIso) {
+        if (deadlineIso == null || deadlineIso.isEmpty()) return 300L;
+        try {
+            String cleanIso = deadlineIso.replace("Z", "");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date;
+            try {
+                date = sdf.parse(cleanIso);
+            } catch (Exception e) {
+                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                sdf2.setTimeZone(TimeZone.getTimeZone("UTC"));
+                date = sdf2.parse(cleanIso);
+            }
+            if (date != null) {
+                long remainingMillis = date.getTime() - System.currentTimeMillis();
+                return Math.max(0, remainingMillis / 1000L);
+            }
+        } catch (Exception ignored) {}
+        return 300L;
     }
 
     @Override

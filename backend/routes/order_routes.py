@@ -87,7 +87,7 @@ def create_order():
 
     pickup_otp_plain = str(secrets.randbelow(900000) + 100000)
     pickup_otp_hash = hash_secret(pickup_otp_plain)
-    pickup_otp_expiry = datetime.utcnow() + timedelta(minutes=10)
+    pickup_otp_expiry = datetime.utcnow() + timedelta(minutes=5)
 
     tracking_token = secrets.token_urlsafe(32)
     now_iso = datetime.utcnow().isoformat()
@@ -198,7 +198,8 @@ def pay_order(order_id):
 
     now = datetime.utcnow()
     now_iso = now.isoformat()
-    deadline_iso = (now + timedelta(minutes=10)).isoformat()
+    # 5-Minute Server-Controlled Acceptance Deadline
+    deadline_iso = (now + timedelta(minutes=5)).isoformat()
 
     result = db["orders"].update_one(
         {"_id": obj_id},
@@ -233,7 +234,7 @@ def pay_order(order_id):
     })
 
     return jsonify({
-        "message": "Payment recorded successfully and order entered matching",
+        "message": "Payment recorded successfully and order entered 5-minute matching",
         "payment_status": "SUCCESS",
         "status": "MATCHING",
         "acceptance_deadline_at": deadline_iso
