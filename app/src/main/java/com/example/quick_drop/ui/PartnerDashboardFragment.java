@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -13,14 +14,16 @@ import com.example.quick_drop.R;
 import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class PartnerDashboardFragment extends Fragment {
 
     private View cardActiveDelivery;
-    private TextView tvTodayDeliveries, tvCompletedDeliveries, tvPendingDeliveries, tvAvailableSummary;
+    private TextView tvTodayDeliveries, tvCompletedDeliveries, tvPendingDeliveries, tvAvailableSummary, tvOnlineStatus;
     private TextView tvOrderID, tvPickupVal, tvDestVal, tvETA;
+    private MaterialSwitch switchOnline;
 
     @Nullable
     @Override
@@ -51,9 +54,34 @@ public class PartnerDashboardFragment extends Fragment {
         tvPickupVal = view.findViewById(R.id.tvPickupPartner);
         tvDestVal = view.findViewById(R.id.tvDestPartner);
         tvETA = view.findViewById(R.id.tvETAPartner);
+        tvOnlineStatus = view.findViewById(R.id.tvOnlineStatus);
+        switchOnline = view.findViewById(R.id.switchOnline);
 
         if (cardActiveDelivery != null) {
             cardActiveDelivery.setVisibility(View.GONE);
+        }
+
+        if (switchOnline != null) {
+            switchOnline.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (tvOnlineStatus != null) {
+                    tvOnlineStatus.setText(isChecked ? "You're Online" : "You're Offline");
+                }
+                String token = UserSession.getToken(requireContext());
+                if (!token.isEmpty()) {
+                    ApiClient.updatePartnerStatus(token, isChecked, new ApiClient.ApiCallback() {
+                        @Override
+                        public void onSuccess(JSONObject response) {
+                            if (!isAdded()) return;
+                            requireActivity().runOnUiThread(() -> {
+                                Toast.makeText(getContext(), isChecked ? "You are now ONLINE" : "You are now OFFLINE", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {}
+                    });
+                }
+            });
         }
 
         loadPartnerDashboard();
@@ -99,6 +127,25 @@ public class PartnerDashboardFragment extends Fragment {
     private void loadPartnerDashboard() {
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) return;
+
+        ApiClient.getProfile(token, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    boolean isOnline = response.optBoolean("is_online", true);
+                    if (switchOnline != null) {
+                        switchOnline.setChecked(isOnline);
+                    }
+                    if (tvOnlineStatus != null) {
+                        tvOnlineStatus.setText(isOnline ? "You're Online" : "You're Offline");
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {}
+        });
 
         ApiClient.getDashboard(token, new ApiClient.ApiCallback() {
             @Override

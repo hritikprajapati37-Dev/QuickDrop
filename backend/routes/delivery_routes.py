@@ -7,6 +7,26 @@ from backend.middleware.security import token_required, role_required, hash_secr
 
 delivery_bp = Blueprint("delivery_bp", __name__)
 
+@delivery_bp.route("/api/partner/status", methods=["POST"], endpoint="update_partner_status")
+@token_required
+@role_required("PARTNER")
+def update_partner_status():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    is_online = bool(data.get("is_online", False))
+    partner_phone = request.user.get("phone")
+
+    db["users"].update_one(
+        {"phone": partner_phone},
+        {"$set": {"is_online": is_online, "last_active": datetime.utcnow()}}
+    )
+    return jsonify({
+        "message": "Partner status updated successfully in database",
+        "is_online": is_online
+    }), 200
+
 @delivery_bp.route("/api/delivery/verify-pickup", methods=["POST"], endpoint="verify_pickup")
 @token_required
 @role_required("PARTNER")
