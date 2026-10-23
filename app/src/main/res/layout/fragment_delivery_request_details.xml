@@ -47,7 +47,7 @@
                     android:layout_marginStart="8dp"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/notificationContainer"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/btnBack"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -63,34 +63,10 @@
                         style="@style/Stitch.Typography.BodyMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Review the request details to accept"
+                        android:text="Review request details to accept"
                         android:textColor="@color/vf_on_surface_variant" />
                 </LinearLayout>
 
-                <FrameLayout
-                    android:id="@+id/notificationContainer"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_bell"
-                        app:tint="@color/vf_on_surface_variant" />
-
-                    <View
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:layout_gravity="top|end"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="12dp"
-                        android:background="@drawable/shape_circle_white"
-                        android:backgroundTint="@color/vf_error" />
-                </FrameLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -147,7 +123,7 @@
                                 style="@style/Stitch.Typography.HeadlineLarge"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="₹120"
+                                android:text="₹0.00"
                                 android:textColor="@color/vf_primary"
                                 android:textStyle="bold" />
 
@@ -155,7 +131,7 @@
                                 style="@style/Stitch.Typography.LabelMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Earnings"
+                                android:text="EARNINGS"
                                 android:textAllCaps="true"
                                 android:textColor="@color/vf_on_surface_variant" />
                         </LinearLayout>
@@ -169,7 +145,7 @@
                             android:backgroundTint="#E8EFFF"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="4dp"
-                            android:text="#QD-9287"
+                            android:text="#QD-0000"
                             android:textColor="@color/vf_primary"
                             android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -198,7 +174,8 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 app:srcCompat="@drawable/ic_schedule"
-                                app:tint="@color/vf_secondary" />
+                                app:tint="@color/vf_secondary"
+                                android:contentDescription="Est Time" />
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -214,6 +191,7 @@
                                     android:textSize="10sp" />
 
                                 <TextView
+                                    android:id="@+id/tvEstTime"
                                     style="@style/Stitch.Typography.BodyMedium"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -240,7 +218,8 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 app:srcCompat="@drawable/ic_route"
-                                app:tint="@color/vf_primary" />
+                                app:tint="@color/vf_primary"
+                                android:contentDescription="Distance" />
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -256,10 +235,11 @@
                                     android:textSize="10sp" />
 
                                 <TextView
+                                    android:id="@+id/tvDistanceAway"
                                     style="@style/Stitch.Typography.BodyMedium"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="2.4 km away"
+                                    android:text="0.0 km"
                                     android:textColor="@color/vf_on_surface"
                                     android:textStyle="bold" />
                             </LinearLayout>
@@ -268,7 +248,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Logistics Card -->
+            <!-- Route Logistics Card -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
@@ -310,7 +290,8 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/shape_circle_white"
-                            app:tint="@color/vf_secondary" />
+                            app:tint="@color/vf_secondary"
+                            android:contentDescription="Pickup" />
 
                         <TextView
                             android:id="@+id/tvPickupLabel"
@@ -318,7 +299,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/stitch_md"
-                            android:text="PICKUP • 0.8 KM"
+                            android:text="PICKUP LOCATION"
                             android:textColor="@color/vf_secondary"
                             app:layout_constraintStart_toEndOf="@id/ivPickup"
                             app:layout_constraintTop_toTopOf="@id/ivPickup" />
@@ -328,20 +309,11 @@
                             style="@style/Stitch.Typography.TitleLarge"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="123 Tech Park"
-                            android:textSize="18sp"
+                            android:text=""
+                            android:textSize="16sp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/tvPickupLabel"
                             app:layout_constraintTop_toBottomOf="@id/tvPickupLabel" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyMedium"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:text="Block B, Ground Floor, Sector 45, Tech Zone"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="@id/tvPickupAddress"
-                            app:layout_constraintTop_toBottomOf="@id/tvPickupAddress" />
 
                         <ImageView
                             android:id="@+id/ivDest"
@@ -354,7 +326,8 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/tvPickupAddress"
                             app:srcCompat="@drawable/ic_location"
-                            app:tint="@color/white" />
+                            app:tint="@color/white"
+                            android:contentDescription="Destination" />
 
                         <TextView
                             android:id="@+id/tvDestLabel"
@@ -362,78 +335,24 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/stitch_md"
-                            android:text="DESTINATION • 1.6 KM"
+                            android:text="DROP OFF LOCATION"
                             android:textColor="@color/vf_primary"
                             app:layout_constraintStart_toEndOf="@id/ivDest"
                             app:layout_constraintTop_toTopOf="@id/ivDest" />
 
                         <TextView
+                            android:id="@+id/tvDestAddress"
                             style="@style/Stitch.Typography.TitleLarge"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="456 Elm Street"
+                            android:text=""
                             android:textStyle="bold"
-                            android:textSize="18sp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="@id/tvDestLabel"
-                            app:layout_constraintTop_toBottomOf="@id/tvDestLabel" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyMedium"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="24dp"
-                            android:text="Apt 4B, Sunrise Heights, Elm Valley"
+                            android:textSize="16sp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/tvDestLabel"
                             app:layout_constraintTop_toBottomOf="@id/tvDestLabel" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/stitch_md"
-                        app:cardBackgroundColor="#F0F4FF"
-                        app:cardCornerRadius="@dimen/stitch_rounded_md"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:padding="@dimen/stitch_md">
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                app:srcCompat="@drawable/ic_description"
-                                app:tint="@color/vf_primary" />
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="12dp"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    style="@style/Stitch.Typography.BodyMedium"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Document Express"
-                                    android:textColor="@color/vf_on_surface"
-                                    android:textStyle="bold" />
-
-                                <TextView
-                                    style="@style/Stitch.Typography.LabelMedium"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Signature required on delivery"
-                                    android:textSize="10sp" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -480,10 +399,11 @@
                                 android:text="CONTENTS" />
 
                             <TextView
+                                android:id="@+id/tvItemContents"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Documents"
+                                android:text=""
                                 android:textColor="@color/vf_on_surface"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -501,84 +421,19 @@
                                 android:text="WEIGHT" />
 
                             <TextView
+                                android:id="@+id/tvItemWeight"
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0.5 kg"
-                                android:textColor="@color/vf_on_surface"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_marginTop="16dp"
-                            android:orientation="vertical">
-
-                            <TextView
-                                style="@style/Stitch.Typography.LabelMedium"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="SIZE" />
-
-                            <TextView
-                                style="@style/Stitch.Typography.BodyMedium"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Small Envelope"
+                                android:text="1.0 kg"
                                 android:textColor="@color/vf_on_surface"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </GridLayout>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/stitch_md"
-                        app:cardBackgroundColor="#FFF1F0"
-                        app:cardCornerRadius="@dimen/stitch_rounded_md"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:padding="@dimen/stitch_sm">
-
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                app:srcCompat="@drawable/ic_cancel_circle"
-                                app:tint="@color/vf_error" />
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    style="@style/Stitch.Typography.LabelMedium"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Special Instructions" />
-
-                                <TextView
-                                    style="@style/Stitch.Typography.BodyMedium"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Handle package carefully. Do not bend."
-                                    android:textColor="@color/vf_on_surface" />
-                            </LinearLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Map Card -->
+            <!-- Real Google Map Preview Card -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
@@ -587,72 +442,41 @@
                 app:cardCornerRadius="16dp"
                 app:strokeWidth="0dp">
 
-                <FrameLayout
+                <com.google.android.gms.maps.MapView
+                    android:id="@+id/mapViewDetails"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/vf_surface_container">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:alpha="0.2"
-                        android:scaleType="centerCrop"
-                        app:srcCompat="@drawable/ic_route"
-                        app:tint="@color/vf_primary" />
-
-                    <ImageView
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_gravity="center"
-                        app:srcCompat="@drawable/ic_local_shipping"
-                        app:tint="@color/vf_primary" />
-                </FrameLayout>
+                    android:layout_height="match_parent" />
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Actions -->
+    <!-- Bottom Action Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvBottomActions"
+        style="@style/Stitch.Card.Level1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="16dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:strokeWidth="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="@dimen/stitch_margin_mobile">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDecline"
-                style="@style/Stitch.Button.Secondary"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:text="Decline"
-                android:textColor="@color/vf_on_surface"
-                app:cornerRadius="28dp"
-                app:strokeColor="@color/vf_outline" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAccept"
                 style="@style/Stitch.Button.Primary"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="2"
                 android:text="Accept Delivery"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                app:cornerRadius="28dp"
-                app:icon="@drawable/ic_arrow_forward"
-                app:iconGravity="textEnd" />
+                app:cornerRadius="28dp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
