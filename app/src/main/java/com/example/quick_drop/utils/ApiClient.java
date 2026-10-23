@@ -14,28 +14,12 @@ public class ApiClient {
 
     // Local development configuration (Set USE_LOCAL_DEV to true when running Flask locally)
     private static final boolean USE_LOCAL_DEV = true;
-    private static final String LOCAL_PC_LAN_IP = "192.168.0.101";
 
     private static String getBaseUrl() {
         if (USE_LOCAL_DEV) {
-            if (isEmulator()) {
-                return "http://10.0.2.2:5000";
-            } else {
-                return "http://" + LOCAL_PC_LAN_IP + ":5000";
-            }
+            return "http://10.0.2.2:5000";
         }
         return PRODUCTION_URL;
-    }
-
-    private static boolean isEmulator() {
-        return android.os.Build.FINGERPRINT.startsWith("generic")
-                || android.os.Build.FINGERPRINT.startsWith("unknown")
-                || android.os.Build.MODEL.contains("google_sdk")
-                || android.os.Build.MODEL.contains("Emulator")
-                || android.os.Build.MODEL.contains("Android SDK built for x86")
-                || android.os.Build.MANUFACTURER.contains("Genymotion")
-                || (android.os.Build.BRAND.startsWith("generic") && android.os.Build.DEVICE.startsWith("generic"))
-                || "google_sdk".equals(android.os.Build.PRODUCT);
     }
 
     public interface ApiCallback {
@@ -46,8 +30,8 @@ public class ApiClient {
     private static String handleException(Exception e, String defaultMsg) {
         Log.e("ApiClient", defaultMsg, e);
         String msg = e.getMessage();
-        if (msg != null && msg.contains("Unable to resolve host")) {
-            return "Cannot connect to server. Please ensure the local Flask backend is running on port 5000.";
+        if (msg != null && (msg.contains("Unable to resolve host") || msg.contains("failed to connect"))) {
+            return "Cannot connect to server. Please ensure local Flask backend is running on port 5000.";
         }
         return msg != null ? msg : defaultMsg;
     }
