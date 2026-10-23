@@ -279,6 +279,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/stitch_md"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/stitch_rounded_lg"
+                app:strokeWidth="1dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
@@ -322,6 +325,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/stitch_rounded_lg"
+                app:strokeWidth="1dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground">
@@ -358,18 +364,45 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Logout Button -->
-            <com.google.android.material.button.MaterialButton
+            <!-- Logout Card -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnLogout"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="@dimen/stitch_lg"
-                android:text="Log Out"
-                android:textColor="@color/vf_error"
-                android:textStyle="bold"
-                app:icon="@drawable/ic_logout"
-                app:iconTint="@color/vf_error" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/stitch_rounded_lg"
+                app:strokeWidth="1dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/stitch_md">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        app:srcCompat="@drawable/ic_logout"
+                        app:tint="@color/vf_error"
+                        android:contentDescription="Logout Icon" />
+
+                    <TextView
+                        style="@style/Stitch.Typography.BodyLarge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/stitch_md"
+                        android:layout_weight="1"
+                        android:text="Log Out"
+                        android:textColor="@color/vf_error"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
