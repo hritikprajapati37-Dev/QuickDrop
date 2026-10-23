@@ -8,23 +8,24 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 public class ApiClient {
     private static final String TAG = "ApiClient";
 
-    // Production Render Backend URL over HTTPS (Authoritative Deployed Environment)
+    // Verified Deployed Render Backend URL over HTTPS
     private static final String PRODUCTION_URL = "https://quickdrop-bhd9.onrender.com";
 
-    // Local development configuration (Set USE_LOCAL_DEV to true only when running local Flask instance)
+    // Local development configuration (Set USE_LOCAL_DEV to true when testing locally without external internet/DNS)
     private static final boolean USE_LOCAL_DEV = false;
-    private static final String LOCAL_PC_LAN_IP = "10.0.2.2"; // Emulator loopback alias
+    private static final String LOCAL_EMULATOR_LOOPBACK = "10.0.2.2";
 
-    // Extended timeout (45 seconds) to accommodate Render free-tier cold starts (spin-down wakeup)
+    // Extended timeout (45 seconds) to accommodate Render free-tier cold starts
     private static final int TIMEOUT_MS = 45000;
 
     private static String getBaseUrl() {
         if (USE_LOCAL_DEV) {
-            return "http://" + LOCAL_PC_LAN_IP + ":5000";
+            return "http://" + LOCAL_EMULATOR_LOOPBACK + ":5000";
         }
         return PRODUCTION_URL;
     }
@@ -39,13 +40,16 @@ public class ApiClient {
         String msg = e.getMessage();
         Log.e(TAG, "Request Exception [" + excClass + "] for endpoint: " + endpoint + " -> " + msg, e);
 
+        if (e instanceof UnknownHostException) {
+            return "DNS Lookup Error: Unable to resolve hostname '" + getBaseUrl() + "'. Please check mobile internet/Wi-Fi connection or enable Local Dev mode.";
+        }
         if (e instanceof SocketTimeoutException) {
-            return "Server is starting up from cold start (Render). Please tap retry in a few seconds. (" + excClass + ")";
+            return "Server timeout: Render backend is waking up from sleep. Please tap retry in a few seconds. (" + excClass + ")";
         }
-        if (msg != null && (msg.contains("Unable to resolve host") || msg.contains("failed to connect") || msg.contains("Connection refused"))) {
-            return "Network connection error (" + excClass + ": " + msg + "). Check internet connection.";
+        if (msg != null && (msg.contains("failed to connect") || msg.contains("Connection refused"))) {
+            return "Connection refused (" + excClass + ": " + msg + "). Verify network connectivity.";
         }
-        return excClass + ": " + (msg != null ? msg : "Unknown network error");
+        return excClass + ": " + (msg != null ? msg : "Network error");
     }
 
     public static void signup(String name, String phone, String password, String role, ApiCallback callback) {
