@@ -704,6 +704,10 @@ public class ApiClient {
     }
 
     public static void payOrder(String token, String orderId, ApiCallback callback) {
+        payOrder(token, orderId, new JSONObject(), callback);
+    }
+
+    public static void payOrder(String token, String orderId, JSONObject paymentData, ApiCallback callback) {
         new Thread(() -> {
             String endpoint = "/api/orders/" + orderId + "/pay";
             try {
@@ -711,10 +715,18 @@ public class ApiClient {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
                 conn.setConnectTimeout(TIMEOUT_MS);
                 conn.setReadTimeout(TIMEOUT_MS);
                 conn.setDoOutput(true);
+
+                JSONObject jsonParam = paymentData != null ? paymentData : new JSONObject();
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonParam.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
