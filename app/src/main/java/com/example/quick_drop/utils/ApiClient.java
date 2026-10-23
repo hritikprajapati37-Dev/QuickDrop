@@ -13,7 +13,7 @@ public class ApiClient {
     private static final String PRODUCTION_URL = "https://quickdrop-bhd9.onrender.com";
 
     // Local development configuration (Set USE_LOCAL_DEV to true when running Flask locally)
-    private static final boolean USE_LOCAL_DEV = false;
+    private static final boolean USE_LOCAL_DEV = true;
     private static final String LOCAL_PC_LAN_IP = "192.168.0.101";
 
     private static String getBaseUrl() {
@@ -43,6 +43,15 @@ public class ApiClient {
         void onError(String error);
     }
 
+    private static String handleException(Exception e, String defaultMsg) {
+        Log.e("ApiClient", defaultMsg, e);
+        String msg = e.getMessage();
+        if (msg != null && msg.contains("Unable to resolve host")) {
+            return "Cannot connect to server. Please ensure the local Flask backend is running on port 5000.";
+        }
+        return msg != null ? msg : defaultMsg;
+    }
+
     public static void signup(String name, String phone, String password, String role, ApiCallback callback) {
         new Thread(() -> {
             try {
@@ -51,6 +60,8 @@ public class ApiClient {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -85,8 +96,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Signup failed"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Signup error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Signup error"));
             }
         }).start();
     }
@@ -99,6 +109,8 @@ public class ApiClient {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -131,8 +143,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Login failed"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Login error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Login error"));
             }
         }).start();
     }
@@ -145,6 +156,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -167,8 +180,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to load dashboard"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Dashboard error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Dashboard error"));
             }
         }).start();
     }
@@ -181,6 +193,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -203,8 +217,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to fetch orders"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Orders list error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Orders list error"));
             }
         }).start();
     }
@@ -217,6 +230,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -239,8 +254,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to fetch order details"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Order details error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Order details error"));
             }
         }).start();
     }
@@ -253,6 +267,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -275,8 +291,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to fetch available requests"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Available requests error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Available requests error"));
             }
         }).start();
     }
@@ -290,6 +305,8 @@ public class ApiClient {
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -321,8 +338,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to accept order"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Accept request error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Accept request error"));
             }
         }).start();
     }
@@ -336,6 +352,8 @@ public class ApiClient {
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -375,8 +393,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Order creation failed"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Create order error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Create order error"));
             }
         }).start();
     }
@@ -389,6 +406,8 @@ public class ApiClient {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
                 conn.setDoOutput(true);
 
                 int code = conn.getResponseCode();
@@ -412,8 +431,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Payment failed"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Payment error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Payment error"));
             }
         }).start();
     }
@@ -426,6 +444,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -448,8 +468,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to fetch earnings"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Earnings error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Earnings error"));
             }
         }).start();
     }
@@ -462,6 +481,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -484,8 +505,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to load profile"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Get profile error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Get profile error"));
             }
         }).start();
     }
@@ -499,6 +519,8 @@ public class ApiClient {
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -531,8 +553,7 @@ public class ApiClient {
                     callback.onError(resJson.optString("error", "Failed to update profile"));
                 }
             } catch (Exception e) {
-                Log.e("ApiClient", "Update profile error", e);
-                callback.onError(e.getMessage());
+                callback.onError(handleException(e, "Update profile error"));
             }
         }).start();
     }
