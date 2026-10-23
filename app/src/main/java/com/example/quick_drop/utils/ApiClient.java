@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 public class ApiClient {
@@ -17,6 +18,9 @@ public class ApiClient {
     // Local development configuration (Set USE_LOCAL_DEV to true only when running local Flask instance)
     private static final boolean USE_LOCAL_DEV = false;
     private static final String LOCAL_PC_LAN_IP = "10.0.2.2"; // Emulator loopback alias
+
+    // Extended timeout (45 seconds) to accommodate Render free-tier cold starts (spin-down wakeup)
+    private static final int TIMEOUT_MS = 45000;
 
     private static String getBaseUrl() {
         if (USE_LOCAL_DEV) {
@@ -31,12 +35,17 @@ public class ApiClient {
     }
 
     private static String handleException(Exception e, String endpoint) {
-        Log.e(TAG, "Network request failed for endpoint: " + endpoint, e);
+        String excClass = e.getClass().getSimpleName();
         String msg = e.getMessage();
-        if (msg != null && (msg.contains("Unable to resolve host") || msg.contains("failed to connect") || msg.contains("Connection refused"))) {
-            return "Cannot connect to server (" + getBaseUrl() + "). Please check your internet connection.";
+        Log.e(TAG, "Request Exception [" + excClass + "] for endpoint: " + endpoint + " -> " + msg, e);
+
+        if (e instanceof SocketTimeoutException) {
+            return "Server is starting up from cold start (Render). Please tap retry in a few seconds. (" + excClass + ")";
         }
-        return msg != null ? msg : "Unknown network error";
+        if (msg != null && (msg.contains("Unable to resolve host") || msg.contains("failed to connect") || msg.contains("Connection refused"))) {
+            return "Network connection error (" + excClass + ": " + msg + "). Check internet connection.";
+        }
+        return excClass + ": " + (msg != null ? msg : "Unknown network error");
     }
 
     public static void signup(String name, String phone, String password, String role, ApiCallback callback) {
@@ -44,13 +53,13 @@ public class ApiClient {
             String endpoint = "/api/auth/signup";
             try {
                 URL url = new URL(getBaseUrl() + endpoint);
-                Log.d(TAG, "Executing POST " + url.toString());
+                Log.d(TAG, "Executing POST " + url);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -65,7 +74,7 @@ public class ApiClient {
                 }
 
                 int code = conn.getResponseCode();
-                Log.d(TAG, "Response code " + code + " for " + endpoint);
+                Log.d(TAG, "Response Code " + code + " for POST " + endpoint);
                 BufferedReader br;
                 if (code >= 200 && code < 300) {
                     br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
@@ -83,7 +92,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Signup failed"));
+                    callback.onError(resJson.optString("error", "Signup failed (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -96,13 +105,13 @@ public class ApiClient {
             String endpoint = "/api/auth/login";
             try {
                 URL url = new URL(getBaseUrl() + endpoint);
-                Log.d(TAG, "Executing POST " + url.toString());
+                Log.d(TAG, "Executing POST " + url);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -115,7 +124,7 @@ public class ApiClient {
                 }
 
                 int code = conn.getResponseCode();
-                Log.d(TAG, "Response code " + code + " for " + endpoint);
+                Log.d(TAG, "Response Code " + code + " for POST " + endpoint);
                 BufferedReader br;
                 if (code >= 200 && code < 300) {
                     br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
@@ -133,7 +142,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Login failed"));
+                    callback.onError(resJson.optString("error", "Login failed (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -150,8 +159,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -171,7 +180,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Failed to load dashboard"));
+                    callback.onError(resJson.optString("error", "Failed to load dashboard (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -188,8 +197,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -209,7 +218,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Failed to fetch orders"));
+                    callback.onError(resJson.optString("error", "Failed to fetch orders (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -226,8 +235,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -247,7 +256,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Failed to fetch order details"));
+                    callback.onError(resJson.optString("error", "Failed to fetch order details (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -264,8 +273,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -285,7 +294,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Failed to fetch available requests"));
+                    callback.onError(resJson.optString("error", "Failed to fetch available requests (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -303,8 +312,8 @@ public class ApiClient {
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -333,7 +342,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Failed to accept order"));
+                    callback.onError(resJson.optString("error", "Failed to accept order (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -351,8 +360,8 @@ public class ApiClient {
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -389,7 +398,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Order creation failed"));
+                    callback.onError(resJson.optString("error", "Order creation failed (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -406,8 +415,8 @@ public class ApiClient {
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
                 conn.setDoOutput(true);
 
                 int code = conn.getResponseCode();
@@ -428,7 +437,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Payment failed"));
+                    callback.onError(resJson.optString("error", "Payment failed (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -445,8 +454,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -466,7 +475,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Failed to fetch earnings"));
+                    callback.onError(resJson.optString("error", "Failed to fetch earnings (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -483,8 +492,8 @@ public class ApiClient {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
 
                 int code = conn.getResponseCode();
                 BufferedReader br;
@@ -504,7 +513,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Failed to load profile"));
+                    callback.onError(resJson.optString("error", "Failed to load profile (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
@@ -522,8 +531,8 @@ public class ApiClient {
                 conn.setRequestProperty("Authorization", "Bearer " + token);
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(10000);
-                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
                 conn.setDoOutput(true);
 
                 JSONObject jsonParam = new JSONObject();
@@ -553,7 +562,7 @@ public class ApiClient {
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
-                    callback.onError(resJson.optString("error", "Failed to update profile"));
+                    callback.onError(resJson.optString("error", "Failed to update profile (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
                 callback.onError(handleException(e, endpoint));
