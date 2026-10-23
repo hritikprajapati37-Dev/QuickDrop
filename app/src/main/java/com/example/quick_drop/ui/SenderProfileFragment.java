@@ -94,6 +94,12 @@ public class SenderProfileFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadProfile();
+    }
+
     private void loadProfile() {
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) return;
@@ -110,7 +116,7 @@ public class SenderProfileFragment extends Fragment {
                     if (tvName != null && !name.isEmpty()) tvName.setText(name);
                     if (tvPhone != null && !phone.isEmpty()) tvPhone.setText(phone);
                     if (tvEmail != null) {
-                        if (email != null && !email.isEmpty() && !"null".equals(email)) {
+                        if (!email.isEmpty() && !"null".equals(email)) {
                             tvEmail.setText(email);
                             tvEmail.setTextColor(getResources().getColor(R.color.vf_on_surface, null));
                             tvEmail.setTypeface(null, android.graphics.Typeface.BOLD);
