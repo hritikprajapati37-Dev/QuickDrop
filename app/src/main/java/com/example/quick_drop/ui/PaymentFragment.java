@@ -14,6 +14,7 @@ import com.example.quick_drop.R;
 import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.radiobutton.MaterialRadioButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.Locale;
@@ -22,6 +23,7 @@ public class PaymentFragment extends Fragment {
 
     private TextView tvOrderNumber, tvDeliveryCharge, tvPlatformFee, tvTotalPayable;
     private MaterialButton btnPayNow;
+    private MaterialRadioButton rbUpi, rbCard, rbNetBanking;
     private String currentOrderId = "";
 
     @Nullable
@@ -42,6 +44,40 @@ public class PaymentFragment extends Fragment {
         tvPlatformFee = view.findViewById(R.id.tvPlatformFee);
         tvTotalPayable = view.findViewById(R.id.tvTotalPayable);
         btnPayNow = view.findViewById(R.id.btnPayNow);
+
+        rbUpi = view.findViewById(R.id.rbUpi);
+        rbCard = view.findViewById(R.id.rbCard);
+        rbNetBanking = view.findViewById(R.id.rbNetBanking);
+
+        View.OnClickListener paymentMethodListener = v -> {
+            boolean isUpi = (v == rbUpi || (rbUpi != null && v == rbUpi.getParent()));
+            boolean isCard = (v == rbCard || (rbCard != null && v == rbCard.getParent()));
+            boolean isNetBanking = (v == rbNetBanking || (rbNetBanking != null && v == rbNetBanking.getParent()));
+
+            if (rbUpi != null) rbUpi.setChecked(isUpi);
+            if (rbCard != null) rbCard.setChecked(isCard);
+            if (rbNetBanking != null) rbNetBanking.setChecked(isNetBanking);
+        };
+
+        if (rbUpi != null) {
+            rbUpi.setChecked(true); // Default to UPI
+            rbUpi.setOnClickListener(paymentMethodListener);
+            if (rbUpi.getParent() instanceof View) {
+                ((View) rbUpi.getParent()).setOnClickListener(paymentMethodListener);
+            }
+        }
+        if (rbCard != null) {
+            rbCard.setOnClickListener(paymentMethodListener);
+            if (rbCard.getParent() instanceof View) {
+                ((View) rbCard.getParent()).setOnClickListener(paymentMethodListener);
+            }
+        }
+        if (rbNetBanking != null) {
+            rbNetBanking.setOnClickListener(paymentMethodListener);
+            if (rbNetBanking.getParent() instanceof View) {
+                ((View) rbNetBanking.getParent()).setOnClickListener(paymentMethodListener);
+            }
+        }
 
         loadLatestOrderPayment();
 
@@ -122,7 +158,8 @@ public class PaymentFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     if (btnPayNow != null) {
                         btnPayNow.setEnabled(true);
-                        btnPayNow.setText("Retry Payment");
+                        // Restore pay button text
+                        btnPayNow.setText("Pay Now");
                     }
                     Toast.makeText(getContext(), "Payment failed: " + error, Toast.LENGTH_LONG).show();
                 });
