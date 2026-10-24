@@ -21,6 +21,7 @@ import com.example.quick_drop.utils.UserSession;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,6 +31,7 @@ public class PartnerDashboardFragment extends Fragment {
     private View cardActiveDelivery;
     private TextView tvAvailableCount, tvCompletedDeliveries, tvRejectedCount, tvAvailableSummary, tvOnlineStatus;
     private TextView tvOrderID, tvPickupVal, tvDestVal, tvETA;
+    private MaterialButton btnViewDelivery;
     private MaterialSwitch switchOnline;
     private FusedLocationProviderClient fusedLocationClient;
 
@@ -64,6 +66,7 @@ public class PartnerDashboardFragment extends Fragment {
         tvPickupVal = view.findViewById(R.id.tvPickupPartner);
         tvDestVal = view.findViewById(R.id.tvDestPartner);
         tvETA = view.findViewById(R.id.tvETAPartner);
+        btnViewDelivery = view.findViewById(R.id.btnViewDelivery);
         tvOnlineStatus = view.findViewById(R.id.tvOnlineStatus);
         switchOnline = view.findViewById(R.id.switchOnline);
 
@@ -99,9 +102,6 @@ public class PartnerDashboardFragment extends Fragment {
         }
 
         loadPartnerDashboard();
-
-        view.findViewById(R.id.btnViewDelivery).setOnClickListener(v -> 
-            Navigation.findNavController(v).navigate(R.id.action_partnerDashboard_to_availableRequests));
 
         view.findViewById(R.id.btnViewRequests).setOnClickListener(v -> 
             Navigation.findNavController(v).navigate(R.id.action_partnerDashboard_to_availableRequests));
@@ -153,6 +153,12 @@ public class PartnerDashboardFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadPartnerDashboard();
+    }
+
     private void loadPartnerDashboard() {
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) return;
@@ -178,30 +184,40 @@ public class PartnerDashboardFragment extends Fragment {
             public void onError(String error) {}
         });
 
-        ApiClient.getDashboard(token, new ApiClient.ApiCallback() {
+        ApiClient.getPartnerActiveDelivery(token, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    JSONObject counts = response.optJSONObject("counts");
-                    if (counts != null) {
-                        if (tvCompletedDeliveries != null) tvCompletedDeliveries.setText(String.valueOf(counts.optInt("completed", 0)));
-                        if (tvRejectedCount != null) tvRejectedCount.setText(String.valueOf(counts.optInt("cancelled", counts.optInt("rejected", 0))));
-                    }
-
                     JSONObject activeDelivery = response.optJSONObject("active_delivery");
                     if (activeDelivery != null) {
-                        if (cardActiveDelivery != null) cardActiveDelivery.setVisibility(View.VISIBLE);
-                        if (tvOrderID != null) {
-                            String oid = activeDelivery.optString("order_id", "");
-                            if (oid.length() > 6) oid = oid.substring(oid.length() - 6);
-                            tvOrderID.setText("#" + oid);
-                        }
-                        if (tvPickupVal != null) tvPickupVal.setText(activeDelivery.optString("pickup_address", ""));
-                        if (tvDestVal != null) tvDestVal.setText(activeDelivery.optString("delivery_address", ""));
-                        if (tvETA != null) tvETA.setText("In Progress");
+                        bindActiveDeliveryCard(activeDelivery);
                     } else {
-                        if (cardActiveDelivery != null) cardActiveDelivery.setVisibility(View.GONE);
+                        // Fallback to user dashboard active delivery
+                        ApiClient.getDashboard(token, new ApiClient.ApiCallback() {
+                            @Override
+                            public void onSuccess(JSONObject res2) {
+                                if (!isAdded()) return;
+                                requireActivity().runOnUiThread(() -> {
+                                    JSONObject counts = res2.optJSONObject("counts");
+                                    if (counts != null) {
+                                        if (tvCompletedDeliveries != null) tvCompletedDeliveries.setText(String.valueOf(counts.optInt("completed", 0)));
+                                        if (tvRejectedCount != null) tvRejectedCount.setText(String.valueOf(counts.optInt("cancelled", counts.optInt("rejected", 0))));
+                                    }
+                                    JSONObject actDel = res2.optJSONObject("active_delivery");
+                                    if (actDel != null) {
+                                        bindActiveDeliveryCard(actDel);
+                                    } else {
+                                        if (cardActiveDelivery != null) cardActiveDelivery.setVisibility(View.GONE);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(String error) {
+                                if (cardActiveDelivery != null) cardActiveDelivery.setVisibility(View.GONE);
+                            }
+                        });
                     }
                 });
             }
@@ -234,5 +250,48 @@ public class PartnerDashboardFragment extends Fragment {
             @Override
             public void onError(String error) {}
         });
+    }
+
+    private void bindActiveDeliveryCard(JSONObject activeDelivery) {
+        String activeOrderId = activeDelivery.optString("order_id", "");
+        boolean pickupVerified = activeDelivery.optBoolean("pickup_verified", false);
+        String activeStatus = activeDelivery.optString("status", "ASSIGNED");
+
+        if (cardActiveDelivery != null) {
+            cardActiveDelivery.setVisibility(View.VISIBLE);
+        }
+        if (tvOrderID != null) {
+            String oid = activeOrderId;
+            if (oid.length() > 6) oid = oid.substring(oid.length() - 6);
+            tvOrderID.setText("#" + oid);
+        }
+        if (tvPickupVal != null) tvPickupVal.setText(activeDelivery.optString("pickup_address", "Pickup Location"));
+        if (tvDestVal != null) tvDestVal.setText(activeDelivery.optString("delivery_address", "Destination Location"));
+        if (tvETA != null) {
+            if ("ARRIVED_PICKUP".equalsIgnoreCase(activeStatus)) {
+                tvETA.setText("Arrived at Pickup");
+            } else if ("PICKED_UP".equalsIgnoreCase(activeStatus) || "IN_TRANSIT".equalsIgnoreCase(activeStatus)) {
+                tvETA.setText("In Transit to Destination");
+            } else if ("ARRIVED_DESTINATION".equalsIgnoreCase(activeStatus)) {
+                tvETA.setText("Arrived at Destination");
+            } else {
+                tvETA.setText("Assigned — In Progress");
+            }
+        }
+
+        View.OnClickListener openOrderListener = v -> {
+            if (!activeOrderId.isEmpty()) {
+                Bundle args = new Bundle();
+                args.putString("order_id", activeOrderId);
+                if (pickupVerified || "PICKED_UP".equalsIgnoreCase(activeStatus) || "IN_TRANSIT".equalsIgnoreCase(activeStatus) || "ARRIVED_DESTINATION".equalsIgnoreCase(activeStatus)) {
+                    Navigation.findNavController(v).navigate(R.id.proofOfDeliveryFragment, args);
+                } else {
+                    Navigation.findNavController(v).navigate(R.id.orderDetailsFragment, args);
+                }
+            }
+        };
+
+        if (btnViewDelivery != null) btnViewDelivery.setOnClickListener(openOrderListener);
+        if (cardActiveDelivery != null) cardActiveDelivery.setOnClickListener(openOrderListener);
     }
 }
