@@ -79,17 +79,40 @@ public class PaymentFragment extends Fragment {
             }
         }
 
-        loadLatestOrderPayment();
+        if (getArguments() != null) {
+            currentOrderId = getArguments().getString("order_id", "");
+        }
+
+        loadOrderPaymentDetails();
 
         if (btnPayNow != null) {
             btnPayNow.setOnClickListener(v -> processPayment(v));
         }
     }
 
-    private void loadLatestOrderPayment() {
+    private void loadOrderPaymentDetails() {
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) return;
 
+        if (!currentOrderId.isEmpty()) {
+            ApiClient.getOrderDetails(token, currentOrderId, new ApiClient.ApiCallback() {
+                @Override
+                public void onSuccess(JSONObject order) {
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() -> bindPaymentDetails(order));
+                }
+
+                @Override
+                public void onError(String error) {
+                    loadLatestOrderPaymentFallback(token);
+                }
+            });
+        } else {
+            loadLatestOrderPaymentFallback(token);
+        }
+    }
+
+    private void loadLatestOrderPaymentFallback(String token) {
         ApiClient.getOrdersList(token, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
@@ -99,27 +122,8 @@ public class PaymentFragment extends Fragment {
                     if (orders != null && orders.length() > 0) {
                         JSONObject order = orders.optJSONObject(0);
                         if (order != null) {
-                            currentOrderId = order.optString("order_id", "");
-                            String shortId = currentOrderId;
-                            if (shortId.length() > 6) shortId = shortId.substring(shortId.length() - 6);
-                            if (tvOrderNumber != null) tvOrderNumber.setText("#" + shortId);
-
-                            double deliveryCharge = order.optDouble("delivery_charge", 0.0);
-                            double platformFee = order.optDouble("platform_fee", 2.0);
-                            double totalAmount = order.optDouble("total_amount", deliveryCharge + platformFee);
-
-                            if (tvDeliveryCharge != null) {
-                                tvDeliveryCharge.setText(String.format(Locale.getDefault(), "₹%.2f", deliveryCharge));
-                            }
-                            if (tvPlatformFee != null) {
-                                tvPlatformFee.setText(String.format(Locale.getDefault(), "₹%.2f", platformFee));
-                            }
-                            if (tvTotalPayable != null) {
-                                tvTotalPayable.setText(String.format(Locale.getDefault(), "₹%.2f", totalAmount));
-                            }
-                            if (btnPayNow != null) {
-                                btnPayNow.setText(String.format(Locale.getDefault(), "Pay ₹%.2f →", totalAmount));
-                            }
+                            currentOrderId = order.optString("order_id", currentOrderId);
+                            bindPaymentDetails(order);
                         }
                     }
                 });
@@ -128,6 +132,35 @@ public class PaymentFragment extends Fragment {
             @Override
             public void onError(String error) {}
         });
+    }
+
+    private void bindPaymentDetails(JSONObject order) {
+        String shortId = currentOrderId;
+        if (shortId.length() > 6) shortId = shortId.substring(shortId.length() - 6);
+        if (tvOrderNumber != null) tvOrderNumber.setText("#" + shortId);
+
+        double deliveryCharge = order.optDouble("delivery_charge", 0.0);
+        double platformFee = order.optDouble("platform_fee", 2.0);
+        double totalAmount = order.optDouble("total_amount", deliveryCharge + platformFee);
+
+        if (deliveryCharge <= 0.0) {
+            double dist = order.optDouble("distance_km", 1.0);
+            deliveryCharge = Math.round(dist * 5.0 * 100.0) / 100.0;
+            totalAmount = Math.round((deliveryCharge + platformFee) * 100.0) / 100.0;
+        }
+
+        if (tvDeliveryCharge != null) {
+            tvDeliveryCharge.setText(String.format(Locale.getDefault(), "₹%.2f", deliveryCharge));
+        }
+        if (tvPlatformFee != null) {
+            tvPlatformFee.setText(String.format(Locale.getDefault(), "₹%.2f", platformFee));
+        }
+        if (tvTotalPayable != null) {
+            tvTotalPayable.setText(String.format(Locale.getDefault(), "₹%.2f", totalAmount));
+        }
+        if (btnPayNow != null) {
+            btnPayNow.setText(String.format(Locale.getDefault(), "Pay ₹%.2f →", totalAmount));
+        }
     }
 
     private void processPayment(View v) {
@@ -158,7 +191,6 @@ public class PaymentFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     if (btnPayNow != null) {
                         btnPayNow.setEnabled(true);
-                        // Restore pay button text
                         btnPayNow.setText("Pay Now");
                     }
                     Toast.makeText(getContext(), "Payment failed: " + error, Toast.LENGTH_LONG).show();
