@@ -1,6 +1,10 @@
 package com.example.quick_drop.ui;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,11 +12,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
 import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import org.json.JSONArray;
@@ -24,6 +31,7 @@ public class PartnerDashboardFragment extends Fragment {
     private TextView tvAvailableCount, tvCompletedDeliveries, tvRejectedCount, tvAvailableSummary, tvOnlineStatus;
     private TextView tvOrderID, tvPickupVal, tvDestVal, tvETA;
     private MaterialSwitch switchOnline;
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Nullable
     @Override
@@ -34,6 +42,8 @@ public class PartnerDashboardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         TextView tvGreeting = view.findViewById(R.id.tvGreetingPartner);
         if (tvGreeting != null) {
@@ -63,6 +73,9 @@ public class PartnerDashboardFragment extends Fragment {
 
         if (switchOnline != null) {
             switchOnline.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                // Prevent programmatic setChecked from triggering API calls
+                if (!buttonView.isPressed()) return;
+
                 if (tvOnlineStatus != null) {
                     tvOnlineStatus.setText(isChecked ? "You're Online" : "You're Offline");
                 }
@@ -74,6 +87,7 @@ public class PartnerDashboardFragment extends Fragment {
                             if (!isAdded()) return;
                             requireActivity().runOnUiThread(() -> {
                                 Toast.makeText(getContext(), isChecked ? "You are now ONLINE" : "You are now OFFLINE", Toast.LENGTH_SHORT).show();
+                                if (isChecked) fetchAndUpdateGpsLocation(token);
                             });
                         }
 
@@ -124,9 +138,26 @@ public class PartnerDashboardFragment extends Fragment {
         }
     }
 
+    private void fetchAndUpdateGpsLocation(String token) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+                    if (location != null) {
+                        double lat = location.getLatitude();
+                        double lng = location.getLongitude();
+                        Log.d("QuickDrop_Diag", "Partner GPS captured: " + lat + ", " + lng);
+                        ApiClient.updatePartnerLocation(token, lat, lng, null);
+                    }
+                });
+            } catch (SecurityException ignored) {}
+        }
+    }
+
     private void loadPartnerDashboard() {
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) return;
+
+        fetchAndUpdateGpsLocation(token);
 
         ApiClient.getProfile(token, new ApiClient.ApiCallback() {
             @Override
