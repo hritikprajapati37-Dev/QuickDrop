@@ -88,6 +88,29 @@ def update_partner_location():
 
     return jsonify({"message": "Location updated successfully", "lat": lat, "lng": lng, "updated_at": now_iso}), 200
 
+@delivery_bp.route("/api/partner/active-delivery", methods=["GET"], endpoint="get_partner_active_delivery")
+@token_required
+@role_required("PARTNER")
+def get_partner_active_delivery():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    partner_phone = request.user.get("phone")
+    active_order = db["orders"].find_one({
+        "assigned_partner": partner_phone,
+        "delivered": False,
+        "status": {"$in": ["ASSIGNED", "ARRIVED_PICKUP", "PICKED_UP", "IN_TRANSIT", "ARRIVED_DESTINATION"]}
+    })
+    if not active_order:
+        return jsonify({"active_delivery": None}), 200
+
+    active_order["order_id"] = str(active_order["_id"])
+    del active_order["_id"]
+    for k, v in list(active_order.items()):
+        if isinstance(v, datetime):
+            active_order[k] = v.isoformat()
+    return jsonify({"active_delivery": active_order}), 200
+
 @delivery_bp.route("/api/delivery/arrived-pickup", methods=["POST"], endpoint="arrived_pickup")
 @token_required
 @role_required("PARTNER")
@@ -122,6 +145,38 @@ def arrived_pickup():
         db["orderhistories"].insert_one({"order_id": order_id, "status": "ARRIVED_PICKUP", "timestamp": now_iso, "created_at": datetime.utcnow()})
 
     return jsonify({"message": "Arrived at pickup location recorded", "status": "ARRIVED_PICKUP"}), 200
+
+@delivery_bp.route("/api/delivery/arrived-destination", methods=["POST"], endpoint="arrived_destination")
+@token_required
+@role_required("PARTNER")
+def arrived_destination():
+    db = get_db()
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+    data = request.get_json(force=True, silent=True) or {}
+    order_id = data.get("order_id")
+    partner_phone = request.user.get("phone")
+
+    try:
+        obj_id = ObjectId(order_id)
+    except Exception:
+        return jsonify({"error": "Invalid order ID"}), 400
+
+    now_iso = datetime.utcnow().isoformat()
+    result = db["orders"].update_one(
+        {"_id": obj_id, "assigned_partner": partner_phone, "delivered": False},
+        {"$set": {
+            "status": "ARRIVED_DESTINATION",
+            "arrived_destination_at": now_iso
+        }}
+    )
+    if result.modified_count == 0:
+        return jsonify({"error": "Order not found or not assigned to partner"}), 400
+
+    if not db["orderhistories"].find_one({"order_id": order_id, "status": "ARRIVED_DESTINATION"}):
+        db["orderhistories"].insert_one({"order_id": order_id, "status": "ARRIVED_DESTINATION", "timestamp": now_iso, "created_at": datetime.utcnow()})
+
+    return jsonify({"message": "Arrived at destination recorded", "status": "ARRIVED_DESTINATION"}), 200
 
 @delivery_bp.route("/api/delivery/verify-pickup", methods=["POST"], endpoint="verify_pickup")
 @token_required
@@ -336,7 +391,7 @@ def partner_accept():
     active_delivery = db["orders"].find_one({
         "assigned_partner": partner_phone,
         "delivered": False,
-        "status": {"$in": ["ASSIGNED", "PICKED_UP", "IN_TRANSIT"]}
+        "status": {"$in": ["ASSIGNED", "ARRIVED_PICKUP", "PICKED_UP", "IN_TRANSIT", "ARRIVED_DESTINATION"]}
     })
     if active_delivery:
         return jsonify({"error": "You already have an active delivery in progress. Complete it first."}), 400

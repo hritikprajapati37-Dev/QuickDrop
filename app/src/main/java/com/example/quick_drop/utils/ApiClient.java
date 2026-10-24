@@ -350,6 +350,44 @@ public class ApiClient {
         }).start();
     }
 
+    public static void getPartnerActiveDelivery(String token, ApiCallback callback) {
+        new Thread(() -> {
+            String endpoint = "/api/partner/active-delivery";
+            try {
+                URL url = new URL(getBaseUrl() + endpoint);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
+
+                int code = conn.getResponseCode();
+                BufferedReader br;
+                if (code >= 200 && code < 300) {
+                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+                } else {
+                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
+                }
+
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    if (callback != null) callback.onSuccess(resJson);
+                } else {
+                    if (callback != null) callback.onError(resJson.optString("error", "Failed to fetch active delivery"));
+                }
+            } catch (Exception e) {
+                if (callback != null) callback.onError(handleException(e, endpoint));
+            }
+        }).start();
+    }
+
     public static void verifyPickup(String token, String orderId, String otp, ApiCallback callback) {
         new Thread(() -> {
             String endpoint = "/api/delivery/verify-pickup";
