@@ -26,14 +26,14 @@ def check_and_expire_orders(db):
     expired_matching = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
     for o in expired_matching:
         oid = str(o["_id"])
-        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "demo_refunded"}})
+        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "demo_refunded", "pickup_otp_plain": None}})
         db["payments"].update_one({"order_id": oid}, {"$set": {"payment_status": "REFUNDED", "refund_status": "demo_refunded", "refunded_at": now_iso}})
         if not db["orderhistories"].find_one({"order_id": oid, "status": "EXPIRED"}):
             db["orderhistories"].insert_one({"order_id": oid, "status": "EXPIRED", "timestamp": now_iso, "created_at": datetime.utcnow()})
 
     expired_drafts = list(db["orders"].find({"status": "DRAFT", "draft_expires_at": {"$lte": now_iso}}))
     for d in expired_drafts:
-        db["orders"].update_one({"_id": d["_id"]}, {"$set": {"status": "DRAFT_EXPIRED"}})
+        db["orders"].update_one({"_id": d["_id"]}, {"$set": {"status": "DRAFT_EXPIRED", "pickup_otp_plain": None}})
 
 @order_bp.route("/api/categories", methods=["GET"], endpoint="get_categories")
 def get_categories():
@@ -76,6 +76,10 @@ def create_order():
             res_doc["order_id"] = str(res_doc.get("_id", ""))
             if "_id" in res_doc:
                 del res_doc["_id"]
+            if not res_doc.get("pickup_verified", False):
+                res_doc["pickup_otp"] = res_doc.get("pickup_otp_plain")
+            if "pickup_otp_plain" in res_doc:
+                del res_doc["pickup_otp_plain"]
             res_doc["message"] = "Order already exists (Idempotent response)"
             for k, v in list(res_doc.items()):
                 if isinstance(v, datetime):
@@ -141,6 +145,7 @@ def create_order():
         "complete_order_time": None,
         "assigned_partner": None,
         "tracking_token": tracking_token,
+        "pickup_otp_plain": pickup_otp_plain,
         "pickup_otp_hash": pickup_otp_hash,
         "pickup_otp_expiry": pickup_otp_expiry,
         "pickup_otp_attempts": 0,
@@ -195,6 +200,8 @@ def create_order():
     if "_id" in res_doc:
         del res_doc["_id"]
     res_doc["pickup_otp"] = pickup_otp_plain
+    if "pickup_otp_plain" in res_doc:
+        del res_doc["pickup_otp_plain"]
     res_doc["message"] = "Order created successfully (Pending Payment)"
 
     for k, v in list(res_doc.items()):
@@ -226,7 +233,6 @@ def pay_order(order_id):
         pickup_lat = order.get("pickup_lat", 12.9716)
         pickup_lng = order.get("pickup_lng", 77.5946)
 
-        # Match partners across delivery_boy_schemas and users
         partners = list(db["delivery_boy_schemas"].find({
             "$or": [{"is_online": True}, {"is_online": "true"}, {"is_online": "True"}, {"is_online": 1}, {"is_online": {"$exists": False}}]
         }))
@@ -378,6 +384,7 @@ def get_order_otps(order_id):
         "status": order.get("status"),
         "pickup_verified": order.get("pickup_verified", False),
         "delivered": order.get("delivered", False),
+        "pickup_otp": order.get("pickup_otp_plain") if not order.get("pickup_verified", False) else None,
         "delivery_otp_available": order.get("delivery_otp_hash") is not None
     }), 200
 
@@ -411,6 +418,11 @@ def orders_list():
     for o in orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
+        if role == "SENDER" and not o.get("pickup_verified", False) and o.get("sender_phone") == phone:
+            o["pickup_otp"] = o.get("pickup_otp_plain")
+        if "pickup_otp_plain" in o:
+            del o["pickup_otp_plain"]
+
         for k, v in list(o.items()):
             if isinstance(v, datetime):
                 o[k] = v.isoformat()
@@ -434,8 +446,16 @@ def get_order_details(order_id):
     if not order:
         return jsonify({"error": "Order not found"}), 404
 
+    phone = request.user.get("phone")
     order["order_id"] = str(order["_id"])
     del order["_id"]
+
+    if request.user.get("role") == "SENDER" and order.get("sender_phone") == phone and not order.get("pickup_verified", False):
+        order["pickup_otp"] = order.get("pickup_otp_plain")
+
+    if "pickup_otp_plain" in order:
+        del order["pickup_otp_plain"]
+
     for k, v in list(order.items()):
         if isinstance(v, datetime):
             order[k] = v.isoformat()
@@ -490,6 +510,11 @@ def user_dashboard():
     for o in orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
+        if role == "SENDER" and not o.get("pickup_verified", False) and o.get("sender_phone") == phone:
+            o["pickup_otp"] = o.get("pickup_otp_plain")
+        if "pickup_otp_plain" in o:
+            del o["pickup_otp_plain"]
+
         for k, v in list(o.items()):
             if isinstance(v, datetime):
                 o[k] = v.isoformat()
