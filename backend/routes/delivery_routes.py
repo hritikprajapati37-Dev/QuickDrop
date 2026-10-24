@@ -23,7 +23,7 @@ def check_and_expire_orders(db):
     expired_orders = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
     for o in expired_orders:
         oid = str(o["_id"])
-        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "demo_refunded"}})
+        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "demo_refunded", "pickup_otp_plain": None, "delivery_otp_plain": None}})
         db["payments"].update_one({"order_id": oid}, {"$set": {"payment_status": "REFUNDED", "refund_status": "demo_refunded", "refunded_at": now_iso}})
         if not db["orderhistories"].find_one({"order_id": oid, "status": "EXPIRED"}):
             db["orderhistories"].insert_one({"order_id": oid, "status": "EXPIRED", "timestamp": now_iso, "created_at": datetime.utcnow()})
@@ -175,10 +175,12 @@ def verify_pickup():
                 "status": "PICKED_UP",
                 "assigned_partner": partner_phone,
                 "pickup_time": pickup_time_iso,
+                "delivery_otp_plain": delivery_otp_plain,
                 "delivery_otp_hash": delivery_otp_hash,
                 "delivery_otp_expiry": delivery_otp_expiry,
                 "delivery_otp_attempts": 0,
-                "pickup_otp_hash": None
+                "pickup_otp_hash": None,
+                "pickup_otp_plain": None
             }
         }
     )
@@ -245,7 +247,8 @@ def verify_delivery():
                 "delivered": True,
                 "status": "DELIVERED",
                 "complete_order_time": complete_time_iso,
-                "delivery_otp_hash": None
+                "delivery_otp_hash": None,
+                "delivery_otp_plain": None
             }
         }
     )
@@ -279,7 +282,6 @@ def partner_available():
     if partner_lng is None and partner_profile:
         partner_lng = partner_profile.get("partner_lng")
 
-    # Query only paid orders in MATCHING status, unassigned
     query = {
         "payment_status": "SUCCESS",
         "status": "MATCHING",
@@ -300,7 +302,6 @@ def partner_available():
                 o["distance_to_pickup_km"] = round(dist_km, 2)
                 filtered_orders.append(o)
         else:
-            # Uninitialized or default location: include matching orders so partner is not blocked
             filtered_orders.append(o)
 
     if not is_default_location:
@@ -360,7 +361,7 @@ def partner_accept():
     if partner_profile and partner_profile.get("partner_lat") is not None and partner_profile.get("partner_lng") is not None:
         plat = partner_profile.get("partner_lat")
         plng = partner_profile.get("partner_lng")
-        if plat != 12.9716 or plng != 77.5946: # ignore default
+        if plat != 12.9716 or plng != 77.5946:
             olats = order.get("pickup_lat", 12.9716)
             olngs = order.get("pickup_lng", 77.5946)
             dist_km = haversine_km(olats, olngs, plat, plng)
