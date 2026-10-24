@@ -364,7 +364,7 @@ def orders_list():
             "$or": [
                 {"payment_status": "SUCCESS"},
                 {"status": {"$in": ["MATCHING", "ASSIGNED", "PICKED_UP", "IN_TRANSIT", "DELIVERED", "EXPIRED", "CANCELLED"]}},
-                {"created_at": {"$gte": thirty_mins_ago}}
+                {"status": "DRAFT", "draft_expires_at": {"$gt": datetime.utcnow().isoformat()}}
             ]
         }
     elif role == "PARTNER":
@@ -428,13 +428,12 @@ def user_dashboard():
             name = partner.get("name", "Partner")
 
     if role == "SENDER":
-        thirty_mins_ago = datetime.utcnow() - timedelta(minutes=30)
         query = {
             "sender_phone": phone,
             "$or": [
                 {"payment_status": "SUCCESS"},
                 {"status": {"$in": ["MATCHING", "ASSIGNED", "PICKED_UP", "IN_TRANSIT", "DELIVERED", "EXPIRED", "CANCELLED"]}},
-                {"created_at": {"$gte": thirty_mins_ago}}
+                {"status": "DRAFT", "draft_expires_at": {"$gt": datetime.utcnow().isoformat()}}
             ]
         }
     elif role == "PARTNER":
