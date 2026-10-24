@@ -19,6 +19,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/vf_primary"
             app:title="Create Delivery"
             app:titleCentered="true"
             app:titleTextColor="@color/vf_primary" />
