@@ -270,10 +270,16 @@ def partner_available():
     partner_phone = request.user.get("phone")
     partner_user_id = request.user.get("sub")
 
-    partner_profile = db["delivery_boy_schemas"].find_one({"$or": [{"user_id": partner_user_id}, {"phone": partner_phone}]})
-    partner_lat = partner_profile.get("partner_lat") if partner_profile else None
-    partner_lng = partner_profile.get("partner_lng") if partner_profile else None
+    partner_lat = request.args.get("lat", type=float)
+    partner_lng = request.args.get("lng", type=float)
 
+    partner_profile = db["delivery_boy_schemas"].find_one({"$or": [{"user_id": partner_user_id}, {"phone": partner_phone}]})
+    if partner_lat is None and partner_profile:
+        partner_lat = partner_profile.get("partner_lat")
+    if partner_lng is None and partner_profile:
+        partner_lng = partner_profile.get("partner_lng")
+
+    # Query only paid orders in MATCHING status, unassigned
     query = {
         "payment_status": "SUCCESS",
         "status": "MATCHING",
@@ -281,20 +287,23 @@ def partner_available():
     }
     orders = list(db["orders"].find(query).sort("created_at", -1))
 
+    is_default_location = (partner_lat == 12.9716 and partner_lng == 77.5946) or (partner_lat is None or partner_lng is None)
+
     filtered_orders = []
     for o in orders:
         plat = o.get("pickup_lat", 12.9716)
         plng = o.get("pickup_lng", 77.5946)
 
-        if partner_lat is not None and partner_lng is not None:
+        if not is_default_location:
             dist_km = haversine_km(plat, plng, partner_lat, partner_lng)
             if dist_km <= 5.0:
                 o["distance_to_pickup_km"] = round(dist_km, 2)
                 filtered_orders.append(o)
         else:
+            # Uninitialized or default location: include matching orders so partner is not blocked
             filtered_orders.append(o)
 
-    if partner_lat is not None and partner_lng is not None:
+    if not is_default_location:
         filtered_orders.sort(key=lambda x: x.get("distance_to_pickup_km", 0.0))
 
     for o in filtered_orders:
@@ -351,11 +360,12 @@ def partner_accept():
     if partner_profile and partner_profile.get("partner_lat") is not None and partner_profile.get("partner_lng") is not None:
         plat = partner_profile.get("partner_lat")
         plng = partner_profile.get("partner_lng")
-        olats = order.get("pickup_lat", 12.9716)
-        olngs = order.get("pickup_lng", 77.5946)
-        dist_km = haversine_km(olats, olngs, plat, plng)
-        if dist_km > 5.0:
-            return jsonify({"error": f"You are {round(dist_km, 1)} km away from pickup. Only partners within 5 km can accept this request."}), 400
+        if plat != 12.9716 or plng != 77.5946: # ignore default
+            olats = order.get("pickup_lat", 12.9716)
+            olngs = order.get("pickup_lng", 77.5946)
+            dist_km = haversine_km(olats, olngs, plat, plng)
+            if dist_km > 5.0:
+                return jsonify({"error": f"You are {round(dist_km, 1)} km away from pickup. Only partners within 5 km can accept this request."}), 400
 
     result = db["orders"].update_one(
         {"_id": obj_id, "status": "MATCHING", "payment_status": "SUCCESS"},

@@ -1,8 +1,12 @@
 package com.example.quick_drop.ui;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +15,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
 import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import org.json.JSONArray;
@@ -25,6 +32,7 @@ import java.util.Locale;
 public class AvailableRequestsFragment extends Fragment {
 
     private LinearLayout llRequests;
+    private FusedLocationProviderClient fusedLocationClient;
     private final Handler pollHandler = new Handler(Looper.getMainLooper());
     private final Runnable pollRunnable = new Runnable() {
         @Override
@@ -46,6 +54,8 @@ public class AvailableRequestsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setNavigationOnClickListener(v -> 
@@ -54,6 +64,7 @@ public class AvailableRequestsFragment extends Fragment {
 
         llRequests = view.findViewById(R.id.llRequests);
 
+        fetchAndUpdateGpsLocation();
         loadAvailableRequests();
 
         BottomNavigationView bottomNav = view.findViewById(R.id.bottom_navigation);
@@ -79,9 +90,27 @@ public class AvailableRequestsFragment extends Fragment {
         }
     }
 
+    private void fetchAndUpdateGpsLocation() {
+        String token = UserSession.getToken(requireContext());
+        if (token.isEmpty()) return;
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+                    if (location != null) {
+                        double lat = location.getLatitude();
+                        double lng = location.getLongitude();
+                        Log.d("QuickDrop_Diag", "AvailableRequestsFragment GPS: " + lat + ", " + lng);
+                        ApiClient.updatePartnerLocation(token, lat, lng, null);
+                    }
+                });
+            } catch (SecurityException ignored) {}
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
+        fetchAndUpdateGpsLocation();
         pollHandler.removeCallbacks(pollRunnable);
         pollHandler.post(pollRunnable);
     }
