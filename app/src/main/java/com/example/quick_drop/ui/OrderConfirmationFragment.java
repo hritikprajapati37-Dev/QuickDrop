@@ -21,6 +21,9 @@ public class OrderConfirmationFragment extends Fragment {
 
     private TextView tvPickupAddress, tvReceiverName, tvDeliveryAddress, tvItemDescription, tvDeliveryCharge, tvPlatformFee, tvTotalPayable;
     private String currentOrderId = "";
+    private double bundleDeliveryCharge = 0.0;
+    private double bundlePlatformFee = 2.0;
+    private double bundleTotalAmount = 0.0;
 
     @Nullable
     @Override
@@ -45,6 +48,25 @@ public class OrderConfirmationFragment extends Fragment {
 
         if (getArguments() != null) {
             currentOrderId = getArguments().getString("order_id", "");
+            bundleDeliveryCharge = getArguments().getDouble("delivery_charge", 0.0);
+            bundlePlatformFee = getArguments().getDouble("platform_fee", 2.0);
+            bundleTotalAmount = getArguments().getDouble("total_amount", 0.0);
+            String pAddr = getArguments().getString("pickup_address", "");
+            String dAddr = getArguments().getString("delivery_address", "");
+            String iDesc = getArguments().getString("item_description", "");
+
+            if (!pAddr.isEmpty() && tvPickupAddress != null) tvPickupAddress.setText(pAddr);
+            if (!dAddr.isEmpty() && tvDeliveryAddress != null) tvDeliveryAddress.setText(dAddr);
+            if (!iDesc.isEmpty() && tvItemDescription != null) tvItemDescription.setText(iDesc);
+
+            if (bundleDeliveryCharge > 0.0) {
+                if (tvDeliveryCharge != null) tvDeliveryCharge.setText(String.format(Locale.getDefault(), "₹%.2f", bundleDeliveryCharge));
+                if (tvPlatformFee != null) tvPlatformFee.setText(String.format(Locale.getDefault(), "₹%.2f", bundlePlatformFee));
+                if (tvTotalPayable != null) {
+                    double tot = bundleTotalAmount > 0 ? bundleTotalAmount : bundleDeliveryCharge + bundlePlatformFee;
+                    tvTotalPayable.setText(String.format(Locale.getDefault(), "₹%.2f", tot));
+                }
+            }
         }
 
         loadOrderDetails();
@@ -56,6 +78,9 @@ public class OrderConfirmationFragment extends Fragment {
             }
             Bundle args = new Bundle();
             args.putString("order_id", currentOrderId);
+            args.putDouble("delivery_charge", bundleDeliveryCharge);
+            args.putDouble("platform_fee", bundlePlatformFee);
+            args.putDouble("total_amount", bundleTotalAmount);
             Navigation.findNavController(v).navigate(R.id.action_orderConfirmation_to_payment, args);
         });
     }
@@ -104,30 +129,62 @@ public class OrderConfirmationFragment extends Fragment {
         });
     }
 
-    private void bindOrder(JSONObject order) {
-        if (tvPickupAddress != null) tvPickupAddress.setText(order.optString("pickup_address", ""));
-        if (tvReceiverName != null) tvReceiverName.setText("Phone: " + order.optString("receiver_phone", ""));
-        if (tvDeliveryAddress != null) tvDeliveryAddress.setText(order.optString("delivery_address", ""));
-        if (tvItemDescription != null) tvItemDescription.setText(order.optString("item_description", "Standard Package"));
-
-        double deliveryCharge = order.optDouble("delivery_charge", 0.0);
-        double platformFee = order.optDouble("platform_fee", 2.0);
-        double totalAmount = order.optDouble("total_amount", deliveryCharge + platformFee);
-
-        if (deliveryCharge <= 0.0) {
-            double dist = order.optDouble("distance_km", 1.0);
-            deliveryCharge = Math.round(dist * 5.0 * 100.0) / 100.0;
-            totalAmount = Math.round((deliveryCharge + platformFee) * 100.0) / 100.0;
+    private double parseOptDouble(JSONObject obj, String key, double defaultVal) {
+        if (obj == null) return defaultVal;
+        try {
+            if (obj.has(key)) {
+                String val = obj.getString(key);
+                if (val != null && !val.isEmpty() && !val.equals("null")) {
+                    return Double.parseDouble(val);
+                }
+            }
+        } catch (Exception e) {
+            try {
+                return obj.optDouble(key, defaultVal);
+            } catch (Exception ignored) {}
         }
+        return defaultVal;
+    }
+
+    private void bindOrder(JSONObject order) {
+        if (tvPickupAddress != null && (tvPickupAddress.getText() == null || tvPickupAddress.getText().toString().isEmpty())) {
+            tvPickupAddress.setText(order.optString("pickup_address", ""));
+        }
+        if (tvDeliveryAddress != null && (tvDeliveryAddress.getText() == null || tvDeliveryAddress.getText().toString().isEmpty())) {
+            tvDeliveryAddress.setText(order.optString("delivery_address", ""));
+        }
+        if (tvItemDescription != null && (tvItemDescription.getText() == null || tvItemDescription.getText().toString().isEmpty())) {
+            tvItemDescription.setText(order.optString("item_description", "Standard Package"));
+        }
+        if (tvReceiverName != null) {
+            tvReceiverName.setText("Phone: " + order.optString("receiver_phone", ""));
+        }
+
+        double dCharge = parseOptDouble(order, "delivery_charge", bundleDeliveryCharge);
+        double pFee = parseOptDouble(order, "platform_fee", bundlePlatformFee);
+        double tAmount = parseOptDouble(order, "total_amount", bundleTotalAmount);
+
+        if (dCharge <= 0.0) {
+            double dist = parseOptDouble(order, "distance_km", 1.0);
+            dCharge = Math.round(dist * 5.0 * 100.0) / 100.0;
+        }
+        if (pFee <= 0.0) pFee = 2.0;
+        if (tAmount <= 0.0) {
+            tAmount = Math.round((dCharge + pFee) * 100.0) / 100.0;
+        }
+
+        bundleDeliveryCharge = dCharge;
+        bundlePlatformFee = pFee;
+        bundleTotalAmount = tAmount;
 
         if (tvDeliveryCharge != null) {
-            tvDeliveryCharge.setText(String.format(Locale.getDefault(), "₹%.2f", deliveryCharge));
+            tvDeliveryCharge.setText(String.format(Locale.getDefault(), "₹%.2f", dCharge));
         }
-        if (tvPlatformFee != null && tvPlatformFee.getVisibility() == View.VISIBLE) {
-            tvPlatformFee.setText(String.format(Locale.getDefault(), "₹%.2f", platformFee));
+        if (tvPlatformFee != null) {
+            tvPlatformFee.setText(String.format(Locale.getDefault(), "₹%.2f", pFee));
         }
         if (tvTotalPayable != null) {
-            tvTotalPayable.setText(String.format(Locale.getDefault(), "₹%.2f", totalAmount));
+            tvTotalPayable.setText(String.format(Locale.getDefault(), "₹%.2f", tAmount));
         }
     }
 }
