@@ -1,7 +1,6 @@
 package com.example.quick_drop.ui;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -121,6 +120,77 @@ public class AvailableRequestsFragment extends Fragment {
         pollHandler.removeCallbacks(pollRunnable);
     }
 
+    private void renderRequestItems(JSONArray requests) {
+        if (llRequests == null || !isAdded()) return;
+        llRequests.removeAllViews();
+        boolean hasItems = false;
+        if (requests != null && requests.length() > 0) {
+            for (int i = 0; i < requests.length(); i++) {
+                JSONObject req = requests.optJSONObject(i);
+                if (req != null) {
+                    String status = req.optString("status", "");
+                    String paymentStatus = req.optString("payment_status", "");
+                    String assignedPartner = req.optString("assigned_partner", "");
+
+                    // Render matching unassigned paid orders
+                    if ("SUCCESS".equalsIgnoreCase(paymentStatus) && ("MATCHING".equalsIgnoreCase(status) || "CREATED".equalsIgnoreCase(status)) &&
+                        (assignedPartner.isEmpty() || "null".equalsIgnoreCase(assignedPartner))) {
+
+                        View itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_delivery_request, llRequests, false);
+
+                        TextView tvOrderID = itemView.findViewById(R.id.tvOrderID);
+                        TextView tvEarnings = itemView.findViewById(R.id.tvEarnings);
+                        TextView tvDistance = itemView.findViewById(R.id.tvDistance);
+                        TextView tvPickupAddress = itemView.findViewById(R.id.tvPickupAddress);
+                        TextView tvDestAddress = itemView.findViewById(R.id.tvDestAddress);
+                        TextView tvPackageType = itemView.findViewById(R.id.tvPackageType);
+                        MaterialButton btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
+
+                        String orderId = req.optString("order_id", "");
+                        String shortId = orderId;
+                        if (shortId.length() > 6) {
+                            shortId = shortId.substring(shortId.length() - 6);
+                        }
+                        if (tvOrderID != null) tvOrderID.setText("#" + shortId);
+
+                        double partnerEarning = req.optDouble("partner_earning", req.optDouble("delivery_charge", 0.0));
+                        if (tvEarnings != null) {
+                            tvEarnings.setText(String.format(Locale.getDefault(), "₹%.2f", partnerEarning));
+                        }
+
+                        double distKm = req.optDouble("distance_km", 0.0);
+                        if (tvDistance != null) {
+                            tvDistance.setText(String.format(Locale.getDefault(), "%.1f km away", distKm));
+                        }
+
+                        if (tvPickupAddress != null) tvPickupAddress.setText(req.optString("pickup_address", ""));
+                        if (tvDestAddress != null) tvDestAddress.setText(req.optString("delivery_address", ""));
+                        if (tvPackageType != null) tvPackageType.setText(req.optString("item_description", "Standard Package"));
+
+                        if (btnViewDetails != null) {
+                            btnViewDetails.setOnClickListener(v -> {
+                                Bundle args = new Bundle();
+                                args.putString("order_id", orderId);
+                                Navigation.findNavController(v).navigate(R.id.action_availableRequests_to_details, args);
+                            });
+                        }
+
+                        llRequests.addView(itemView);
+                        hasItems = true;
+                    }
+                }
+            }
+        }
+
+        if (!hasItems) {
+            TextView emptyTv = new TextView(requireContext());
+            emptyTv.setText("No delivery requests available right now.");
+            emptyTv.setPadding(32, 64, 32, 64);
+            emptyTv.setGravity(android.view.Gravity.CENTER);
+            llRequests.addView(emptyTv);
+        }
+    }
+
     private void loadAvailableRequests() {
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) return;
@@ -130,62 +200,26 @@ public class AvailableRequestsFragment extends Fragment {
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    if (llRequests != null) {
-                        llRequests.removeAllViews();
-                        JSONArray requests = response.optJSONArray("requests");
-                        if (requests != null && requests.length() > 0) {
-                            for (int i = 0; i < requests.length(); i++) {
-                                JSONObject req = requests.optJSONObject(i);
-                                if (req != null) {
-                                    View itemView = LayoutInflater.from(requireContext()).inflate(R.layout.item_delivery_request, llRequests, false);
-                                    
-                                    TextView tvOrderID = itemView.findViewById(R.id.tvOrderID);
-                                    TextView tvEarnings = itemView.findViewById(R.id.tvEarnings);
-                                    TextView tvDistance = itemView.findViewById(R.id.tvDistance);
-                                    TextView tvPickupAddress = itemView.findViewById(R.id.tvPickupAddress);
-                                    TextView tvDestAddress = itemView.findViewById(R.id.tvDestAddress);
-                                    TextView tvPackageType = itemView.findViewById(R.id.tvPackageType);
-                                    MaterialButton btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
-
-                                    String orderId = req.optString("order_id", "");
-                                    String shortId = orderId;
-                                    if (shortId.length() > 6) {
-                                        shortId = shortId.substring(shortId.length() - 6);
-                                    }
-                                    if (tvOrderID != null) tvOrderID.setText("#" + shortId);
-
-                                    double partnerEarning = req.optDouble("partner_earning", req.optDouble("delivery_charge", 0.0));
-                                    if (tvEarnings != null) {
-                                        tvEarnings.setText(String.format(Locale.getDefault(), "₹%.2f", partnerEarning));
-                                    }
-
-                                    double distKm = req.optDouble("distance_km", 0.0);
-                                    if (tvDistance != null) {
-                                        tvDistance.setText(String.format(Locale.getDefault(), "%.1f km away", distKm));
-                                    }
-
-                                    if (tvPickupAddress != null) tvPickupAddress.setText(req.optString("pickup_address", ""));
-                                    if (tvDestAddress != null) tvDestAddress.setText(req.optString("delivery_address", ""));
-                                    if (tvPackageType != null) tvPackageType.setText(req.optString("item_description", "Standard Package"));
-
-                                    if (btnViewDetails != null) {
-                                        btnViewDetails.setOnClickListener(v -> {
-                                            Bundle args = new Bundle();
-                                            args.putString("order_id", orderId);
-                                            Navigation.findNavController(v).navigate(R.id.action_availableRequests_to_details, args);
-                                        });
-                                    }
-
-                                    llRequests.addView(itemView);
-                                }
+                    JSONArray requests = response.optJSONArray("requests");
+                    if (requests != null && requests.length() > 0) {
+                        renderRequestItems(requests);
+                    } else {
+                        // Fallback to getOrdersList to ensure no matching request is missed
+                        ApiClient.getOrdersList(token, new ApiClient.ApiCallback() {
+                            @Override
+                            public void onSuccess(JSONObject res2) {
+                                if (!isAdded()) return;
+                                requireActivity().runOnUiThread(() -> {
+                                    JSONArray ords = res2.optJSONArray("orders");
+                                    renderRequestItems(ords);
+                                });
                             }
-                        } else {
-                            TextView emptyTv = new TextView(requireContext());
-                            emptyTv.setText("No delivery requests available right now.");
-                            emptyTv.setPadding(32, 64, 32, 64);
-                            emptyTv.setGravity(android.view.Gravity.CENTER);
-                            llRequests.addView(emptyTv);
-                        }
+
+                            @Override
+                            public void onError(String error) {
+                                renderRequestItems(null);
+                            }
+                        });
                     }
                 });
             }
@@ -194,15 +228,22 @@ public class AvailableRequestsFragment extends Fragment {
             public void onError(String error) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    if (llRequests != null) {
-                        llRequests.removeAllViews();
-                        TextView errorTv = new TextView(requireContext());
-                        errorTv.setText("Failed to load available requests. Tap to retry.");
-                        errorTv.setPadding(32, 64, 32, 64);
-                        errorTv.setGravity(android.view.Gravity.CENTER);
-                        errorTv.setOnClickListener(v -> loadAvailableRequests());
-                        llRequests.addView(errorTv);
-                    }
+                    // Try fallback query
+                    ApiClient.getOrdersList(token, new ApiClient.ApiCallback() {
+                        @Override
+                        public void onSuccess(JSONObject res2) {
+                            if (!isAdded()) return;
+                            requireActivity().runOnUiThread(() -> {
+                                JSONArray ords = res2.optJSONArray("orders");
+                                renderRequestItems(ords);
+                            });
+                        }
+
+                        @Override
+                        public void onError(String err2) {
+                            renderRequestItems(null);
+                        }
+                    });
                 });
             }
         });

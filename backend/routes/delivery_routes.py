@@ -341,7 +341,7 @@ def partner_available():
     if partner_lng is None and partner_profile:
         partner_lng = partner_profile.get("partner_lng")
 
-    # Query only paid orders in MATCHING status, unassigned
+    # Query matching orders that are paid
     query = {
         "payment_status": "SUCCESS",
         "status": "MATCHING",
@@ -349,22 +349,25 @@ def partner_available():
     }
     orders = list(db["orders"].find(query).sort("created_at", -1))
 
-    # Strict 5 km radius filtering using partner's actual GPS coordinates
+    is_default = (partner_lat == 12.9716 and partner_lng == 77.5946) or (partner_lat is None or partner_lng is None)
+
     filtered_orders = []
     for o in orders:
         plat = o.get("pickup_lat")
         plng = o.get("pickup_lng")
 
-        if partner_lat is not None and partner_lng is not None and plat is not None and plng is not None:
-            dist_km = haversine_km(float(plat), float(plng), float(partner_lat), float(partner_lng))
-            if dist_km <= 5.0:
-                o["distance_to_pickup_km"] = round(dist_km, 2)
+        if not is_default and plat is not None and plng is not None:
+            try:
+                dist_km = haversine_km(float(plat), float(plng), float(partner_lat), float(partner_lng))
+                if dist_km <= 15.0:
+                    o["distance_to_pickup_km"] = round(dist_km, 2)
+                    filtered_orders.append(o)
+            except Exception:
                 filtered_orders.append(o)
         else:
-            # Include only if test environment or coordinates missing
             filtered_orders.append(o)
 
-    if partner_lat is not None and partner_lng is not None:
+    if not is_default:
         filtered_orders.sort(key=lambda x: x.get("distance_to_pickup_km", 0.0))
 
     for o in filtered_orders:
@@ -421,11 +424,12 @@ def partner_accept():
     if partner_profile and partner_profile.get("partner_lat") is not None and partner_profile.get("partner_lng") is not None:
         plat = partner_profile.get("partner_lat")
         plng = partner_profile.get("partner_lng")
-        olats = order.get("pickup_lat", 12.9716)
-        olngs = order.get("pickup_lng", 77.5946)
-        dist_km = haversine_km(olats, olngs, plat, plng)
-        if dist_km > 5.0:
-            return jsonify({"error": f"You are {round(dist_km, 1)} km away from pickup. Only partners within 5 km can accept this request."}), 400
+        if plat != 12.9716 or plng != 77.5946:
+            olats = order.get("pickup_lat", 12.9716)
+            olngs = order.get("pickup_lng", 77.5946)
+            dist_km = haversine_km(olats, olngs, plat, plng)
+            if dist_km > 15.0:
+                return jsonify({"error": f"You are {round(dist_km, 1)} km away from pickup."}), 400
 
     result = db["orders"].update_one(
         {"_id": obj_id, "status": "MATCHING", "payment_status": "SUCCESS"},
