@@ -23,13 +23,17 @@ def check_and_expire_orders(db):
     if db is None:
         return
     now_iso = datetime.utcnow().isoformat()
-    expired_orders = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
-    for o in expired_orders:
+    expired_matching = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
+    for o in expired_matching:
         oid = str(o["_id"])
         db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "demo_refunded"}})
         db["payments"].update_one({"order_id": oid}, {"$set": {"payment_status": "REFUNDED", "refund_status": "demo_refunded", "refunded_at": now_iso}})
         if not db["orderhistories"].find_one({"order_id": oid, "status": "EXPIRED"}):
             db["orderhistories"].insert_one({"order_id": oid, "status": "EXPIRED", "timestamp": now_iso, "created_at": datetime.utcnow()})
+
+    expired_drafts = list(db["orders"].find({"status": "DRAFT", "draft_expires_at": {"$lte": now_iso}}))
+    for d in expired_drafts:
+        db["orders"].update_one({"_id": d["_id"]}, {"$set": {"status": "DRAFT_EXPIRED"}})
 
 @order_bp.route("/api/categories", methods=["GET"], endpoint="get_categories")
 def get_categories():
@@ -71,8 +75,9 @@ def create_order():
             existing_order["order_id"] = str(existing_order["_id"])
             del existing_order["_id"]
             existing_order["message"] = "Order already exists (Idempotent response)"
-            if isinstance(existing_order.get("created_at"), datetime):
-                existing_order["created_at"] = existing_order["created_at"].isoformat()
+            for k, v in list(existing_order.items()):
+                if isinstance(v, datetime):
+                    existing_order[k] = v.isoformat()
             return jsonify(existing_order), 200
 
     try:
@@ -106,6 +111,7 @@ def create_order():
 
     tracking_token = secrets.token_urlsafe(32)
     now_iso = datetime.utcnow().isoformat()
+    draft_expires_at = (datetime.utcnow() + timedelta(minutes=1)).isoformat()
 
     order_doc = {
         "sender_id": sender_user_id,
@@ -140,6 +146,7 @@ def create_order():
         "delivery_otp_expiry": None,
         "delivery_otp_attempts": 0,
         "idempotency_key": idempotency_key,
+        "draft_expires_at": draft_expires_at,
         "created_at": datetime.utcnow()
     }
 
@@ -208,7 +215,9 @@ def pay_order(order_id):
     if not order:
         return jsonify({"error": "Order not found"}), 404
 
-    # Check partner availability within 5 km before allowing payment (bypassed in testing mode)
+    if order.get("status") == "DRAFT_EXPIRED":
+        return jsonify({"error": "Order draft has expired (1-minute limit reached). Please start a new delivery."}), 400
+
     if not current_app.config.get("TESTING"):
         pickup_lat = order.get("pickup_lat", 12.9716)
         pickup_lng = order.get("pickup_lng", 77.5946)
@@ -251,7 +260,8 @@ def pay_order(order_id):
             "paid_at": now_iso,
             "matching_started_at": now_iso,
             "acceptance_deadline_at": deadline_iso,
-            "refund_status": "none"
+            "refund_status": "none",
+            "draft_expires_at": None
         }}
     )
     if result.modified_count == 0:
@@ -357,7 +367,6 @@ def orders_list():
     phone = request.user.get("phone")
     role = request.user.get("role", "SENDER")
     if role == "SENDER":
-        # Senders see their paid, active, completed, or expired orders, or recent drafts within 30 mins
         thirty_mins_ago = datetime.utcnow() - timedelta(minutes=30)
         query = {
             "sender_phone": phone,
@@ -376,8 +385,9 @@ def orders_list():
     for o in orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
-        if isinstance(o.get("created_at"), datetime):
-            o["created_at"] = o["created_at"].isoformat()
+        for k, v in list(o.items()):
+            if isinstance(v, datetime):
+                o[k] = v.isoformat()
     return jsonify({"orders": orders}), 200
 
 @order_bp.route("/api/orders/<order_id>", methods=["GET"], endpoint="get_order_details")
@@ -400,8 +410,9 @@ def get_order_details(order_id):
 
     order["order_id"] = str(order["_id"])
     del order["_id"]
-    if isinstance(order.get("created_at"), datetime):
-        order["created_at"] = order["created_at"].isoformat()
+    for k, v in list(order.items()):
+        if isinstance(v, datetime):
+            order[k] = v.isoformat()
     return jsonify(order), 200
 
 @order_bp.route("/api/user/dashboard", methods=["GET"], endpoint="user_dashboard")
@@ -428,6 +439,7 @@ def user_dashboard():
             name = partner.get("name", "Partner")
 
     if role == "SENDER":
+        thirty_mins_ago = datetime.utcnow() - timedelta(minutes=30)
         query = {
             "sender_phone": phone,
             "$or": [
@@ -452,8 +464,9 @@ def user_dashboard():
     for o in orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
-        if isinstance(o.get("created_at"), datetime):
-            o["created_at"] = o["created_at"].isoformat()
+        for k, v in list(o.items()):
+            if isinstance(v, datetime):
+                o[k] = v.isoformat()
 
         status = o.get("status", "CREATED")
         delivered = o.get("delivered", False)
