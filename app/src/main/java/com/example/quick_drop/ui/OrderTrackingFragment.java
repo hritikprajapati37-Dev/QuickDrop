@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -39,6 +40,7 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
     private MapView mapViewTracking;
     private GoogleMap googleMap;
     private TextView tvHeaderOrderNum, tvStatusBadge, tvETA, tvDistance, tvPartnerName, tvPickupVal, tvDestVal;
+    private ImageView ivStep1, ivStep2, ivStep3, ivStep4;
     private Marker partnerMarker;
     private LatLng currentPartnerLatLng;
 
@@ -84,6 +86,11 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
         tvPartnerName = view.findViewById(R.id.tvPartnerName);
         tvPickupVal = view.findViewById(R.id.tvPickupVal);
         tvDestVal = view.findViewById(R.id.tvDestVal);
+
+        ivStep1 = view.findViewById(R.id.ivStep1);
+        ivStep2 = view.findViewById(R.id.ivStep2);
+        ivStep3 = view.findViewById(R.id.ivStep3);
+        ivStep4 = view.findViewById(R.id.ivStep4);
 
         loadTrackingData();
 
@@ -171,6 +178,34 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
         valueAnimator.start();
     }
 
+    private void updateTimelineSteps(String status) {
+        int checkedRes = R.drawable.ic_timeline_checked;
+        int activeRes = R.drawable.ic_timeline_active;
+        int pendingRes = R.drawable.ic_timeline_pending;
+
+        if ("MATCHING".equalsIgnoreCase(status) || "CREATED".equalsIgnoreCase(status) || "EXPIRED".equalsIgnoreCase(status) || "REFUNDED".equalsIgnoreCase(status) || "CANCELLED".equalsIgnoreCase(status)) {
+            if (ivStep1 != null) ivStep1.setImageResource(pendingRes);
+            if (ivStep2 != null) ivStep2.setImageResource(pendingRes);
+            if (ivStep3 != null) ivStep3.setImageResource(pendingRes);
+            if (ivStep4 != null) ivStep4.setImageResource(pendingRes);
+        } else if ("ASSIGNED".equalsIgnoreCase(status)) {
+            if (ivStep1 != null) ivStep1.setImageResource(checkedRes);
+            if (ivStep2 != null) ivStep2.setImageResource(activeRes);
+            if (ivStep3 != null) ivStep3.setImageResource(pendingRes);
+            if (ivStep4 != null) ivStep4.setImageResource(pendingRes);
+        } else if ("PICKED_UP".equalsIgnoreCase(status) || "IN_TRANSIT".equalsIgnoreCase(status)) {
+            if (ivStep1 != null) ivStep1.setImageResource(checkedRes);
+            if (ivStep2 != null) ivStep2.setImageResource(checkedRes);
+            if (ivStep3 != null) ivStep3.setImageResource(activeRes);
+            if (ivStep4 != null) ivStep4.setImageResource(pendingRes);
+        } else if ("DELIVERED".equalsIgnoreCase(status)) {
+            if (ivStep1 != null) ivStep1.setImageResource(checkedRes);
+            if (ivStep2 != null) ivStep2.setImageResource(checkedRes);
+            if (ivStep3 != null) ivStep3.setImageResource(checkedRes);
+            if (ivStep4 != null) ivStep4.setImageResource(checkedRes);
+        }
+    }
+
     private void loadTrackingData() {
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) return;
@@ -192,6 +227,8 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                             String status = order.optString("status", "MATCHING");
                             String deadlineIso = order.optString("acceptance_deadline_at", "");
 
+                            updateTimelineSteps(status);
+
                             if ("MATCHING".equalsIgnoreCase(status) || "CREATED".equalsIgnoreCase(status)) {
                                 long remainingSecs = getRemainingSeconds(deadlineIso);
                                 long mins = remainingSecs / 60;
@@ -206,18 +243,19 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                                     }
                                 }
                                 if (tvPartnerName != null) tvPartnerName.setText("Searching Nearest Partner...");
-                            } else if ("EXPIRED".equalsIgnoreCase(status) || "REFUNDED".equalsIgnoreCase(status)) {
+                            } else if ("EXPIRED".equalsIgnoreCase(status) || "REFUNDED".equalsIgnoreCase(status) || "DRAFT_EXPIRED".equalsIgnoreCase(status)) {
                                 double amt = order.optDouble("total_amount", 0.0);
                                 if (tvStatusBadge != null) tvStatusBadge.setText("MATCHING EXPIRED");
-                                if (tvETA != null) tvETA.setText("Refund Issued");
-                                if (tvPartnerName != null) tvPartnerName.setText(String.format(Locale.getDefault(), "Refund of ₹%.2f Processed", amt));
+                                if (tvETA != null) tvETA.setText("Demo Refund");
+                                if (tvPartnerName != null) tvPartnerName.setText(String.format(Locale.getDefault(), "Demo Refund Recorded (₹%.2f)", amt));
+                                currentPartnerLatLng = null;
                             } else {
                                 if (tvStatusBadge != null) tvStatusBadge.setText(status);
                                 if (tvETA != null) tvETA.setText("On Time");
 
                                 String partner = order.optString("assigned_partner", "");
                                 if (tvPartnerName != null) {
-                                    tvPartnerName.setText(partner.isEmpty() || "null".equals(partner) ? "Partner Assigned" : partner);
+                                    tvPartnerName.setText(partner.isEmpty() || "null".equals(partner) ? "Partner Assigned" : "Partner: " + partner);
                                 }
 
                                 double pLat = order.optDouble("partner_lat", 0.0);
