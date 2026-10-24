@@ -31,7 +31,6 @@ import com.example.quick_drop.utils.UserSession;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -474,8 +473,22 @@ public class CreateDeliveryFragment extends Fragment {
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Order created successfully within 5 km radius!", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(v).navigate(R.id.action_createDelivery_to_orderConfirmation);
+                    String orderId = response.optString("order_id", "");
+                    double dCharge = response.optDouble("delivery_charge", 0.0);
+                    double pFee = response.optDouble("platform_fee", 2.0);
+                    double tAmount = response.optDouble("total_amount", dCharge + pFee);
+
+                    Bundle args = new Bundle();
+                    args.putString("order_id", orderId);
+                    args.putDouble("delivery_charge", dCharge);
+                    args.putDouble("platform_fee", pFee);
+                    args.putDouble("total_amount", tAmount);
+                    args.putString("pickup_address", pickupAddressStr);
+                    args.putString("delivery_address", deliveryAddress);
+                    args.putString("item_description", itemDesc);
+
+                    Toast.makeText(getContext(), "Order created successfully!", Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(v).navigate(R.id.action_createDelivery_to_orderConfirmation, args);
                 });
             }
 
