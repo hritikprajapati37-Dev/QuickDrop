@@ -2,6 +2,8 @@
 
 QuickDrop is a modern delivery platform featuring an Android client application (Java/XML) and a Flask secure backend connected to MongoDB Atlas (`quick_dropDB`).
 
+> **NOTICE**: Payments and refunds are simulated; no real money is collected or returned.
+
 ## Order Lifecycle & State Machine
 The backend enforces a strict server-authoritative state machine:
 `CREATED` → `MATCHING` → `ASSIGNED` → `PICKED_UP` → `IN_TRANSIT` → `DELIVERED`
@@ -12,12 +14,12 @@ Terminal/Exception States: `EXPIRED`, `CANCELLED`, `REFUNDED`
    - **Delivery Charge**: Exact distance in km × ₹5 (no arbitrary km rounding).
    - **Platform Fee**: ₹2.
    - **Total Payable**: Delivery Charge + Platform Fee.
-2. **Server-Side Verified Payment**:
-   - Order enters matching (`status: MATCHING`) only after server-side payment confirmation via `POST /api/orders/<id>/pay`.
-3. **10-Minute Acceptance Deadline**:
-   - Server initializes `paid_at`, `matching_started_at`, and `acceptance_deadline_at = matching_started_at + 10 mins`.
+2. **Server-Side Simulated Payment**:
+   - Order enters matching (`status: MATCHING`) only after server-side payment verification via `POST /api/orders/<id>/pay`.
+3. **5-Minute Acceptance Deadline**:
+   - Server initializes `paid_at`, `matching_started_at`, and `acceptance_deadline_at = matching_started_at + 5 mins`.
    - Persisted in MongoDB Atlas so matching deadlines survive server restarts or redeployments.
-   - If unassigned after 10 minutes, the backend automatically transitions order status to `EXPIRED` and marks `refund_status: "refunded"`.
+   - If unassigned after 5 minutes, the backend automatically transitions order status to `EXPIRED` and marks `refund_status: "demo_refunded"`.
 4. **Nearest Available Partner Matching**:
    - `/api/partner/available` queries online partners (`is_online: true`), excludes partners with active deliveries, and prioritizes requests by proximity to pickup coordinates.
 5. **One Active Delivery Per Partner Constraint**:

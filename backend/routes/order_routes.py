@@ -1,90 +1,13 @@
-import os
 import secrets
 import math
-import hmac
-import hashlib
 from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request, send_from_directory
 from bson import ObjectId
-
-try:
-    import razorpay
-except ImportError:
-    razorpay = None
-
-from backend.services.db_service import get_db
+from pymongo.errors import DuplicateKeyError
+from backend.services.db_service import get_db, check_and_expire_orders
 from backend.middleware.security import token_required, role_required, hash_secret
 
 order_bp = Blueprint("order_bp", __name__)
-
-RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "")
-RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "")
-RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET", "")
-
-def get_razorpay_client():
-    if razorpay is not None and RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
-        try:
-            return razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-        except Exception:
-            return None
-    return None
-
-def check_and_expire_orders(db):
-    if db is None:
-        return
-    now_iso = datetime.utcnow().isoformat()
-    expired_orders = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
-    rz_client = get_razorpay_client()
-
-    for o in expired_orders:
-        oid = str(o["_id"])
-        rz_payment_id = o.get("razorpay_payment_id")
-        total_amount = o.get("total_amount", 0.0)
-        amount_in_paise = int(round(total_amount * 100))
-
-        refund_id = None
-        refund_status = "REFUNDED"
-
-        if rz_client and rz_payment_id and rz_payment_id != "dummy_payment_id":
-            try:
-                refund_res = rz_client.payment.refund(rz_payment_id, {
-                    "amount": amount_in_paise,
-                    "speed": "optimum",
-                    "notes": {"reason": "5-minute matching deadline expired - no delivery partner available"}
-                })
-                refund_id = refund_res.get("id")
-                refund_status = "REFUNDED"
-            except Exception as e:
-                print(f"Razorpay refund warning for order {oid}: {e}")
-                refund_status = "REFUND_PROCESSING"
-
-        db["orders"].update_one(
-            {"_id": o["_id"], "status": "MATCHING"},
-            {"$set": {
-                "status": "EXPIRED",
-                "refund_status": refund_status,
-                "razorpay_refund_id": refund_id,
-                "refunded_at": now_iso
-            }}
-        )
-
-        db["payments"].update_one(
-            {"order_id": oid},
-            {"$set": {
-                "payment_status": "REFUNDED",
-                "refund_status": refund_status,
-                "razorpay_refund_id": refund_id,
-                "refunded_at": now_iso
-            }},
-            upsert=True
-        )
-
-        db["orderhistories"].insert_one({
-            "order_id": oid,
-            "status": "EXPIRED",
-            "timestamp": now_iso,
-            "created_at": datetime.utcnow()
-        })
 
 @order_bp.route("/api/categories", methods=["GET"], endpoint="get_categories")
 def get_categories():
@@ -113,6 +36,25 @@ def create_order():
     data = request.get_json(force=True, silent=True) or {}
     sender_phone = request.user.get("phone")
     sender_user_id = request.user.get("sub")
+
+    # Idempotency key from header or json body
+    idempotency_key = data.get("idempotency_key") or request.headers.get("X-Idempotency-Key")
+
+    if idempotency_key:
+        existing_order = db["orders"].find_one({"sender_id": sender_user_id, "idempotency_key": idempotency_key})
+        if existing_order:
+            return jsonify({
+                "message": "Order already exists (Idempotent response)",
+                "order_id": str(existing_order["_id"]),
+                "tracking_token": existing_order.get("tracking_token"),
+                "pickup_otp": existing_order.get("pickup_otp_plain", "123456"),
+                "distance_km": existing_order.get("distance_km"),
+                "delivery_charge": existing_order.get("delivery_charge"),
+                "platform_fee": existing_order.get("platform_fee"),
+                "total_amount": existing_order.get("total_amount"),
+                "amount_in_paise": int(round(existing_order.get("total_amount", 0) * 100))
+            }), 200
+
     receiver_phone = str(data.get("receiver_phone", "")).strip()
     pickup_address = str(data.get("pickup_address", "")).strip()
     delivery_address = str(data.get("delivery_address", "")).strip()
@@ -150,7 +92,6 @@ def create_order():
     delivery_charge = round(distance_km * 5.0, 2)
     platform_fee = 2.0
     total_amount = round(delivery_charge + platform_fee, 2)
-    amount_in_paise = int(round(total_amount * 100))
     partner_earning = delivery_charge
 
     pickup_otp_plain = str(secrets.randbelow(900000) + 100000)
@@ -159,20 +100,6 @@ def create_order():
 
     tracking_token = secrets.token_urlsafe(32)
     now_iso = datetime.utcnow().isoformat()
-
-    razorpay_order_id = None
-    rz_client = get_razorpay_client()
-    if rz_client:
-        try:
-            rz_order = rz_client.order.create({
-                "amount": amount_in_paise,
-                "currency": "INR",
-                "receipt": f"receipt_{tracking_token[:10]}",
-                "payment_capture": 1
-            })
-            razorpay_order_id = rz_order.get("id")
-        except Exception as e:
-            print(f"Razorpay order creation warning: {e}")
 
     order_doc = {
         "sender_id": sender_user_id,
@@ -190,11 +117,9 @@ def create_order():
         "delivery_charge": delivery_charge,
         "platform_fee": platform_fee,
         "total_amount": total_amount,
-        "amount_in_paise": amount_in_paise,
         "partner_earning": partner_earning,
         "status": "CREATED",
         "payment_status": "PENDING",
-        "razorpay_order_id": razorpay_order_id,
         "pickup_verified": False,
         "delivered": False,
         "order_time": now_iso,
@@ -203,16 +128,35 @@ def create_order():
         "assigned_partner": data.get("assigned_partner", None),
         "tracking_token": tracking_token,
         "pickup_otp_hash": pickup_otp_hash,
+        "pickup_otp_plain": pickup_otp_plain,
         "pickup_otp_expiry": pickup_otp_expiry,
         "pickup_otp_attempts": 0,
         "delivery_otp_hash": None,
         "delivery_otp_expiry": None,
         "delivery_otp_attempts": 0,
-        "created_at": datetime.utcnow()
+        "created_at": datetime.utcnow(),
+        "idempotency_key": idempotency_key
     }
 
-    result = db["orders"].insert_one(order_doc)
-    order_id = str(result.inserted_id)
+    try:
+        result = db["orders"].insert_one(order_doc)
+        order_id = str(result.inserted_id)
+    except DuplicateKeyError:
+        if idempotency_key:
+            existing_order = db["orders"].find_one({"sender_id": sender_user_id, "idempotency_key": idempotency_key})
+            if existing_order:
+                return jsonify({
+                    "message": "Order already exists (Idempotent response)",
+                    "order_id": str(existing_order["_id"]),
+                    "tracking_token": existing_order.get("tracking_token"),
+                    "pickup_otp": existing_order.get("pickup_otp_plain", "123456"),
+                    "distance_km": existing_order.get("distance_km"),
+                    "delivery_charge": existing_order.get("delivery_charge"),
+                    "platform_fee": existing_order.get("platform_fee"),
+                    "total_amount": existing_order.get("total_amount"),
+                    "amount_in_paise": int(round(existing_order.get("total_amount", 0) * 100))
+                }), 200
+        return jsonify({"error": "Order creation conflict or duplicate request"}), 400
 
     item_doc = {
         "order_id": order_id,
@@ -239,9 +183,7 @@ def create_order():
         "delivery_charge": delivery_charge,
         "platform_fee": platform_fee,
         "total_amount": total_amount,
-        "amount_in_paise": amount_in_paise,
         "payment_status": "PENDING",
-        "razorpay_order_id": razorpay_order_id,
         "refund_status": "none",
         "created_at": datetime.utcnow()
     }
@@ -256,7 +198,7 @@ def create_order():
     db["orderhistories"].insert_one(history_doc)
 
     return jsonify({
-        "message": "Order created successfully",
+        "message": "Order created successfully (Demo Payment Mode)",
         "order_id": order_id,
         "tracking_token": tracking_token,
         "pickup_otp": pickup_otp_plain,
@@ -264,9 +206,7 @@ def create_order():
         "delivery_charge": delivery_charge,
         "platform_fee": platform_fee,
         "total_amount": total_amount,
-        "amount_in_paise": amount_in_paise,
-        "razorpay_order_id": razorpay_order_id,
-        "razorpay_key_id": RAZORPAY_KEY_ID
+        "amount_in_paise": int(round(total_amount * 100))
     }), 201
 
 @order_bp.route("/api/orders/<order_id>/pay", methods=["POST"], endpoint="pay_order")
@@ -281,22 +221,6 @@ def pay_order(order_id):
     except Exception:
         return jsonify({"error": "Invalid order ID"}), 400
 
-    data = request.get_json(force=True, silent=True) or {}
-    rz_payment_id = str(data.get("razorpay_payment_id", "")).strip()
-    rz_order_id = str(data.get("razorpay_order_id", "")).strip()
-    rz_signature = str(data.get("razorpay_signature", "")).strip()
-
-    rz_client = get_razorpay_client()
-    if rz_client and rz_payment_id and rz_order_id and rz_signature:
-        try:
-            rz_client.utility.verify_payment_signature({
-                "razorpay_order_id": rz_order_id,
-                "razorpay_payment_id": rz_payment_id,
-                "razorpay_signature": rz_signature
-            })
-        except Exception as e:
-            return jsonify({"error": f"Invalid Razorpay payment signature: {str(e)}"}), 400
-
     now = datetime.utcnow()
     now_iso = now.isoformat()
     deadline_iso = (now + timedelta(minutes=5)).isoformat()
@@ -309,8 +233,6 @@ def pay_order(order_id):
             "paid_at": now_iso,
             "matching_started_at": now_iso,
             "acceptance_deadline_at": deadline_iso,
-            "razorpay_payment_id": rz_payment_id if rz_payment_id else "dummy_payment_id",
-            "razorpay_order_id": rz_order_id if rz_order_id else "dummy_order_id",
             "refund_status": "none"
         }}
     )
@@ -318,7 +240,7 @@ def pay_order(order_id):
         existing_order = db["orders"].find_one({"_id": obj_id})
         if existing_order and existing_order.get("payment_status") == "SUCCESS":
             return jsonify({
-                "message": "Payment already verified",
+                "message": "Demo payment already verified",
                 "payment_status": "SUCCESS",
                 "status": existing_order.get("status", "MATCHING")
             }), 200
@@ -328,70 +250,25 @@ def pay_order(order_id):
         {"order_id": order_id},
         {"$set": {
             "payment_status": "SUCCESS",
-            "paid_at": now_iso,
-            "razorpay_payment_id": rz_payment_id if rz_payment_id else "dummy_payment_id",
-            "razorpay_order_id": rz_order_id if rz_order_id else "dummy_order_id"
+            "paid_at": now_iso
         }},
         upsert=True
     )
 
-    db["orderhistories"].insert_one({
-        "order_id": order_id,
-        "status": "MATCHING",
-        "timestamp": now_iso,
-        "created_at": datetime.utcnow()
-    })
+    if not db["orderhistories"].find_one({"order_id": order_id, "status": "MATCHING"}):
+        db["orderhistories"].insert_one({
+            "order_id": order_id,
+            "status": "MATCHING",
+            "timestamp": now_iso,
+            "created_at": datetime.utcnow()
+        })
 
     return jsonify({
-        "message": "Payment verified successfully and order entered 5-minute matching",
+        "message": "Demo payment verified successfully and order entered 5-minute matching",
         "payment_status": "SUCCESS",
         "status": "MATCHING",
         "acceptance_deadline_at": deadline_iso
     }), 200
-
-@order_bp.route("/api/payments/webhook", methods=["POST"], endpoint="razorpay_webhook")
-def razorpay_webhook():
-    db = get_db()
-    if db is None:
-        return jsonify({"error": "Database not connected"}), 500
-
-    raw_payload = request.get_data(as_text=True)
-    webhook_signature = request.headers.get("X-Razorpay-Signature", "")
-
-    if RAZORPAY_WEBHOOK_SECRET and webhook_signature:
-        expected_sig = hmac.new(
-            RAZORPAY_WEBHOOK_SECRET.encode("utf-8"),
-            raw_payload.encode("utf-8"),
-            hashlib.sha256
-        ).hexdigest()
-        if not hmac.compare_digest(expected_sig, webhook_signature):
-            return jsonify({"error": "Invalid webhook signature"}), 400
-
-    event_data = request.get_json(force=True, silent=True) or {}
-    event_type = event_data.get("event", "")
-
-    if event_type in ["payment.captured", "order.paid"]:
-        payment_entity = event_data.get("payload", {}).get("payment", {}).get("entity", {})
-        rz_order_id = payment_entity.get("order_id")
-        rz_payment_id = payment_entity.get("id")
-        if rz_order_id:
-            now = datetime.utcnow()
-            now_iso = now.isoformat()
-            deadline_iso = (now + timedelta(minutes=5)).isoformat()
-
-            db["orders"].update_one(
-                {"razorpay_order_id": rz_order_id, "payment_status": {"$ne": "SUCCESS"}},
-                {"$set": {
-                    "payment_status": "SUCCESS",
-                    "status": "MATCHING",
-                    "paid_at": now_iso,
-                    "matching_started_at": now_iso,
-                    "acceptance_deadline_at": deadline_iso,
-                    "razorpay_payment_id": rz_payment_id
-                }}
-            )
-
-    return jsonify({"status": "ok"}), 200
 
 @order_bp.route("/api/feedbacks", methods=["POST"], endpoint="submit_feedback")
 @token_required
@@ -406,6 +283,34 @@ def submit_feedback():
     phone = request.user.get("phone")
     user_id = request.user.get("sub")
 
+    if not order_id:
+        return jsonify({"error": "Missing order_id"}), 400
+
+    try:
+        obj_id = ObjectId(order_id)
+    except Exception:
+        return jsonify({"error": "Invalid order ID"}), 400
+
+    order = db["orders"].find_one({"_id": obj_id})
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
+
+    # Validate delivery completed status
+    if not order.get("delivered", False) and order.get("status") != "DELIVERED":
+        return jsonify({"error": "Cannot submit feedback before delivery is completed"}), 400
+
+    # Validate order ownership/eligibility (sender or partner associated with order)
+    sender_id = order.get("sender_id")
+    sender_phone = order.get("sender_phone")
+    assigned_partner = order.get("assigned_partner")
+    if user_id != sender_id and phone != sender_phone and phone != assigned_partner:
+        return jsonify({"error": "Unauthorized to submit feedback for this order"}), 403
+
+    # Check if feedback already exists for this order + user
+    existing = db["feedbacks"].find_one({"order_id": order_id, "user_id": user_id})
+    if existing:
+        return jsonify({"error": "Feedback already submitted for this order"}), 400
+
     feedback_doc = {
         "order_id": order_id,
         "user_id": user_id,
@@ -414,7 +319,12 @@ def submit_feedback():
         "comment": comment,
         "created_at": datetime.utcnow()
     }
-    db["feedbacks"].insert_one(feedback_doc)
+
+    try:
+        db["feedbacks"].insert_one(feedback_doc)
+    except DuplicateKeyError:
+        return jsonify({"error": "Feedback already submitted for this order"}), 400
+
     return jsonify({"message": "Feedback submitted successfully"}), 201
 
 @order_bp.route("/api/orders/<order_id>/otps", methods=["GET"], endpoint="get_order_otps")
