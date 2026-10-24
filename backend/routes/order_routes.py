@@ -72,13 +72,15 @@ def create_order():
     if idempotency_key:
         existing_order = db["orders"].find_one({"sender_phone": sender_phone, "idempotency_key": idempotency_key})
         if existing_order:
-            existing_order["order_id"] = str(existing_order["_id"])
-            del existing_order["_id"]
-            existing_order["message"] = "Order already exists (Idempotent response)"
-            for k, v in list(existing_order.items()):
+            res_doc = dict(existing_order)
+            res_doc["order_id"] = str(res_doc.get("_id", ""))
+            if "_id" in res_doc:
+                del res_doc["_id"]
+            res_doc["message"] = "Order already exists (Idempotent response)"
+            for k, v in list(res_doc.items()):
                 if isinstance(v, datetime):
-                    existing_order[k] = v.isoformat()
-            return jsonify(existing_order), 200
+                    res_doc[k] = v.isoformat()
+            return jsonify(res_doc), 200
 
     try:
         pickup_lat = float(data.get("pickup_lat", 12.9716))
@@ -188,16 +190,18 @@ def create_order():
         "created_at": datetime.utcnow()
     })
 
-    return jsonify({
-        "message": "Order created successfully (Pending Payment)",
-        "order_id": order_id,
-        "tracking_token": tracking_token,
-        "pickup_otp": pickup_otp_plain,
-        "distance_km": distance_km,
-        "delivery_charge": delivery_charge,
-        "platform_fee": platform_fee,
-        "total_amount": total_amount
-    }), 201
+    res_doc = dict(order_doc)
+    res_doc["order_id"] = order_id
+    if "_id" in res_doc:
+        del res_doc["_id"]
+    res_doc["pickup_otp"] = pickup_otp_plain
+    res_doc["message"] = "Order created successfully (Pending Payment)"
+
+    for k, v in list(res_doc.items()):
+        if isinstance(v, datetime):
+            res_doc[k] = v.isoformat()
+
+    return jsonify(res_doc), 201
 
 @order_bp.route("/api/orders/<order_id>/pay", methods=["POST"], endpoint="pay_order")
 @token_required
@@ -228,8 +232,12 @@ def pay_order(order_id):
 
         eligible_partner_found = False
         for p in partners:
-            plat = p.get("partner_lat", p.get("lat", 12.9716))
-            plng = p.get("partner_lng", p.get("lng", 77.5946))
+            plat = p.get("partner_lat")
+            if plat is None:
+                plat = p.get("lat")
+            plng = p.get("partner_lng")
+            if plng is None:
+                plng = p.get("lng")
             pphone = p.get("phone")
 
             active_del = db["orders"].find_one({
@@ -240,8 +248,16 @@ def pay_order(order_id):
             if active_del:
                 continue
 
-            dist_km = haversine_km(pickup_lat, pickup_lng, plat, plng)
-            if dist_km <= 5.0:
+            if plat is None or plng is None:
+                eligible_partner_found = True
+                break
+
+            try:
+                dist_km = haversine_km(pickup_lat, pickup_lng, float(plat), float(plng))
+                if dist_km <= 5.0:
+                    eligible_partner_found = True
+                    break
+            except (ValueError, TypeError):
                 eligible_partner_found = True
                 break
 
