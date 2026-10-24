@@ -229,6 +229,9 @@
                         app:boxBackgroundColor="#F5F7FF"
                         app:boxStrokeWidth="0dp"
                         app:boxStrokeWidthFocused="0dp"
+                        app:endIconDrawable="@drawable/ic_my_location"
+                        app:endIconMode="custom"
+                        app:endIconTint="@color/vf_outline"
                         app:expandedHintEnabled="false"
                         app:hintTextColor="@color/vf_primary"
                         app:placeholderText="Enter complete destination address">
