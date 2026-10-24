@@ -6,11 +6,12 @@
     android:layout_height="match_parent"
     android:background="@color/vf_background">
 
+    <!-- Top AppBar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/vf_background"
         android:fitsSystemWindows="true"
         app:elevation="0dp"
         app:layout_constraintTop_toTopOf="parent">
@@ -19,52 +20,36 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:paddingStart="0dp"
             android:paddingEnd="@dimen/stitch_md"
-            app:contentInsetStart="0dp">
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/vf_on_background">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageButton
-                    android:id="@+id/btnBack"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/back"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_arrow_back"
-                    app:tint="@color/vf_primary" />
-
                 <LinearLayout
                     android:id="@+id/llHeader"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/btnBack"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
-                        style="@style/Stitch.Typography.TitleLarge"
+                        style="@style/Stitch.Typography.HeadlineMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Track Delivery"
-                        android:textColor="@color/vf_on_background"
-                        android:textSize="18sp" />
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/tvHeaderOrderNum"
                         style="@style/Stitch.Typography.BodyMedium"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
-                        android:textColor="@color/vf_on_surface_variant"
-                        android:textSize="12sp" />
+                        android:text="" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -72,7 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/shape_pill_white"
-                    android:backgroundTint="@color/vf_primary_container"
+                    android:backgroundTint="@color/vf_primary"
                     android:gravity="center"
                     android:orientation="horizontal"
                     android:paddingHorizontal="12dp"
@@ -83,8 +68,8 @@
                     tools:ignore="RtlSymmetry">
 
                     <View
-                        android:layout_width="6dp"
-                        android:layout_height="6dp"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
                         android:background="@drawable/shape_pill_white"
                         android:backgroundTint="@color/white" />
 
@@ -94,7 +79,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:text="In Progress"
+                        android:text="IN TRANSIT"
                         android:textColor="@color/white"
                         android:textSize="10sp" />
                 </LinearLayout>
@@ -106,8 +91,6 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:fillViewport="true"
-        android:clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout">
 
@@ -211,6 +194,87 @@
                             android:text="0 km"
                             android:textSize="20sp" />
                     </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Active OTP Card (Pickup OTP or Delivery OTP) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardTrackingOtp"
+                style="@style/Stitch.Card.Level1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/stitch_md"
+                android:visibility="gone"
+                app:cardBackgroundColor="#F0F4FF"
+                app:cardCornerRadius="@dimen/stitch_rounded_lg"
+                app:strokeColor="@color/vf_primary"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/stitch_md">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            app:srcCompat="@drawable/ic_verified"
+                            app:tint="@color/vf_primary"
+                            android:contentDescription="Security Icon" />
+
+                        <TextView
+                            android:id="@+id/tvTrackingOtpTitle"
+                            style="@style/Stitch.Typography.TitleLarge"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="Pickup OTP"
+                            android:textColor="@color/vf_primary"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCopyTrackingOtp"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Copy OTP"
+                            android:textColor="@color/vf_primary"
+                            android:textStyle="bold"
+                            app:icon="@drawable/ic_content_copy"
+                            app:iconTint="@color/vf_primary" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvTrackingOtpValue"
+                        style="@style/Stitch.Typography.HeadlineMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+                        android:letterSpacing="0.2"
+                        android:text="123456"
+                        android:textColor="@color/vf_primary"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvTrackingOtpSubtitle"
+                        style="@style/Stitch.Typography.BodyMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="4dp"
+                        android:text="Share this OTP with your delivery partner upon pickup arrival."
+                        android:textColor="@color/vf_on_surface_variant"
+                        android:textSize="12sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -358,7 +422,8 @@
                                 style="@style/Stitch.Typography.BodyMedium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Delivered" />
+                                android:text="Delivered"
+                                android:textColor="@color/vf_outline" />
                             <TextView
                                 android:id="@+id/tvDestVal"
                                 style="@style/Stitch.Typography.BodyMedium"
@@ -367,11 +432,13 @@
                                 android:text=""
                                 android:textSize="12sp" />
                         </LinearLayout>
+
                     </androidx.constraintlayout.widget.ConstraintLayout>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Delivery Partner Card -->
+            <!-- Delivery Boy Card -->
             <com.google.android.material.card.MaterialCardView
                 style="@style/Stitch.Card.Level1"
                 android:layout_width="match_parent"
@@ -384,36 +451,59 @@
                     android:padding="@dimen/stitch_md">
 
                     <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivPartnerAvatar"
+                        android:id="@+id/ivAvatar"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:scaleType="centerCrop"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                        app:srcCompat="@drawable/ic_user_circle" />
+                        app:srcCompat="@drawable/ic_user_circle"
+                        android:contentDescription="Partner Avatar" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/stitch_md"
                         android:orientation="vertical"
-                        app:layout_constraintBottom_toBottomOf="@id/ivPartnerAvatar"
+                        app:layout_constraintBottom_toBottomOf="@id/ivAvatar"
                         app:layout_constraintEnd_toStartOf="@id/btnCall"
-                        app:layout_constraintStart_toEndOf="@id/ivPartnerAvatar"
-                        app:layout_constraintTop_toTopOf="@id/ivPartnerAvatar">
+                        app:layout_constraintStart_toEndOf="@id/ivAvatar"
+                        app:layout_constraintTop_toTopOf="@id/ivAvatar">
+
+                        <TextView
+                            style="@style/Stitch.Typography.LabelMedium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DELIVERY PARTNER" />
+
                         <TextView
                             android:id="@+id/tvPartnerName"
                             style="@style/Stitch.Typography.BodyLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Unassigned Partner"
+                            android:text="Searching Nearest Partner..."
                             android:textStyle="bold" />
-                        <TextView
-                            style="@style/Stitch.Typography.BodyMedium"
+
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Delivery Partner • ★ 4.9" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                app:srcCompat="@drawable/ic_star"
+                                app:tint="#FFC107"
+                                android:contentDescription="Star Rating" />
+
+                            <TextView
+                                style="@style/Stitch.Typography.LabelMedium"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:text="4.8 (120+ deliveries)" />
+                        </LinearLayout>
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -421,45 +511,40 @@
                         style="@style/Widget.Material3.Button.IconButton.Filled"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        app:backgroundTint="@color/vf_secondary_container"
+                        android:layout_marginEnd="8dp"
+                        app:backgroundTint="#EAF1FF"
                         app:icon="@drawable/ic_phone"
-                        app:iconTint="@color/vf_on_secondary_container"
+                        app:iconTint="@color/vf_primary"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        android:contentDescription="Call Partner" />
+                        app:layout_constraintEnd_toStartOf="@id/btnChat"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnChat"
                         style="@style/Widget.Material3.Button.IconButton.Filled"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:layout_marginEnd="8dp"
-                        app:backgroundTint="@color/vf_secondary_container"
+                        app:backgroundTint="#EAF1FF"
                         app:icon="@drawable/ic_chat"
-                        app:iconTint="@color/vf_on_secondary_container"
+                        app:iconTint="@color/vf_primary"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/btnCall"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        android:contentDescription="Chat with Partner" />
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Bottom Navigation Bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
-        style="@style/Theme.Quick_Drop.BottomNav"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        app:itemIconTint="@color/bottom_nav_icon_selector"
-        app:itemTextColor="@color/bottom_nav_text_selector"
+        app:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/sender_bottom_nav" />

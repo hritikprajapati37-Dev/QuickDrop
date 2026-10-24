@@ -1,6 +1,9 @@
 package com.example.quick_drop.ui;
 
 import android.animation.ValueAnimator;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,6 +31,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.text.SimpleDateFormat;
@@ -40,7 +44,10 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
     private MapView mapViewTracking;
     private GoogleMap googleMap;
     private TextView tvHeaderOrderNum, tvStatusBadge, tvETA, tvDistance, tvPartnerName, tvPickupVal, tvDestVal;
+    private TextView tvTrackingOtpTitle, tvTrackingOtpValue, tvTrackingOtpSubtitle;
     private ImageView ivStep1, ivStep2, ivStep3, ivStep4;
+    private View cardTrackingOtp;
+    private MaterialButton btnCopyTrackingOtp;
     private Marker partnerMarker;
     private LatLng currentPartnerLatLng;
 
@@ -91,6 +98,12 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
         ivStep2 = view.findViewById(R.id.ivStep2);
         ivStep3 = view.findViewById(R.id.ivStep3);
         ivStep4 = view.findViewById(R.id.ivStep4);
+
+        cardTrackingOtp = view.findViewById(R.id.cardTrackingOtp);
+        tvTrackingOtpTitle = view.findViewById(R.id.tvTrackingOtpTitle);
+        tvTrackingOtpValue = view.findViewById(R.id.tvTrackingOtpValue);
+        tvTrackingOtpSubtitle = view.findViewById(R.id.tvTrackingOtpSubtitle);
+        btnCopyTrackingOtp = view.findViewById(R.id.btnCopyTrackingOtp);
 
         loadTrackingData();
 
@@ -206,6 +219,19 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
         }
     }
 
+    private void copyOtpToClipboard(String label, String code) {
+        try {
+            ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText(label, code);
+            if (clipboard != null) {
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getContext(), label + " copied: " + code, Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), label + ": " + code, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void loadTrackingData() {
         String token = UserSession.getToken(requireContext());
         if (token.isEmpty()) return;
@@ -226,8 +252,51 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
 
                             String status = order.optString("status", "MATCHING");
                             String deadlineIso = order.optString("acceptance_deadline_at", "");
+                            boolean pickupVerified = order.optBoolean("pickup_verified", false);
+                            boolean delivered = order.optBoolean("delivered", false);
 
                             updateTimelineSteps(status);
+
+                            // Handle Pickup OTP and Delivery OTP display
+                            String pickupOtp = order.optString("pickup_otp", "");
+                            String deliveryOtp = order.optString("delivery_otp", "");
+
+                            boolean showPickupOtp = !pickupVerified && !delivered &&
+                                    !pickupOtp.isEmpty() && !"null".equalsIgnoreCase(pickupOtp) &&
+                                    ("ASSIGNED".equalsIgnoreCase(status) || "ARRIVED_PICKUP".equalsIgnoreCase(status) ||
+                                     "MATCHING".equalsIgnoreCase(status) || "CREATED".equalsIgnoreCase(status));
+
+                            boolean showDeliveryOtp = pickupVerified && !delivered &&
+                                    !deliveryOtp.isEmpty() && !"null".equalsIgnoreCase(deliveryOtp) &&
+                                    ("PICKED_UP".equalsIgnoreCase(status) || "IN_TRANSIT".equalsIgnoreCase(status));
+
+                            if (cardTrackingOtp != null) {
+                                if (showPickupOtp) {
+                                    cardTrackingOtp.setVisibility(View.VISIBLE);
+                                    if (tvTrackingOtpTitle != null) tvTrackingOtpTitle.setText("Pickup OTP");
+                                    if (tvTrackingOtpValue != null) {
+                                        tvTrackingOtpValue.setText(pickupOtp.length() == 6 ? pickupOtp.substring(0, 3) + " " + pickupOtp.substring(3) : pickupOtp);
+                                    }
+                                    if (tvTrackingOtpSubtitle != null) tvTrackingOtpSubtitle.setText("Share this OTP with your delivery partner upon pickup arrival.");
+                                    final String copyOtp = pickupOtp;
+                                    if (btnCopyTrackingOtp != null) {
+                                        btnCopyTrackingOtp.setOnClickListener(v -> copyOtpToClipboard("Pickup OTP", copyOtp));
+                                    }
+                                } else if (showDeliveryOtp) {
+                                    cardTrackingOtp.setVisibility(View.VISIBLE);
+                                    if (tvTrackingOtpTitle != null) tvTrackingOtpTitle.setText("Delivery OTP");
+                                    if (tvTrackingOtpValue != null) {
+                                        tvTrackingOtpValue.setText(deliveryOtp.length() == 6 ? deliveryOtp.substring(0, 3) + " " + deliveryOtp.substring(3) : deliveryOtp);
+                                    }
+                                    if (tvTrackingOtpSubtitle != null) tvTrackingOtpSubtitle.setText("Share this OTP with the receiver or delivery partner upon handover.");
+                                    final String copyOtp = deliveryOtp;
+                                    if (btnCopyTrackingOtp != null) {
+                                        btnCopyTrackingOtp.setOnClickListener(v -> copyOtpToClipboard("Delivery OTP", copyOtp));
+                                    }
+                                } else {
+                                    cardTrackingOtp.setVisibility(View.GONE);
+                                }
+                            }
 
                             if ("MATCHING".equalsIgnoreCase(status) || "CREATED".equalsIgnoreCase(status)) {
                                 long remainingSecs = getRemainingSeconds(deadlineIso);
