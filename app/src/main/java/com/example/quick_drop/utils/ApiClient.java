@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 
 public class ApiClient {
     private static final String TAG = "ApiClient";
+    private static final String DIAG_TAG = "QuickDrop_Diag";
 
     // Verified Deployed Render Backend URL over HTTPS
     private static final String PRODUCTION_URL = "https://quickdrop-bhd9.onrender.com";
@@ -488,6 +489,7 @@ public class ApiClient {
                 conn.setReadTimeout(TIMEOUT_MS);
 
                 int code = conn.getResponseCode();
+                Log.d(DIAG_TAG, "getOrderDetails HTTP code " + code + " for endpoint " + endpoint);
                 BufferedReader br;
                 if (code >= 200 && code < 300) {
                     br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
@@ -502,12 +504,14 @@ public class ApiClient {
                 }
 
                 JSONObject resJson = new JSONObject(response.toString());
+                Log.d(DIAG_TAG, "getOrderDetails success. Has order_id? " + resJson.has("order_id") + ", delivery_charge: " + resJson.optDouble("delivery_charge", -1.0));
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
                     callback.onError(resJson.optString("error", "Failed to fetch order details (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
+                Log.e(DIAG_TAG, "getOrderDetails error: " + e.getMessage());
                 callback.onError(handleException(e, endpoint));
             }
         }).start();
@@ -648,6 +652,10 @@ public class ApiClient {
     }
 
     public static void createOrder(String token, String receiverPhone, String pickupAddress, String deliveryAddress, String itemDescription, String itemWeight, double pickupLat, double pickupLng, double deliveryLat, double deliveryLng, ApiCallback callback) {
+        createOrder(token, receiverPhone, pickupAddress, deliveryAddress, itemDescription, itemWeight, pickupLat, pickupLng, deliveryLat, deliveryLng, null, callback);
+    }
+
+    public static void createOrder(String token, String receiverPhone, String pickupAddress, String deliveryAddress, String itemDescription, String itemWeight, double pickupLat, double pickupLng, double deliveryLat, double deliveryLng, String idempotencyKey, ApiCallback callback) {
         new Thread(() -> {
             String endpoint = "/api/orders";
             try {
@@ -655,6 +663,9 @@ public class ApiClient {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Authorization", "Bearer " + token);
+                if (idempotencyKey != null && !idempotencyKey.isEmpty()) {
+                    conn.setRequestProperty("X-Idempotency-Key", idempotencyKey);
+                }
                 conn.setRequestProperty("Content-Type", "application/json; utf-8");
                 conn.setRequestProperty("Accept", "application/json");
                 conn.setConnectTimeout(TIMEOUT_MS);
@@ -678,6 +689,7 @@ public class ApiClient {
                 }
 
                 int code = conn.getResponseCode();
+                Log.d(DIAG_TAG, "createOrder HTTP code " + code + " for endpoint " + endpoint);
                 BufferedReader br;
                 if (code >= 200 && code < 300) {
                     br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
@@ -692,12 +704,14 @@ public class ApiClient {
                 }
 
                 JSONObject resJson = new JSONObject(response.toString());
+                Log.d(DIAG_TAG, "createOrder success. Has order_id? " + resJson.has("order_id") + ", delivery_charge: " + resJson.optDouble("delivery_charge", -1.0));
                 if (code >= 200 && code < 300) {
                     callback.onSuccess(resJson);
                 } else {
                     callback.onError(resJson.optString("error", "Order creation failed (HTTP " + code + ")"));
                 }
             } catch (Exception e) {
+                Log.e(DIAG_TAG, "createOrder error: " + e.getMessage());
                 callback.onError(handleException(e, endpoint));
             }
         }).start();
@@ -729,6 +743,7 @@ public class ApiClient {
                 }
 
                 int code = conn.getResponseCode();
+                Log.d(DIAG_TAG, "payOrder HTTP code " + code + " for endpoint " + endpoint);
                 BufferedReader br;
                 if (code >= 200 && code < 300) {
                     br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
