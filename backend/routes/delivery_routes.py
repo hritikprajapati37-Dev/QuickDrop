@@ -133,16 +133,18 @@ def arrived_pickup():
 
     now_iso = datetime.utcnow().isoformat()
     result = db["orders"].update_one(
-        {"_id": obj_id, "assigned_partner": partner_phone, "pickup_verified": False},
+        {"_id": obj_id, "assigned_partner": partner_phone, "pickup_verified": False, "status": "ASSIGNED"},
         {"$set": {
             "status": "ARRIVED_PICKUP",
             "arrived_pickup_at": now_iso
         }}
     )
     if result.modified_count == 0:
-        order = db["orders"].find_one({"_id": obj_id})
+        order = db["orders"].find_one({"_id": obj_id, "assigned_partner": partner_phone})
+        if order and order.get("status") == "ARRIVED_PICKUP":
+            return jsonify({"message": "Already recorded arrival at pickup", "status": "ARRIVED_PICKUP"}), 200
         if order and order.get("pickup_verified", False):
-            return jsonify({"message": "Pickup already verified", "status": "ARRIVED_PICKUP"}), 200
+            return jsonify({"message": "Pickup already verified", "status": "PICKED_UP"}), 200
         return jsonify({"error": "Order not found or not assigned to partner"}), 400
 
     if not db["orderhistories"].find_one({"order_id": order_id, "status": "ARRIVED_PICKUP"}):
@@ -168,7 +170,13 @@ def arrived_destination():
 
     now_iso = datetime.utcnow().isoformat()
     result = db["orders"].update_one(
-        {"_id": obj_id, "assigned_partner": partner_phone, "delivered": False},
+        {
+            "_id": obj_id,
+            "assigned_partner": partner_phone,
+            "delivered": False,
+            "pickup_verified": True,
+            "status": {"$in": ["PICKED_UP", "IN_TRANSIT"]}
+        },
         {"$set": {
             "status": "ARRIVED_DESTINATION",
             "arrived_destination_at": now_iso
@@ -203,12 +211,15 @@ def verify_pickup():
     except Exception:
         return jsonify({"error": "Invalid order ID"}), 400
 
-    order = orders_collection.find_one({"_id": obj_id})
+    order = orders_collection.find_one({"_id": obj_id, "assigned_partner": partner_phone})
     if not order:
-        return jsonify({"error": "Order not found"}), 404
+        return jsonify({"error": "Order not found or not assigned to partner"}), 404
 
     if order.get("pickup_verified", False):
         return jsonify({"message": "Pickup already verified for this order", "status": "PICKED_UP"}), 200
+
+    if order.get("status") != "ARRIVED_PICKUP":
+        return jsonify({"error": "Record arrival at pickup before verifying pickup OTP"}), 400
 
     if order.get("pickup_otp_attempts", 0) >= 3:
         return jsonify({"error": "Too many failed attempts. Request new OTP."}), 429
@@ -227,7 +238,7 @@ def verify_pickup():
     pickup_time_iso = datetime.utcnow().isoformat()
 
     result = orders_collection.update_one(
-        {"_id": obj_id, "pickup_verified": False},
+        {"_id": obj_id, "assigned_partner": partner_phone, "pickup_verified": False, "status": "ARRIVED_PICKUP"},
         {
             "$set": {
                 "pickup_verified": True,
@@ -276,15 +287,18 @@ def verify_delivery():
     except Exception:
         return jsonify({"error": "Invalid order ID"}), 400
 
-    order = orders_collection.find_one({"_id": obj_id})
+    order = orders_collection.find_one({"_id": obj_id, "assigned_partner": request.user.get("phone")})
     if not order:
-        return jsonify({"error": "Order not found"}), 404
+        return jsonify({"error": "Order not found or not assigned to partner"}), 404
 
     if order.get("delivered", False):
         return jsonify({"message": "Order already delivered", "status": "DELIVERED"}), 200
 
     if not order.get("pickup_verified", False):
         return jsonify({"error": "Cannot complete delivery before pickup verification"}), 400
+
+    if order.get("status") != "ARRIVED_DESTINATION":
+        return jsonify({"error": "Record arrival at destination before verifying delivery OTP"}), 400
 
     if order.get("delivery_otp_attempts", 0) >= 3:
         return jsonify({"error": "Too many failed attempts. Request new OTP."}), 429
@@ -300,7 +314,7 @@ def verify_delivery():
     complete_time_iso = datetime.utcnow().isoformat()
 
     result = orders_collection.update_one(
-        {"_id": obj_id},
+        {"_id": obj_id, "assigned_partner": request.user.get("phone"), "delivered": False, "status": "ARRIVED_DESTINATION"},
         {
             "$set": {
                 "delivered": True,
@@ -349,14 +363,14 @@ def partner_available():
     }
     orders = list(db["orders"].find(query).sort("created_at", -1))
 
-    is_default = (partner_lat == 12.9716 and partner_lng == 77.5946) or (partner_lat is None or partner_lng is None)
+    has_partner_location = partner_lat is not None and partner_lng is not None
 
     filtered_orders = []
     for o in orders:
         plat = o.get("pickup_lat")
         plng = o.get("pickup_lng")
 
-        if not is_default and plat is not None and plng is not None:
+        if has_partner_location and plat is not None and plng is not None:
             try:
                 dist_km = haversine_km(float(plat), float(plng), float(partner_lat), float(partner_lng))
                 if dist_km <= 15.0:
@@ -367,7 +381,7 @@ def partner_available():
         else:
             filtered_orders.append(o)
 
-    if not is_default:
+    if has_partner_location:
         filtered_orders.sort(key=lambda x: x.get("distance_to_pickup_km", 0.0))
 
     for o in filtered_orders:
@@ -424,9 +438,9 @@ def partner_accept():
     if partner_profile and partner_profile.get("partner_lat") is not None and partner_profile.get("partner_lng") is not None:
         plat = partner_profile.get("partner_lat")
         plng = partner_profile.get("partner_lng")
-        if plat != 12.9716 or plng != 77.5946:
-            olats = order.get("pickup_lat", 12.9716)
-            olngs = order.get("pickup_lng", 77.5946)
+        if order.get("pickup_lat") is not None and order.get("pickup_lng") is not None:
+            olats = order["pickup_lat"]
+            olngs = order["pickup_lng"]
             dist_km = haversine_km(olats, olngs, plat, plng)
             if dist_km > 15.0:
                 return jsonify({"error": f"You are {round(dist_km, 1)} km away from pickup."}), 400
