@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -53,7 +54,6 @@ public class CreateDeliveryFragment extends Fragment {
     private double currentLat = 12.9716;
     private double currentLng = 77.5946;
     private String pickupAddressStr = "";
-    private String idempotencyKey = java.util.UUID.randomUUID().toString();
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
 
     @Nullable
@@ -68,8 +68,11 @@ public class CreateDeliveryFragment extends Fragment {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> 
-            Navigation.findNavController(v).navigateUp());
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> 
+                Navigation.findNavController(v).navigateUp());
+        }
 
         String[] categories = new String[] {"Documents", "Electronics", "Food", "Fragile", "Clothing", "General"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, categories);
@@ -111,7 +114,10 @@ public class CreateDeliveryFragment extends Fragment {
             btnEnterManualPickup.setOnClickListener(v -> showManualPickupDialog());
         }
 
-        view.findViewById(R.id.btnNext).setOnClickListener(this::submitOrder);
+        View btnNext = view.findViewById(R.id.btnNext);
+        if (btnNext != null) {
+            btnNext.setOnClickListener(this::submitOrder);
+        }
     }
 
     private void showManualPickupDialog() {
@@ -412,23 +418,23 @@ public class CreateDeliveryFragment extends Fragment {
         UserSession.setLastPickupAddress(requireContext(), pickupAddressStr);
 
         // 1. Geocode pickupAddressStr to resolve true pickup coordinates
-        double pickupLat = currentLat;
-        double pickupLng = currentLng;
+        double pLat = currentLat;
+        double pLng = currentLng;
         try {
             Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
             List<Address> pickupAddrs = geocoder.getFromLocationName(pickupAddressStr, 1);
             if (pickupAddrs != null && !pickupAddrs.isEmpty()) {
                 Address pAddr = pickupAddrs.get(0);
-                pickupLat = pAddr.getLatitude();
-                pickupLng = pAddr.getLongitude();
+                pLat = pAddr.getLatitude();
+                pLng = pAddr.getLongitude();
             }
         } catch (Exception e) {
             // fallback
         }
 
         // 2. Geocode deliveryAddress to resolve true delivery coordinates
-        double deliveryLat = pickupLat + 0.01;
-        double deliveryLng = pickupLng + 0.01;
+        double deliveryLat = pLat + 0.01;
+        double deliveryLng = pLng + 0.01;
         try {
             Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
             List<Address> deliveryAddrs = geocoder.getFromLocationName(deliveryAddress, 1);
@@ -443,7 +449,7 @@ public class CreateDeliveryFragment extends Fragment {
 
         // 3. Compute accurate distance between true pickup and true delivery locations
         float[] results = new float[1];
-        android.location.Location.distanceBetween(pickupLat, pickupLng, deliveryLat, deliveryLng, results);
+        android.location.Location.distanceBetween(pLat, pLng, deliveryLat, deliveryLng, results);
         float distanceInKm = results[0] / 1000f;
 
         if (distanceInKm > 5.0f) {
@@ -463,7 +469,7 @@ public class CreateDeliveryFragment extends Fragment {
             return;
         }
 
-        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, itemWeight, pickupLat, pickupLng, deliveryLat, deliveryLng, new ApiClient.ApiCallback() {
+        ApiClient.createOrder(token, receiverPhone, pickupAddressStr, deliveryAddress, itemDesc, itemWeight, pLat, pLng, deliveryLat, deliveryLng, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
