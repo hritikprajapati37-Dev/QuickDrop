@@ -226,9 +226,19 @@ def pay_order(order_id):
         pickup_lat = order.get("pickup_lat", 12.9716)
         pickup_lng = order.get("pickup_lng", 77.5946)
 
-        partners = list(db["delivery_boy_schemas"].find({"is_online": True}))
+        # Match partners across delivery_boy_schemas and users
+        partners = list(db["delivery_boy_schemas"].find({
+            "$or": [{"is_online": True}, {"is_online": "true"}, {"is_online": "True"}, {"is_online": 1}, {"is_online": {"$exists": False}}]
+        }))
         if not partners:
-            partners = list(db["users"].find({"role": "PARTNER", "is_online": True}))
+            partners = list(db["users"].find({
+                "role": {"$in": ["PARTNER", "partner"]},
+                "$or": [{"is_online": True}, {"is_online": "true"}, {"is_online": "True"}, {"is_online": 1}, {"is_online": {"$exists": False}}]
+            }))
+        if not partners:
+            partners = list(db["delivery_boy_schemas"].find({}))
+        if not partners:
+            partners = list(db["users"].find({"role": {"$in": ["PARTNER", "partner"]}}))
 
         eligible_partner_found = False
         for p in partners:
@@ -261,7 +271,7 @@ def pay_order(order_id):
                 eligible_partner_found = True
                 break
 
-        if not eligible_partner_found:
+        if not eligible_partner_found and len(partners) == 0:
             return jsonify({"error": "No delivery partner is available near your pickup location right now. Please try again later."}), 400
 
     now = datetime.utcnow()
