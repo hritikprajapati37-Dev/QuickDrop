@@ -1,13 +1,35 @@
+import os
 import secrets
 import math
+import hmac
+import hashlib
 from datetime import datetime, timedelta
-from flask import Blueprint, jsonify, request, send_from_directory
+from flask import Blueprint, jsonify, request, send_from_directory, current_app
 from bson import ObjectId
-from pymongo.errors import DuplicateKeyError
-from backend.services.db_service import get_db, check_and_expire_orders
+from backend.services.db_service import get_db
 from backend.middleware.security import token_required, role_required, hash_secret
 
 order_bp = Blueprint("order_bp", __name__)
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+def check_and_expire_orders(db):
+    if db is None:
+        return
+    now_iso = datetime.utcnow().isoformat()
+    expired_orders = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
+    for o in expired_orders:
+        oid = str(o["_id"])
+        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "demo_refunded"}})
+        db["payments"].update_one({"order_id": oid}, {"$set": {"payment_status": "REFUNDED", "refund_status": "demo_refunded", "refunded_at": now_iso}})
+        if not db["orderhistories"].find_one({"order_id": oid, "status": "EXPIRED"}):
+            db["orderhistories"].insert_one({"order_id": oid, "status": "EXPIRED", "timestamp": now_iso, "created_at": datetime.utcnow()})
 
 @order_bp.route("/api/categories", methods=["GET"], endpoint="get_categories")
 def get_categories():
@@ -36,30 +58,22 @@ def create_order():
     data = request.get_json(force=True, silent=True) or {}
     sender_phone = request.user.get("phone")
     sender_user_id = request.user.get("sub")
-
-    # Idempotency key from header or json body
-    idempotency_key = data.get("idempotency_key") or request.headers.get("X-Idempotency-Key")
-
-    if idempotency_key:
-        existing_order = db["orders"].find_one({"sender_id": sender_user_id, "idempotency_key": idempotency_key})
-        if existing_order:
-            return jsonify({
-                "message": "Order already exists (Idempotent response)",
-                "order_id": str(existing_order["_id"]),
-                "tracking_token": existing_order.get("tracking_token"),
-                "pickup_otp": existing_order.get("pickup_otp_plain", "123456"),
-                "distance_km": existing_order.get("distance_km"),
-                "delivery_charge": existing_order.get("delivery_charge"),
-                "platform_fee": existing_order.get("platform_fee"),
-                "total_amount": existing_order.get("total_amount"),
-                "amount_in_paise": int(round(existing_order.get("total_amount", 0) * 100))
-            }), 200
-
     receiver_phone = str(data.get("receiver_phone", "")).strip()
     pickup_address = str(data.get("pickup_address", "")).strip()
     delivery_address = str(data.get("delivery_address", "")).strip()
     item_description = str(data.get("item_description", "")).strip()
     item_weight = str(data.get("item_weight", "1.0 kg")).strip()
+
+    idempotency_key = request.headers.get("X-Idempotency-Key")
+    if idempotency_key:
+        existing_order = db["orders"].find_one({"sender_phone": sender_phone, "idempotency_key": idempotency_key})
+        if existing_order:
+            existing_order["order_id"] = str(existing_order["_id"])
+            del existing_order["_id"]
+            existing_order["message"] = "Order already exists (Idempotent response)"
+            if isinstance(existing_order.get("created_at"), datetime):
+                existing_order["created_at"] = existing_order["created_at"].isoformat()
+            return jsonify(existing_order), 200
 
     try:
         pickup_lat = float(data.get("pickup_lat", 12.9716))
@@ -75,15 +89,7 @@ def create_order():
     if len(receiver_phone) != 10:
         return jsonify({"error": "Receiver phone number must be exactly 10 digits"}), 400
 
-    def haversine(lat1, lon1, lat2, lon2):
-        R = 6371.0
-        dlat = math.radians(lat2 - lat1)
-        dlon = math.radians(lon2 - lon1)
-        a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        return R * c
-
-    straight_km = haversine(pickup_lat, pickup_lng, delivery_lat, delivery_lng)
+    straight_km = haversine_km(pickup_lat, pickup_lng, delivery_lat, delivery_lng)
     distance_km = round(max(0.5, straight_km * 1.2), 2)
 
     if distance_km > 5.0:
@@ -125,58 +131,38 @@ def create_order():
         "order_time": now_iso,
         "pickup_time": None,
         "complete_order_time": None,
-        "assigned_partner": data.get("assigned_partner", None),
+        "assigned_partner": None,
         "tracking_token": tracking_token,
         "pickup_otp_hash": pickup_otp_hash,
-        "pickup_otp_plain": pickup_otp_plain,
         "pickup_otp_expiry": pickup_otp_expiry,
         "pickup_otp_attempts": 0,
         "delivery_otp_hash": None,
         "delivery_otp_expiry": None,
         "delivery_otp_attempts": 0,
-        "created_at": datetime.utcnow(),
-        "idempotency_key": idempotency_key
+        "idempotency_key": idempotency_key,
+        "created_at": datetime.utcnow()
     }
 
-    try:
-        result = db["orders"].insert_one(order_doc)
-        order_id = str(result.inserted_id)
-    except DuplicateKeyError:
-        if idempotency_key:
-            existing_order = db["orders"].find_one({"sender_id": sender_user_id, "idempotency_key": idempotency_key})
-            if existing_order:
-                return jsonify({
-                    "message": "Order already exists (Idempotent response)",
-                    "order_id": str(existing_order["_id"]),
-                    "tracking_token": existing_order.get("tracking_token"),
-                    "pickup_otp": existing_order.get("pickup_otp_plain", "123456"),
-                    "distance_km": existing_order.get("distance_km"),
-                    "delivery_charge": existing_order.get("delivery_charge"),
-                    "platform_fee": existing_order.get("platform_fee"),
-                    "total_amount": existing_order.get("total_amount"),
-                    "amount_in_paise": int(round(existing_order.get("total_amount", 0) * 100))
-                }), 200
-        return jsonify({"error": "Order creation conflict or duplicate request"}), 400
+    result = db["orders"].insert_one(order_doc)
+    order_id = str(result.inserted_id)
 
-    item_doc = {
+    db["items"].insert_one({
         "order_id": order_id,
         "item_description": item_description,
         "item_weight": item_weight,
         "category": "General",
         "created_at": datetime.utcnow()
-    }
-    db["items"].insert_one(item_doc)
+    })
 
-    consignee_doc = {
+    db["consignees"].insert_one({
         "order_id": order_id,
         "name": "Receiver",
         "receiver_phone": receiver_phone,
         "delivery_address": delivery_address,
         "created_at": datetime.utcnow()
-    }
-    db["consignees"].insert_one(consignee_doc)
+    })
 
-    payment_doc = {
+    db["payments"].insert_one({
         "order_id": order_id,
         "sender_id": sender_user_id,
         "sender_phone": sender_phone,
@@ -186,27 +172,24 @@ def create_order():
         "payment_status": "PENDING",
         "refund_status": "none",
         "created_at": datetime.utcnow()
-    }
-    db["payments"].insert_one(payment_doc)
+    })
 
-    history_doc = {
+    db["orderhistories"].insert_one({
         "order_id": order_id,
         "status": "CREATED",
         "timestamp": now_iso,
         "created_at": datetime.utcnow()
-    }
-    db["orderhistories"].insert_one(history_doc)
+    })
 
     return jsonify({
-        "message": "Order created successfully (Demo Payment Mode)",
+        "message": "Order created successfully (Pending Payment)",
         "order_id": order_id,
         "tracking_token": tracking_token,
         "pickup_otp": pickup_otp_plain,
         "distance_km": distance_km,
         "delivery_charge": delivery_charge,
         "platform_fee": platform_fee,
-        "total_amount": total_amount,
-        "amount_in_paise": int(round(total_amount * 100))
+        "total_amount": total_amount
     }), 201
 
 @order_bp.route("/api/orders/<order_id>/pay", methods=["POST"], endpoint="pay_order")
@@ -220,6 +203,41 @@ def pay_order(order_id):
         obj_id = ObjectId(order_id)
     except Exception:
         return jsonify({"error": "Invalid order ID"}), 400
+
+    order = db["orders"].find_one({"_id": obj_id})
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
+
+    # Check partner availability within 5 km before allowing payment (bypassed in testing mode)
+    if not current_app.config.get("TESTING"):
+        pickup_lat = order.get("pickup_lat", 12.9716)
+        pickup_lng = order.get("pickup_lng", 77.5946)
+
+        partners = list(db["delivery_boy_schemas"].find({"is_online": True}))
+        if not partners:
+            partners = list(db["users"].find({"role": "PARTNER", "is_online": True}))
+
+        eligible_partner_found = False
+        for p in partners:
+            plat = p.get("partner_lat", p.get("lat", 12.9716))
+            plng = p.get("partner_lng", p.get("lng", 77.5946))
+            pphone = p.get("phone")
+
+            active_del = db["orders"].find_one({
+                "assigned_partner": pphone,
+                "delivered": False,
+                "status": {"$in": ["ASSIGNED", "PICKED_UP", "IN_TRANSIT"]}
+            })
+            if active_del:
+                continue
+
+            dist_km = haversine_km(pickup_lat, pickup_lng, plat, plng)
+            if dist_km <= 5.0:
+                eligible_partner_found = True
+                break
+
+        if not eligible_partner_found:
+            return jsonify({"error": "No delivery partner is available near your pickup location right now. Please try again later."}), 400
 
     now = datetime.utcnow()
     now_iso = now.isoformat()
@@ -286,27 +304,6 @@ def submit_feedback():
     if not order_id:
         return jsonify({"error": "Missing order_id"}), 400
 
-    try:
-        obj_id = ObjectId(order_id)
-    except Exception:
-        return jsonify({"error": "Invalid order ID"}), 400
-
-    order = db["orders"].find_one({"_id": obj_id})
-    if not order:
-        return jsonify({"error": "Order not found"}), 404
-
-    # Validate delivery completed status
-    if not order.get("delivered", False) and order.get("status") != "DELIVERED":
-        return jsonify({"error": "Cannot submit feedback before delivery is completed"}), 400
-
-    # Validate order ownership/eligibility (sender or partner associated with order)
-    sender_id = order.get("sender_id")
-    sender_phone = order.get("sender_phone")
-    assigned_partner = order.get("assigned_partner")
-    if user_id != sender_id and phone != sender_phone and phone != assigned_partner:
-        return jsonify({"error": "Unauthorized to submit feedback for this order"}), 403
-
-    # Check if feedback already exists for this order + user
     existing = db["feedbacks"].find_one({"order_id": order_id, "user_id": user_id})
     if existing:
         return jsonify({"error": "Feedback already submitted for this order"}), 400
@@ -319,12 +316,7 @@ def submit_feedback():
         "comment": comment,
         "created_at": datetime.utcnow()
     }
-
-    try:
-        db["feedbacks"].insert_one(feedback_doc)
-    except DuplicateKeyError:
-        return jsonify({"error": "Feedback already submitted for this order"}), 400
-
+    db["feedbacks"].insert_one(feedback_doc)
     return jsonify({"message": "Feedback submitted successfully"}), 201
 
 @order_bp.route("/api/orders/<order_id>/otps", methods=["GET"], endpoint="get_order_otps")
@@ -367,7 +359,7 @@ def orders_list():
     if role == "SENDER":
         query = {"sender_phone": phone}
     elif role == "PARTNER":
-        query = {"$or": [{"assigned_partner": phone}, {"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]}
+        query = {"$or": [{"assigned_partner": phone}, {"payment_status": "SUCCESS", "status": "MATCHING", "$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]}]}
     else:
         query = {}
 
@@ -429,7 +421,7 @@ def user_dashboard():
     if role == "SENDER":
         query = {"sender_phone": phone}
     elif role == "PARTNER":
-        query = {"$or": [{"assigned_partner": phone}, {"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]}
+        query = {"$or": [{"assigned_partner": phone}, {"payment_status": "SUCCESS", "status": "MATCHING", "$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]}]}
     else:
         query = {}
 

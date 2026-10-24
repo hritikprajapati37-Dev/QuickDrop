@@ -8,6 +8,14 @@ from backend.middleware.security import token_required, role_required, hash_secr
 
 delivery_bp = Blueprint("delivery_bp", __name__)
 
+def haversine_km(lat1, lon1, lat2, lon2):
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
 def check_and_expire_orders(db):
     if db is None:
         return
@@ -15,9 +23,10 @@ def check_and_expire_orders(db):
     expired_orders = list(db["orders"].find({"status": "MATCHING", "acceptance_deadline_at": {"$lte": now_iso}}))
     for o in expired_orders:
         oid = str(o["_id"])
-        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "refunded"}})
-        db["payments"].update_one({"order_id": oid}, {"$set": {"payment_status": "REFUNDED", "refunded_at": now_iso}})
-        db["orderhistories"].insert_one({"order_id": oid, "status": "EXPIRED", "timestamp": now_iso})
+        db["orders"].update_one({"_id": o["_id"]}, {"$set": {"status": "EXPIRED", "refund_status": "demo_refunded"}})
+        db["payments"].update_one({"order_id": oid}, {"$set": {"payment_status": "REFUNDED", "refund_status": "demo_refunded", "refunded_at": now_iso}})
+        if not db["orderhistories"].find_one({"order_id": oid, "status": "EXPIRED"}):
+            db["orderhistories"].insert_one({"order_id": oid, "status": "EXPIRED", "timestamp": now_iso, "created_at": datetime.utcnow()})
 
 @delivery_bp.route("/api/partner/status", methods=["POST"], endpoint="update_partner_status")
 @token_required
@@ -104,9 +113,13 @@ def arrived_pickup():
         }}
     )
     if result.modified_count == 0:
+        order = db["orders"].find_one({"_id": obj_id})
+        if order and order.get("pickup_verified", False):
+            return jsonify({"message": "Pickup already verified", "status": "ARRIVED_PICKUP"}), 200
         return jsonify({"error": "Order not found or not assigned to partner"}), 400
 
-    db["orderhistories"].insert_one({"order_id": order_id, "status": "ARRIVED_PICKUP", "timestamp": now_iso, "created_at": datetime.utcnow()})
+    if not db["orderhistories"].find_one({"order_id": order_id, "status": "ARRIVED_PICKUP"}):
+        db["orderhistories"].insert_one({"order_id": order_id, "status": "ARRIVED_PICKUP", "timestamp": now_iso, "created_at": datetime.utcnow()})
 
     return jsonify({"message": "Arrived at pickup location recorded", "status": "ARRIVED_PICKUP"}), 200
 
@@ -136,7 +149,7 @@ def verify_pickup():
         return jsonify({"error": "Order not found"}), 404
 
     if order.get("pickup_verified", False):
-        return jsonify({"error": "Pickup already verified for this order"}), 400
+        return jsonify({"message": "Pickup already verified for this order", "status": "PICKED_UP"}), 200
 
     if order.get("pickup_otp_attempts", 0) >= 3:
         return jsonify({"error": "Too many failed attempts. Request new OTP."}), 429
@@ -171,9 +184,10 @@ def verify_pickup():
     )
 
     if result.modified_count == 0:
-        return jsonify({"error": "State transition failed or already verified"}), 400
+        return jsonify({"message": "Pickup already verified", "status": "PICKED_UP"}), 200
 
-    db["orderhistories"].insert_one({"order_id": order_id, "status": "PICKED_UP", "timestamp": pickup_time_iso, "created_at": datetime.utcnow()})
+    if not db["orderhistories"].find_one({"order_id": order_id, "status": "PICKED_UP"}):
+        db["orderhistories"].insert_one({"order_id": order_id, "status": "PICKED_UP", "timestamp": pickup_time_iso, "created_at": datetime.utcnow()})
 
     return jsonify({
         "message": "Pickup verified successfully. Delivery OTP generated for receiver handover.",
@@ -205,11 +219,11 @@ def verify_delivery():
     if not order:
         return jsonify({"error": "Order not found"}), 404
 
+    if order.get("delivered", False):
+        return jsonify({"message": "Order already delivered", "status": "DELIVERED"}), 200
+
     if not order.get("pickup_verified", False):
         return jsonify({"error": "Cannot complete delivery before pickup verification"}), 400
-
-    if order.get("delivered", False):
-        return jsonify({"error": "Order already delivered"}), 400
 
     if order.get("delivery_otp_attempts", 0) >= 3:
         return jsonify({"error": "Too many failed attempts. Request new OTP."}), 429
@@ -225,7 +239,7 @@ def verify_delivery():
     complete_time_iso = datetime.utcnow().isoformat()
 
     result = orders_collection.update_one(
-        {"_id": obj_id, "pickup_verified": True, "delivered": False},
+        {"_id": obj_id},
         {
             "$set": {
                 "delivered": True,
@@ -236,10 +250,8 @@ def verify_delivery():
         }
     )
 
-    if result.modified_count == 0:
-        return jsonify({"error": "State transition failed or already delivered"}), 400
-
-    db["orderhistories"].insert_one({"order_id": order_id, "status": "DELIVERED", "timestamp": complete_time_iso, "created_at": datetime.utcnow()})
+    if not db["orderhistories"].find_one({"order_id": order_id, "status": "DELIVERED"}):
+        db["orderhistories"].insert_one({"order_id": order_id, "status": "DELIVERED", "timestamp": complete_time_iso, "created_at": datetime.utcnow()})
 
     return jsonify({
         "message": "Delivery and handover confirmed successfully",
@@ -255,29 +267,40 @@ def partner_available():
 
     check_and_expire_orders(db)
 
-    partner_lat = request.args.get("lat", type=float)
-    partner_lng = request.args.get("lng", type=float)
+    partner_phone = request.user.get("phone")
+    partner_user_id = request.user.get("sub")
 
-    orders = list(db["orders"].find({
-        "status": {"$in": ["CREATED", "MATCHING"]},
+    partner_profile = db["delivery_boy_schemas"].find_one({"$or": [{"user_id": partner_user_id}, {"phone": partner_phone}]})
+    partner_lat = partner_profile.get("partner_lat") if partner_profile else None
+    partner_lng = partner_profile.get("partner_lng") if partner_profile else None
+
+    query = {
+        "payment_status": "SUCCESS",
+        "status": "MATCHING",
         "$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]
-    }).sort("created_at", -1))
+    }
+    orders = list(db["orders"].find(query).sort("created_at", -1))
+
+    filtered_orders = []
+    for o in orders:
+        plat = o.get("pickup_lat", 12.9716)
+        plng = o.get("pickup_lng", 77.5946)
+
+        if partner_lat is not None and partner_lng is not None:
+            dist_km = haversine_km(plat, plng, partner_lat, partner_lng)
+            if dist_km <= 5.0:
+                o["distance_to_pickup_km"] = round(dist_km, 2)
+                filtered_orders.append(o)
+        else:
+            filtered_orders.append(o)
 
     if partner_lat is not None and partner_lng is not None:
-        def calc_dist(o):
-            plat = o.get("pickup_lat", 12.9716)
-            plng = o.get("pickup_lng", 77.5946)
-            dlat = math.radians(plat - partner_lat)
-            dlng = math.radians(plng - partner_lng)
-            a = math.sin(dlat/2)**2 + math.cos(math.radians(partner_lat)) * math.cos(math.radians(plat)) * math.sin(dlng/2)**2
-            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-            return 6371.0 * c
-        orders.sort(key=calc_dist)
+        filtered_orders.sort(key=lambda x: x.get("distance_to_pickup_km", 0.0))
 
-    for o in orders:
+    for o in filtered_orders:
         o["order_id"] = str(o["_id"])
         del o["_id"]
-    return jsonify({"requests": orders}), 200
+    return jsonify({"requests": filtered_orders}), 200
 
 @delivery_bp.route("/api/delivery/accept", methods=["POST"], endpoint="partner_accept")
 @token_required
@@ -290,6 +313,7 @@ def partner_accept():
     data = request.get_json(force=True, silent=True) or {}
     order_id = data.get("order_id")
     partner_phone = request.user.get("phone")
+    partner_user_id = request.user.get("sub")
 
     if not order_id:
         return jsonify({"error": "Missing order_id"}), 400
@@ -299,7 +323,6 @@ def partner_accept():
     except Exception:
         return jsonify({"error": "Invalid order ID"}), 400
 
-    # 1. Enforce max 1 active delivery per partner
     active_delivery = db["orders"].find_one({
         "assigned_partner": partner_phone,
         "delivered": False,
@@ -308,26 +331,34 @@ def partner_accept():
     if active_delivery:
         return jsonify({"error": "You already have an active delivery in progress. Complete it first."}), 400
 
-    # 2. Check order state and matching deadline
     order = db["orders"].find_one({"_id": obj_id})
     if not order:
         return jsonify({"error": "Order not found"}), 404
 
-    now_iso = datetime.utcnow().isoformat()
-    if order.get("status") in ["EXPIRED", "CANCELLED", "DELIVERED"]:
-        return jsonify({"error": "Order is no longer available"}), 400
+    if order.get("payment_status") != "SUCCESS" or order.get("status") != "MATCHING":
+        return jsonify({"error": "Order is not paid or no longer available for matching"}), 400
 
+    now_iso = datetime.utcnow().isoformat()
     deadline = order.get("acceptance_deadline_at")
     if deadline and deadline <= now_iso:
         db["orders"].update_one(
             {"_id": obj_id, "status": "MATCHING"},
-            {"$set": {"status": "EXPIRED", "refund_status": "refunded", "refunded_at": now_iso}}
+            {"$set": {"status": "EXPIRED", "refund_status": "demo_refunded"}}
         )
         return jsonify({"error": "Order matching deadline has expired"}), 400
 
-    # 3. Atomically assign order if still unassigned
+    partner_profile = db["delivery_boy_schemas"].find_one({"$or": [{"user_id": partner_user_id}, {"phone": partner_phone}]})
+    if partner_profile and partner_profile.get("partner_lat") is not None and partner_profile.get("partner_lng") is not None:
+        plat = partner_profile.get("partner_lat")
+        plng = partner_profile.get("partner_lng")
+        olats = order.get("pickup_lat", 12.9716)
+        olngs = order.get("pickup_lng", 77.5946)
+        dist_km = haversine_km(olats, olngs, plat, plng)
+        if dist_km > 5.0:
+            return jsonify({"error": f"You are {round(dist_km, 1)} km away from pickup. Only partners within 5 km can accept this request."}), 400
+
     result = db["orders"].update_one(
-        {"_id": obj_id, "status": {"$in": ["CREATED", "MATCHING"]}},
+        {"_id": obj_id, "status": "MATCHING", "payment_status": "SUCCESS"},
         {"$set": {
             "assigned_partner": partner_phone,
             "status": "ASSIGNED",
@@ -336,9 +367,10 @@ def partner_accept():
     )
 
     if result.modified_count == 0:
-        return jsonify({"error": "Order was already accepted by another partner"}), 400
+        return jsonify({"error": "Order was already accepted by another partner or is no longer available"}), 400
 
-    db["orderhistories"].insert_one({"order_id": order_id, "status": "ASSIGNED", "timestamp": now_iso, "created_at": datetime.utcnow()})
+    if not db["orderhistories"].find_one({"order_id": order_id, "status": "ASSIGNED"}):
+        db["orderhistories"].insert_one({"order_id": order_id, "status": "ASSIGNED", "timestamp": now_iso, "created_at": datetime.utcnow()})
 
     return jsonify({"message": "Order accepted successfully", "status": "ASSIGNED"}), 200
 
