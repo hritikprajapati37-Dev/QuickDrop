@@ -12,6 +12,7 @@ public class UserSession {
     private static final String KEY_EMAIL = "user_email";
     private static final String KEY_ROLE = "user_role";
     private static final String KEY_TOKEN = "auth_token";
+    private static final String KEY_LAST_PICKUP_ADDRESS = "last_pickup_address";
 
     private static SharedPreferences getEncryptedPrefs(Context context) {
         try {
@@ -72,5 +73,15 @@ public class UserSession {
     public static boolean isLoggedIn(Context context) {
         String token = getToken(context);
         return token != null && !token.isEmpty();
+    }
+
+    public static void setLastPickupAddress(Context context, String address) {
+        SharedPreferences.Editor editor = getEncryptedPrefs(context).edit();
+        editor.putString(KEY_LAST_PICKUP_ADDRESS, address);
+        editor.apply();
+    }
+
+    public static String getLastPickupAddress(Context context) {
+        return getEncryptedPrefs(context).getString(KEY_LAST_PICKUP_ADDRESS, "");
     }
 }

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -29,6 +30,7 @@ import com.example.quick_drop.utils.UserSession;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -51,6 +53,7 @@ public class CreateDeliveryFragment extends Fragment {
     private double currentLat = 12.9716;
     private double currentLng = 77.5946;
     private String pickupAddressStr = "";
+    private String idempotencyKey = java.util.UUID.randomUUID().toString();
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
 
     @Nullable
@@ -86,22 +89,61 @@ public class CreateDeliveryFragment extends Fragment {
             tilDeliveryAddress.setEndIconOnClickListener(v -> showLocationPickerOptions());
         }
 
-        // Initially empty until loaded from past orders or user taps current location
-        if (tvPickupPrimary != null) tvPickupPrimary.setText("No pickup location selected");
-        if (tvPickupSecondary != null) tvPickupSecondary.setText("Tap 'Use Current Location' below");
-
-        loadPastPickupAddress();
+        // Check if user has a last-used pickup address saved in UserSession
+        String lastAddress = UserSession.getLastPickupAddress(requireContext());
+        if (lastAddress != null && !lastAddress.isEmpty()) {
+            pickupAddressStr = lastAddress;
+            if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
+            if (tvPickupSecondary != null) tvPickupSecondary.setText("Default (Last used address)");
+        } else {
+            if (tvPickupPrimary != null) tvPickupPrimary.setText("No pickup location selected");
+            if (tvPickupSecondary != null) tvPickupSecondary.setText("Tap 'Use Current Location' or 'Enter Manually'");
+            loadPastPickupAddress();
+        }
 
         MaterialButton btnUseCurrentLocation = view.findViewById(R.id.btnUseCurrentLocation);
         if (btnUseCurrentLocation != null) {
             btnUseCurrentLocation.setOnClickListener(v -> checkGpsAndFetchLocation());
         }
 
+        MaterialButton btnEnterManualPickup = view.findViewById(R.id.btnEnterManualPickup);
+        if (btnEnterManualPickup != null) {
+            btnEnterManualPickup.setOnClickListener(v -> showManualPickupDialog());
+        }
+
         view.findViewById(R.id.btnNext).setOnClickListener(this::submitOrder);
     }
 
+    private void showManualPickupDialog() {
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_manual_address, null);
+        EditText etManualAddress = dialogView.findViewById(R.id.etManualAddress);
+        if (etManualAddress != null && !pickupAddressStr.isEmpty() && !pickupAddressStr.contains("No pickup")) {
+            etManualAddress.setText(pickupAddressStr);
+        }
+
+        new MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Enter Pickup Address Manually")
+            .setView(dialogView)
+            .setPositiveButton("Save", (dialog, which) -> {
+                if (etManualAddress != null) {
+                    String manualStr = etManualAddress.getText().toString().trim();
+                    if (!manualStr.isEmpty()) {
+                        pickupAddressStr = manualStr;
+                        UserSession.setLastPickupAddress(requireContext(), pickupAddressStr);
+                        if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
+                        if (tvPickupSecondary != null) tvPickupSecondary.setText("Manually entered address");
+                        Toast.makeText(getContext(), "Pickup address updated successfully!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Address cannot be empty", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
     private void showLocationPickerOptions() {
-        CharSequence[] options = new CharSequence[]{"Type Address Manually", "Pick Location on Map"};
+        CharSequence[] options = new CharSequence[]{"Type Delivery Address Manually", "Pick Location on Map"};
         new MaterialAlertDialogBuilder(requireContext())
             .setTitle("Select Delivery Location Method")
             .setItems(options, (dialog, which) -> {
@@ -229,9 +271,12 @@ public class CreateDeliveryFragment extends Fragment {
                         if (latestOrder != null) {
                             String pastPickup = latestOrder.optString("pickup_address", "");
                             if (!pastPickup.isEmpty() && !pastPickup.contains("No pickup")) {
-                                pickupAddressStr = pastPickup;
-                                if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
-                                if (tvPickupSecondary != null) tvPickupSecondary.setText("From your previous order");
+                                if (pickupAddressStr.isEmpty() || pickupAddressStr.contains("No pickup")) {
+                                    pickupAddressStr = pastPickup;
+                                    UserSession.setLastPickupAddress(requireContext(), pickupAddressStr);
+                                    if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
+                                    if (tvPickupSecondary != null) tvPickupSecondary.setText("From your previous order");
+                                }
                                 currentLat = latestOrder.optDouble("pickup_lat", 12.9716);
                                 currentLng = latestOrder.optDouble("pickup_lng", 77.5946);
                             }
@@ -303,6 +348,8 @@ public class CreateDeliveryFragment extends Fragment {
                 pickupAddressStr = "GPS Location (" + String.format(Locale.getDefault(), "%.4f", lat) + ", " + String.format(Locale.getDefault(), "%.4f", lng) + ")";
             }
 
+            UserSession.setLastPickupAddress(requireContext(), pickupAddressStr);
+
             if (tvPickupPrimary != null) {
                 tvPickupPrimary.setText(pickupAddressStr);
             }
@@ -312,6 +359,7 @@ public class CreateDeliveryFragment extends Fragment {
             Toast.makeText(getContext(), "Current location set as pickup!", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             pickupAddressStr = "GPS Location (" + lat + ", " + lng + ")";
+            UserSession.setLastPickupAddress(requireContext(), pickupAddressStr);
             if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
             if (tvPickupSecondary != null) tvPickupSecondary.setText("Lat: " + lat + ", Lng: " + lng);
             Toast.makeText(getContext(), "Current location captured successfully!", Toast.LENGTH_SHORT).show();
@@ -359,6 +407,9 @@ public class CreateDeliveryFragment extends Fragment {
         if (hasError) {
             return;
         }
+
+        // Save last used pickup address
+        UserSession.setLastPickupAddress(requireContext(), pickupAddressStr);
 
         // 1. Geocode pickupAddressStr to resolve true pickup coordinates
         double pickupLat = currentLat;
