@@ -357,7 +357,16 @@ def orders_list():
     phone = request.user.get("phone")
     role = request.user.get("role", "SENDER")
     if role == "SENDER":
-        query = {"sender_phone": phone}
+        # Senders see their paid, active, completed, or expired orders, or recent drafts within 30 mins
+        thirty_mins_ago = datetime.utcnow() - timedelta(minutes=30)
+        query = {
+            "sender_phone": phone,
+            "$or": [
+                {"payment_status": "SUCCESS"},
+                {"status": {"$in": ["MATCHING", "ASSIGNED", "PICKED_UP", "IN_TRANSIT", "DELIVERED", "EXPIRED", "CANCELLED"]}},
+                {"created_at": {"$gte": thirty_mins_ago}}
+            ]
+        }
     elif role == "PARTNER":
         query = {"$or": [{"assigned_partner": phone}, {"payment_status": "SUCCESS", "status": "MATCHING", "$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]}]}
     else:
@@ -419,7 +428,15 @@ def user_dashboard():
             name = partner.get("name", "Partner")
 
     if role == "SENDER":
-        query = {"sender_phone": phone}
+        thirty_mins_ago = datetime.utcnow() - timedelta(minutes=30)
+        query = {
+            "sender_phone": phone,
+            "$or": [
+                {"payment_status": "SUCCESS"},
+                {"status": {"$in": ["MATCHING", "ASSIGNED", "PICKED_UP", "IN_TRANSIT", "DELIVERED", "EXPIRED", "CANCELLED"]}},
+                {"created_at": {"$gte": thirty_mins_ago}}
+            ]
+        }
     elif role == "PARTNER":
         query = {"$or": [{"assigned_partner": phone}, {"payment_status": "SUCCESS", "status": "MATCHING", "$or": [{"assigned_partner": None}, {"assigned_partner": {"$exists": False}}]}]}
     else:
