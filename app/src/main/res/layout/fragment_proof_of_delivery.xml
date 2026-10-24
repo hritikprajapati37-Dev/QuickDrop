@@ -19,16 +19,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="@color/vf_primary">
-
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/back"
-                app:srcCompat="@drawable/ic_arrow_back"
-                app:tint="@color/vf_primary" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -54,14 +46,6 @@
                     android:textColor="@color/vf_on_surface_variant" />
             </LinearLayout>
 
-            <ImageButton
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="end"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                app:srcCompat="@drawable/ic_bell"
-                app:tint="@color/vf_primary" />
         </com.google.android.material.appbar.MaterialToolbar>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -71,42 +55,25 @@
             android:paddingBottom="12dp">
 
             <TextView
+                android:id="@+id/tvHeaderOrderNum"
                 style="@style/Stitch.Typography.BodyMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="#QD-9284"
+                android:text="#Order"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnArrivedDestination"
+                style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/shape_pill_white"
-                android:backgroundTint="@color/vf_secondary_container"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
+                android:layout_height="36dp"
+                android:text="Arrived at Destination"
+                android:textSize="12sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@drawable/shape_circle_white"
-                    android:backgroundTint="@color/vf_secondary" />
-
-                <TextView
-                    style="@style/Stitch.Typography.LabelMedium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:text="Arrived at Destination"
-                    android:textAllCaps="false"
-                    android:textColor="@color/vf_secondary" />
-            </LinearLayout>
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <View
@@ -170,7 +137,7 @@
                             style="@style/Stitch.Typography.BodyLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Rahul Sharma"
+                            android:text="Receiver"
                             android:textStyle="bold" />
 
                         <TextView
@@ -178,7 +145,7 @@
                             style="@style/Stitch.Typography.BodyMedium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="+91 XXXXX XXXXX" />
+                            android:text="" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -211,42 +178,13 @@
                     app:tint="@color/vf_primary" />
 
                 <TextView
+                    android:id="@+id/tvSummaryDesc"
                     style="@style/Stitch.Typography.BodyMedium"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:text="Document Express  0.5 kg"
-                    android:textStyle="bold" />
-
-                <TextView
-                    style="@style/Stitch.Typography.BodyMedium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="#QD-9284"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/stitch_lg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    app:srcCompat="@drawable/ic_verified"
-                    app:tint="@color/vf_primary" />
-
-                <TextView
-                    style="@style/Stitch.Typography.LabelMedium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="VERIFICATION"
-                    android:textColor="@color/vf_primary"
+                    android:text="Package"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -270,208 +208,39 @@
                         style="@style/Stitch.Typography.BodyLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Receiver OTP"
+                        android:text="Receiver Delivery OTP Verification"
                         android:textStyle="bold" />
 
-                    <LinearLayout
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/stitch_md"
-                        android:gravity="center"
-                        android:orientation="horizontal">
+                        android:hint="Enter 6-Digit Delivery OTP"
+                        app:boxBackgroundColor="#F8F9FF"
+                        app:boxStrokeColor="@color/vf_primary"
+                        app:boxStrokeWidth="1dp">
 
-                        <EditText
-                            android:layout_width="56dp"
-                            android:layout_height="64dp"
-                            android:layout_margin="4dp"
-                            android:background="@drawable/shape_pill_white"
-                            android:backgroundTint="#F8F9FF"
-                            android:gravity="center"
-                            android:inputType="number"
-                            android:maxLength="1"
-                            android:text="."
-                            android:textColor="@color/vf_primary"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-
-                        <EditText
-                            android:layout_width="56dp"
-                            android:layout_height="64dp"
-                            android:layout_margin="4dp"
-                            android:background="@drawable/shape_pill_white"
-                            android:backgroundTint="#F8F9FF"
-                            android:gravity="center"
-                            android:inputType="number"
-                            android:maxLength="1"
-                            android:text="."
-                            android:textColor="@color/vf_primary"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-
-                        <EditText
-                            android:layout_width="56dp"
-                            android:layout_height="64dp"
-                            android:layout_margin="4dp"
-                            android:background="@drawable/shape_pill_white"
-                            android:backgroundTint="#F8F9FF"
-                            android:gravity="center"
-                            android:inputType="number"
-                            android:maxLength="1"
-                            android:text="."
-                            android:textColor="@color/vf_primary"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-
-                        <EditText
-                            android:layout_width="56dp"
-                            android:layout_height="64dp"
-                            android:layout_margin="4dp"
-                            android:background="@drawable/shape_pill_white"
-                            android:backgroundTint="#F8F9FF"
-                            android:gravity="center"
-                            android:inputType="number"
-                            android:maxLength="1"
-                            android:text="."
-                            android:textColor="@color/vf_primary"
-                            android:textSize="24sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/stitch_md"
-                        android:background="@drawable/shape_pill_white"
-                        android:backgroundTint="#EAF9F1"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="8dp">
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            app:srcCompat="@drawable/ic_check_circle"
-                            app:tint="@color/vf_secondary" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyMedium"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:text="OTP Verified"
-                            android:textColor="@color/vf_secondary"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Delivery Photo Card -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Stitch.Card.Level1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/stitch_md"
-                app:cardBackgroundColor="@color/white"
-                app:strokeWidth="0.5dp"
-                app:strokeColor="@color/vf_surface_container">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/stitch_md">
-
-                    <TextView
-                        style="@style/Stitch.Typography.BodyLarge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Delivery Photo"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp"
-                        android:layout_marginTop="@dimen/stitch_md"
-                        android:background="@drawable/shape_dashed_rect"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            app:srcCompat="@drawable/ic_check_circle"
-                            app:tint="@color/vf_secondary" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyLarge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Photo Added"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            style="@style/Stitch.Typography.BodyMedium"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Change Photo"
-                            android:textColor="@color/vf_primary"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Signature Card -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Stitch.Card.Level1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/stitch_md"
-                app:cardBackgroundColor="@color/white"
-                app:strokeWidth="0.5dp"
-                app:strokeColor="@color/vf_surface_container">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/stitch_md">
-
-                    <TextView
-                        style="@style/Stitch.Typography.BodyLarge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Receiver Signature"
-                        android:textStyle="bold" />
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="140dp"
-                        android:layout_marginTop="@dimen/stitch_md"
-                        android:background="@drawable/shape_rounded_md"
-                        android:backgroundTint="#F8F9FF">
-
-                        <View
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDeliveryOtp"
                             android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_gravity="bottom"
-                            android:layout_marginHorizontal="20dp"
-                            android:layout_marginBottom="40dp"
-                            android:background="@color/vf_outline_variant" />
-
-                        <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.TextButton"
-                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="bottom|end"
-                            android:layout_margin="8dp"
-                            android:text="Clear"
-                            android:textColor="@color/vf_primary"
-                            android:textStyle="bold"
-                            android:backgroundTint="#D1E4FF"
-                            app:cornerRadius="8dp" />
-                    </FrameLayout>
+                            android:gravity="center"
+                            android:inputType="number"
+                            android:letterSpacing="0.2"
+                            android:maxLength="6"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        style="@style/Stitch.Typography.BodyMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Ask the receiver or sender for the 6-digit Delivery OTP upon handover."
+                        android:textColor="@color/vf_on_surface_variant"
+                        android:textSize="12sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -507,6 +276,7 @@
                         android:orientation="horizontal">
 
                         <TextView
+                            android:id="@+id/btnHandedRecipient"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
@@ -518,6 +288,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/btnHandedDoor"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
@@ -526,6 +297,7 @@
                             android:textColor="@color/vf_on_surface_variant" />
 
                         <TextView
+                            android:id="@+id/btnHandedReception"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
@@ -567,7 +339,7 @@
                         android:background="@drawable/shape_rounded_md"
                         android:backgroundTint="#F8F9FF"
                         android:gravity="top"
-                        android:hint="e.g. Left with security guard"
+                        android:hint="e.g. Handed to recipient at front door"
                         android:padding="@dimen/stitch_md"
                         android:textSize="14sp" />
                 </LinearLayout>
