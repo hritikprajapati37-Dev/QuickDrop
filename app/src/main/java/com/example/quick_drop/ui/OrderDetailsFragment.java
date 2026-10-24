@@ -1,11 +1,15 @@
 package com.example.quick_drop.ui;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -25,9 +29,10 @@ import java.util.TimeZone;
 public class OrderDetailsFragment extends Fragment {
 
     private TextView tvOrderID, tvStatusBadge, tvPickupAddress, tvDestName, tvDestPhone, tvDropAddress, tvPartnerName, tvItemType, tvItemWeight, tvPaymentAmount, tvPaymentStatus;
-    private TextView tvTime1, tvTime2, tvTime3;
+    private TextView tvTime1, tvTime2, tvTime3, tvPickupOtpValue;
     private ImageView ivIcon1, ivIcon2, ivIcon3;
-    private MaterialButton btnFeedback;
+    private View cardPickupOtp;
+    private MaterialButton btnFeedback, btnCopyOtp;
 
     @Nullable
     @Override
@@ -64,6 +69,10 @@ public class OrderDetailsFragment extends Fragment {
         ivIcon1 = view.findViewById(R.id.ivIcon1);
         ivIcon2 = view.findViewById(R.id.ivIcon2);
         ivIcon3 = view.findViewById(R.id.ivIcon3);
+
+        cardPickupOtp = view.findViewById(R.id.cardPickupOtp);
+        tvPickupOtpValue = view.findViewById(R.id.tvPickupOtp);
+        btnCopyOtp = view.findViewById(R.id.btnCopyOtp);
 
         btnFeedback = view.findViewById(R.id.btnGiveFeedback);
 
@@ -164,6 +173,47 @@ public class OrderDetailsFragment extends Fragment {
 
         if (tvPartnerName != null) {
             tvPartnerName.setText(hasAssignedPartner ? "Partner: " + partner : "Waiting for a delivery partner");
+        }
+
+        // Handle Pickup OTP display for Sender when pickup is pending
+        String pickupOtp = order.optString("pickup_otp", "");
+        if (pickupOtp.isEmpty() || "null".equalsIgnoreCase(pickupOtp)) {
+            pickupOtp = order.optString("pickup_otp_plain", "");
+        }
+
+        boolean showOtpCard = !pickupVerified && !delivered &&
+                !pickupOtp.isEmpty() && !"null".equalsIgnoreCase(pickupOtp) &&
+                ("ASSIGNED".equalsIgnoreCase(status) || "ARRIVED_PICKUP".equalsIgnoreCase(status) ||
+                 "MATCHING".equalsIgnoreCase(status) || "CREATED".equalsIgnoreCase(status));
+
+        if (cardPickupOtp != null) {
+            if (showOtpCard) {
+                cardPickupOtp.setVisibility(View.VISIBLE);
+                if (tvPickupOtpValue != null) {
+                    if (pickupOtp.length() == 6) {
+                        tvPickupOtpValue.setText(pickupOtp.substring(0, 3) + " " + pickupOtp.substring(3));
+                    } else {
+                        tvPickupOtpValue.setText(pickupOtp);
+                    }
+                }
+                final String copyOtpVal = pickupOtp;
+                if (btnCopyOtp != null) {
+                    btnCopyOtp.setOnClickListener(v -> {
+                        try {
+                            ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                            ClipData clip = ClipData.newPlainText("Pickup OTP", copyOtpVal);
+                            if (clipboard != null) {
+                                clipboard.setPrimaryClip(clip);
+                                Toast.makeText(getContext(), "Pickup OTP copied: " + copyOtpVal, Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(getContext(), "OTP: " + copyOtpVal, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            } else {
+                cardPickupOtp.setVisibility(View.GONE);
+            }
         }
 
         if (tvItemType != null) tvItemType.setText(order.optString("item_description", "Package"));
