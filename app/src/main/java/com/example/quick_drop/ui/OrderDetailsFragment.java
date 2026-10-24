@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,8 +24,10 @@ import java.util.TimeZone;
 
 public class OrderDetailsFragment extends Fragment {
 
-    private TextView tvOrderID, tvPickupAddress, tvDestName, tvDestPhone, tvDropAddress, tvPartnerName, tvItemType, tvItemWeight, tvPaymentAmount, tvPaymentStatus;
+    private TextView tvOrderID, tvStatusBadge, tvPickupAddress, tvDestName, tvDestPhone, tvDropAddress, tvPartnerName, tvItemType, tvItemWeight, tvPaymentAmount, tvPaymentStatus;
     private TextView tvTime1, tvTime2, tvTime3;
+    private ImageView ivIcon1, ivIcon2, ivIcon3;
+    private MaterialButton btnFeedback;
 
     @Nullable
     @Override
@@ -43,6 +46,7 @@ public class OrderDetailsFragment extends Fragment {
         }
 
         tvOrderID = view.findViewById(R.id.tvOrderID);
+        tvStatusBadge = view.findViewById(R.id.tvStatusBadge);
         tvPickupAddress = view.findViewById(R.id.tvPickupAddress);
         tvDestName = view.findViewById(R.id.tvDestName);
         tvDestPhone = view.findViewById(R.id.tvDestPhone);
@@ -57,13 +61,21 @@ public class OrderDetailsFragment extends Fragment {
         tvTime2 = view.findViewById(R.id.tvTime2);
         tvTime3 = view.findViewById(R.id.tvTime3);
 
+        ivIcon1 = view.findViewById(R.id.ivIcon1);
+        ivIcon2 = view.findViewById(R.id.ivIcon2);
+        ivIcon3 = view.findViewById(R.id.ivIcon3);
+
+        btnFeedback = view.findViewById(R.id.btnGiveFeedback);
+
         String orderId = getArguments() != null ? getArguments().getString("order_id", "") : "";
         loadOrderDetails(orderId);
 
-        MaterialButton btnFeedback = view.findViewById(R.id.btnGiveFeedback);
         if (btnFeedback != null) {
-            btnFeedback.setOnClickListener(v -> 
-                Navigation.findNavController(v).navigate(R.id.feedbackFragment));
+            btnFeedback.setOnClickListener(v -> {
+                Bundle args = new Bundle();
+                args.putString("order_id", orderId);
+                Navigation.findNavController(v).navigate(R.id.feedbackFragment, args);
+            });
         }
     }
 
@@ -111,10 +123,33 @@ public class OrderDetailsFragment extends Fragment {
     }
 
     private void bindOrderData(JSONObject order) {
+        if (order == null) return;
+
         String orderId = order.optString("order_id", "");
         String sId = orderId;
         if (sId.length() > 6) sId = sId.substring(sId.length() - 6);
         if (tvOrderID != null) tvOrderID.setText("Order #" + sId);
+
+        String status = order.optString("status", "CREATED");
+        String paymentStatus = order.optString("payment_status", "PENDING");
+        boolean pickupVerified = order.optBoolean("pickup_verified", false);
+        boolean delivered = order.optBoolean("delivered", false);
+
+        if (tvStatusBadge != null) {
+            if (delivered || "DELIVERED".equalsIgnoreCase(status)) {
+                tvStatusBadge.setText("DELIVERED");
+            } else if (pickupVerified || "PICKED_UP".equalsIgnoreCase(status) || "IN_TRANSIT".equalsIgnoreCase(status)) {
+                tvStatusBadge.setText("OUT FOR DELIVERY");
+            } else if ("ASSIGNED".equalsIgnoreCase(status) || "ARRIVED_PICKUP".equalsIgnoreCase(status)) {
+                tvStatusBadge.setText("PARTNER ASSIGNED");
+            } else if ("MATCHING".equalsIgnoreCase(status) || "SUCCESS".equalsIgnoreCase(paymentStatus)) {
+                tvStatusBadge.setText("SEARCHING PARTNER");
+            } else if ("EXPIRED".equalsIgnoreCase(status) || "REFUNDED".equalsIgnoreCase(status) || "DRAFT_EXPIRED".equalsIgnoreCase(status)) {
+                tvStatusBadge.setText("EXPIRED");
+            } else {
+                tvStatusBadge.setText(status);
+            }
+        }
 
         if (tvPickupAddress != null) tvPickupAddress.setText(order.optString("pickup_address", ""));
         if (tvDestName != null) tvDestName.setText("Receiver");
@@ -122,8 +157,13 @@ public class OrderDetailsFragment extends Fragment {
         if (tvDropAddress != null) tvDropAddress.setText(order.optString("delivery_address", ""));
 
         String partner = order.optString("assigned_partner", "");
+        boolean hasAssignedPartner = !partner.isEmpty() && !"null".equalsIgnoreCase(partner) &&
+                ("ASSIGNED".equalsIgnoreCase(status) || "ARRIVED_PICKUP".equalsIgnoreCase(status) ||
+                 "PICKED_UP".equalsIgnoreCase(status) || "IN_TRANSIT".equalsIgnoreCase(status) ||
+                 "DELIVERED".equalsIgnoreCase(status));
+
         if (tvPartnerName != null) {
-            tvPartnerName.setText(partner == null || partner.isEmpty() || "null".equals(partner) ? "Unassigned Partner" : partner);
+            tvPartnerName.setText(hasAssignedPartner ? "Partner: " + partner : "Waiting for a delivery partner");
         }
 
         if (tvItemType != null) tvItemType.setText(order.optString("item_description", "Package"));
@@ -134,7 +174,6 @@ public class OrderDetailsFragment extends Fragment {
             tvPaymentAmount.setText(String.format(Locale.getDefault(), "₹%.2f", totalAmount));
         }
 
-        String paymentStatus = order.optString("payment_status", "PENDING");
         if (tvPaymentStatus != null) {
             tvPaymentStatus.setText(paymentStatus);
         }
@@ -144,8 +183,25 @@ public class OrderDetailsFragment extends Fragment {
         String completeTime = order.optString("complete_order_time", "");
 
         if (tvTime1 != null) tvTime1.setText(formatStoredTime(orderTime));
-        if (tvTime2 != null) tvTime2.setText(formatStoredTime(pickupTime));
-        if (tvTime3 != null) tvTime3.setText(formatStoredTime(completeTime));
+        if (tvTime2 != null) tvTime2.setText(pickupVerified ? formatStoredTime(pickupTime) : "Pending");
+        if (tvTime3 != null) tvTime3.setText(delivered ? formatStoredTime(completeTime) : "Pending");
+
+        int checkedRes = R.drawable.ic_timeline_checked;
+        int pendingRes = R.drawable.ic_timeline_pending;
+
+        if (ivIcon1 != null) {
+            ivIcon1.setImageResource("SUCCESS".equalsIgnoreCase(paymentStatus) || !"CREATED".equalsIgnoreCase(status) ? checkedRes : pendingRes);
+        }
+        if (ivIcon2 != null) {
+            ivIcon2.setImageResource((pickupVerified || "PICKED_UP".equalsIgnoreCase(status) || "IN_TRANSIT".equalsIgnoreCase(status) || "DELIVERED".equalsIgnoreCase(status)) ? checkedRes : pendingRes);
+        }
+        if (ivIcon3 != null) {
+            ivIcon3.setImageResource((delivered || "DELIVERED".equalsIgnoreCase(status)) ? checkedRes : pendingRes);
+        }
+
+        if (btnFeedback != null) {
+            btnFeedback.setVisibility((delivered || "DELIVERED".equalsIgnoreCase(status)) ? View.VISIBLE : View.GONE);
+        }
     }
 
     private String formatStoredTime(String isoTime) {
@@ -155,7 +211,7 @@ public class OrderDetailsFragment extends Fragment {
         try {
             String cleanIso = isoTime.replace("Z", "");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // Parse stored UTC database timestamp
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date date;
             try {
                 date = sdf.parse(cleanIso);
@@ -166,7 +222,7 @@ public class OrderDetailsFragment extends Fragment {
             }
             if (date != null) {
                 SimpleDateFormat timeSdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
-                timeSdf.setTimeZone(TimeZone.getDefault()); // Convert to user's local timezone (e.g. IST)
+                timeSdf.setTimeZone(TimeZone.getDefault());
                 return timeSdf.format(date);
             }
         } catch (Exception ignored) {}
