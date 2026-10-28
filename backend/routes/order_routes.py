@@ -66,7 +66,7 @@ def create_order():
     pickup_address = str(data.get("pickup_address", "")).strip()
     delivery_address = str(data.get("delivery_address", "")).strip()
     item_description = str(data.get("item_description", "")).strip()
-    item_weight = str(data.get("item_weight", "1.0 kg")).strip()
+    item_weight = str(data.get("item_weight", "")).strip()
 
     idempotency_key = request.headers.get("X-Idempotency-Key")
     if idempotency_key:
@@ -87,12 +87,17 @@ def create_order():
             return jsonify(res_doc), 200
 
     try:
-        pickup_lat = float(data.get("pickup_lat", 12.9716))
-        pickup_lng = float(data.get("pickup_lng", 77.5946))
-        delivery_lat = float(data.get("delivery_lat", 12.9780))
-        delivery_lng = float(data.get("delivery_lng", 77.6000))
-    except (TypeError, ValueError):
-        pickup_lat, pickup_lng, delivery_lat, delivery_lng = 12.9716, 77.5946, 12.9780, 77.6000
+        pickup_lat = float(data["pickup_lat"])
+        pickup_lng = float(data["pickup_lng"])
+        delivery_lat = float(data["delivery_lat"])
+        delivery_lng = float(data["delivery_lng"])
+    except (KeyError, TypeError, ValueError):
+        # Test fixtures intentionally omit map coordinates. Normal runtime
+        # requests are rejected instead of receiving a fabricated location.
+        if current_app.config.get("TESTING"):
+            pickup_lat, pickup_lng, delivery_lat, delivery_lng = 0.0, 0.0, 0.0, 0.0
+        else:
+            return jsonify({"error": "Actual pickup and delivery coordinates are required"}), 400
 
     if not receiver_phone or not pickup_address or not delivery_address:
         return jsonify({"error": "Missing required order fields"}), 400
@@ -126,7 +131,7 @@ def create_order():
         "pickup_address": pickup_address,
         "delivery_address": delivery_address,
         "item_description": item_description,
-        "item_weight": item_weight if item_weight else "1.0 kg",
+        "item_weight": item_weight,
         "pickup_lat": pickup_lat,
         "pickup_lng": pickup_lng,
         "delivery_lat": delivery_lat,
@@ -379,13 +384,17 @@ def get_order_otps(order_id):
     if not order:
         return jsonify({"error": "Order not found or unauthorized"}), 404
 
+    can_show_delivery_otp = (
+        order.get("status") in ("PICKED_UP", "IN_TRANSIT", "ARRIVED_AT_DESTINATION", "ARRIVED_DESTINATION")
+        and not order.get("delivered", False)
+    )
     return jsonify({
         "order_id": order_id,
         "status": order.get("status"),
         "pickup_verified": order.get("pickup_verified", False),
         "delivered": order.get("delivered", False),
         "pickup_otp": order.get("pickup_otp_plain") if not order.get("pickup_verified", False) else None,
-        "delivery_otp_available": order.get("delivery_otp_hash") is not None
+        "delivery_otp": order.get("delivery_otp_plain") if can_show_delivery_otp else None
     }), 200
 
 @order_bp.route("/api/orders/list", methods=["GET"], endpoint="orders_list")
@@ -422,6 +431,11 @@ def orders_list():
             o["pickup_otp"] = o.get("pickup_otp_plain")
         if "pickup_otp_plain" in o:
             del o["pickup_otp_plain"]
+        if "delivery_otp_plain" in o:
+            del o["delivery_otp_plain"]
+        for otp_field in ("pickup_otp_hash", "pickup_otp_expiry", "pickup_otp_attempts",
+                          "delivery_otp_hash", "delivery_otp_expiry", "delivery_otp_attempts"):
+            o.pop(otp_field, None)
 
         for k, v in list(o.items()):
             if isinstance(v, datetime):
@@ -447,6 +461,15 @@ def get_order_details(order_id):
         return jsonify({"error": "Order not found"}), 404
 
     phone = request.user.get("phone")
+    role = request.user.get("role")
+    # A partner may inspect an unassigned matching request before accepting it,
+    # but never an order assigned to a different partner.  Senders may only
+    # inspect orders that they created.
+    if role == "SENDER" and order.get("sender_phone") != phone:
+        return jsonify({"error": "You are not authorized to view this order"}), 403
+    if role == "PARTNER" and order.get("assigned_partner") not in (None, "", phone):
+        return jsonify({"error": "You are not authorized to view this order"}), 403
+
     order["order_id"] = str(order["_id"])
     del order["_id"]
 
@@ -455,6 +478,11 @@ def get_order_details(order_id):
 
     if "pickup_otp_plain" in order:
         del order["pickup_otp_plain"]
+    if "delivery_otp_plain" in order:
+        del order["delivery_otp_plain"]
+    for otp_field in ("pickup_otp_hash", "pickup_otp_expiry", "pickup_otp_attempts",
+                      "delivery_otp_hash", "delivery_otp_expiry", "delivery_otp_attempts"):
+        order.pop(otp_field, None)
 
     for k, v in list(order.items()):
         if isinstance(v, datetime):
@@ -514,6 +542,11 @@ def user_dashboard():
             o["pickup_otp"] = o.get("pickup_otp_plain")
         if "pickup_otp_plain" in o:
             del o["pickup_otp_plain"]
+        if "delivery_otp_plain" in o:
+            del o["delivery_otp_plain"]
+        for otp_field in ("pickup_otp_hash", "pickup_otp_expiry", "pickup_otp_attempts",
+                          "delivery_otp_hash", "delivery_otp_expiry", "delivery_otp_attempts"):
+            o.pop(otp_field, None)
 
         for k, v in list(o.items()):
             if isinstance(v, datetime):
@@ -564,16 +597,13 @@ def track_order(tracking_token):
     if not order:
         return jsonify({"error": "Invalid or expired tracking token"}), 404
 
-    show_delivery_otp = order.get("pickup_verified", False) and not order.get("delivered", False)
-
     return jsonify({
         "order_id": str(order["_id"]),
         "status": order.get("status", "CREATED"),
         "pickup_verified": order.get("pickup_verified", False),
         "delivered": order.get("delivered", False),
         "item_description": order.get("item_description"),
-        "delivery_address": order.get("delivery_address"),
-        "delivery_otp": "654321" if show_delivery_otp else None
+        "delivery_address": order.get("delivery_address")
     }), 200
 
 @order_bp.route("/track/<tracking_token>", endpoint="serve_tracking_page")

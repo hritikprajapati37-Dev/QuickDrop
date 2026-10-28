@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.quick_drop.R;
@@ -32,7 +33,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -50,9 +50,10 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
     private MaterialButton btnCopyTrackingOtp;
     private Marker partnerMarker;
     private LatLng currentPartnerLatLng;
+    private String orderId = "";
 
-    private double pickupLat = 12.9716, pickupLng = 77.5946;
-    private double deliveryLat = 12.9352, deliveryLng = 77.6245;
+    private double pickupLat = Double.NaN, pickupLng = Double.NaN;
+    private double deliveryLat = Double.NaN, deliveryLng = Double.NaN;
 
     private final Handler pollHandler = new Handler(Looper.getMainLooper());
     private final Runnable pollRunnable = new Runnable() {
@@ -83,8 +84,10 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> 
-            Navigation.findNavController(v).navigateUp());
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+        }
 
         tvHeaderOrderNum = view.findViewById(R.id.tvHeaderOrderNum);
         tvStatusBadge = view.findViewById(R.id.tvStatusBadge);
@@ -105,7 +108,14 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
         tvTrackingOtpSubtitle = view.findViewById(R.id.tvTrackingOtpSubtitle);
         btnCopyTrackingOtp = view.findViewById(R.id.btnCopyTrackingOtp);
 
-        loadTrackingData();
+        if (getArguments() != null) {
+            orderId = getArguments().getString("order_id", "");
+        }
+        if (orderId.isEmpty()) {
+            showOrderUnavailable();
+        } else {
+            loadTrackingData();
+        }
 
         BottomNavigationView bottomNav = view.findViewById(R.id.bottom_navigation);
         if (bottomNav != null) {
@@ -152,6 +162,7 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
     private void updateMapMarkers() {
         if (googleMap == null) return;
 
+        if (!hasValidRouteCoordinates()) return;
         LatLng pickup = new LatLng(pickupLat, pickupLng);
         LatLng delivery = new LatLng(deliveryLat, deliveryLng);
 
@@ -234,21 +245,21 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
 
     private void loadTrackingData() {
         String token = UserSession.getToken(requireContext());
-        if (token.isEmpty()) return;
+        if (token.isEmpty() || orderId.isEmpty()) {
+            showOrderUnavailable();
+            return;
+        }
 
-        ApiClient.getOrdersList(token, new ApiClient.ApiCallback() {
+        ApiClient.getOrderDetails(token, orderId, new ApiClient.ApiCallback() {
             @Override
-            public void onSuccess(JSONObject response) {
+            public void onSuccess(JSONObject order) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    JSONArray orders = response.optJSONArray("orders");
-                    if (orders != null && orders.length() > 0) {
-                        JSONObject order = orders.optJSONObject(0);
-                        if (order != null) {
-                            String orderId = order.optString("order_id", "");
-                            String shortId = orderId;
-                            if (shortId.length() > 6) shortId = shortId.substring(shortId.length() - 6);
-                            if (tvHeaderOrderNum != null) tvHeaderOrderNum.setText("Order #" + shortId);
+                    if (order != null) {
+                        String responseOrderId = order.optString("order_id", "");
+                        String shortId = responseOrderId;
+                        if (shortId.length() > 6) shortId = shortId.substring(shortId.length() - 6);
+                        if (tvHeaderOrderNum != null) tvHeaderOrderNum.setText("Order #" + shortId);
 
                             String status = order.optString("status", "MATCHING");
                             String deadlineIso = order.optString("acceptance_deadline_at", "");
@@ -257,18 +268,14 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
 
                             updateTimelineSteps(status);
 
-                            // Handle Pickup OTP and Delivery OTP display
+                            // Pickup OTP comes from the authenticated order response. Receiver OTP is
+                            // deliberately fetched only from the sender-only /otps endpoint below.
                             String pickupOtp = order.optString("pickup_otp", "");
-                            String deliveryOtp = order.optString("delivery_otp", "");
 
                             boolean showPickupOtp = !pickupVerified && !delivered &&
                                     !pickupOtp.isEmpty() && !"null".equalsIgnoreCase(pickupOtp) &&
                                     ("ASSIGNED".equalsIgnoreCase(status) || "ARRIVED_PICKUP".equalsIgnoreCase(status) ||
                                      "MATCHING".equalsIgnoreCase(status) || "CREATED".equalsIgnoreCase(status));
-
-                            boolean showDeliveryOtp = pickupVerified && !delivered &&
-                                    !deliveryOtp.isEmpty() && !"null".equalsIgnoreCase(deliveryOtp) &&
-                                    ("PICKED_UP".equalsIgnoreCase(status) || "IN_TRANSIT".equalsIgnoreCase(status));
 
                             if (cardTrackingOtp != null) {
                                 if (showPickupOtp) {
@@ -281,17 +288,6 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                                     final String copyOtp = pickupOtp;
                                     if (btnCopyTrackingOtp != null) {
                                         btnCopyTrackingOtp.setOnClickListener(v -> copyOtpToClipboard("Pickup OTP", copyOtp));
-                                    }
-                                } else if (showDeliveryOtp) {
-                                    cardTrackingOtp.setVisibility(View.VISIBLE);
-                                    if (tvTrackingOtpTitle != null) tvTrackingOtpTitle.setText("Delivery OTP");
-                                    if (tvTrackingOtpValue != null) {
-                                        tvTrackingOtpValue.setText(deliveryOtp.length() == 6 ? deliveryOtp.substring(0, 3) + " " + deliveryOtp.substring(3) : deliveryOtp);
-                                    }
-                                    if (tvTrackingOtpSubtitle != null) tvTrackingOtpSubtitle.setText("Share this OTP with the receiver or delivery partner upon handover.");
-                                    final String copyOtp = deliveryOtp;
-                                    if (btnCopyTrackingOtp != null) {
-                                        btnCopyTrackingOtp.setOnClickListener(v -> copyOtpToClipboard("Delivery OTP", copyOtp));
                                     }
                                 } else {
                                     cardTrackingOtp.setVisibility(View.GONE);
@@ -327,6 +323,12 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                                     tvPartnerName.setText(partner.isEmpty() || "null".equals(partner) ? "Partner Assigned" : "Partner: " + partner);
                                 }
 
+                                if (isArrivedAtDestination(status)) {
+                                    if (tvStatusBadge != null) tvStatusBadge.setText("DELIVERY PARTNER ARRIVED");
+                                    if (tvETA != null) tvETA.setText("Arrived at Destination");
+                                }
+                                loadDeliveryOtp(token);
+
                                 double pLat = order.optDouble("partner_lat", 0.0);
                                 double pLng = order.optDouble("partner_lng", 0.0);
                                 if (pLat != 0.0 && pLng != 0.0) {
@@ -334,10 +336,10 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                                 }
                             }
 
-                            pickupLat = order.optDouble("pickup_lat", 12.9716);
-                            pickupLng = order.optDouble("pickup_lng", 77.5946);
-                            deliveryLat = order.optDouble("delivery_lat", 12.9352);
-                            deliveryLng = order.optDouble("delivery_lng", 77.6245);
+                            pickupLat = order.optDouble("pickup_lat", Double.NaN);
+                            pickupLng = order.optDouble("pickup_lng", Double.NaN);
+                            deliveryLat = order.optDouble("delivery_lat", Double.NaN);
+                            deliveryLng = order.optDouble("delivery_lng", Double.NaN);
 
                             updateMapMarkers();
 
@@ -348,14 +350,70 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
                             if (tvDistance != null) {
                                 tvDistance.setText(String.format(Locale.getDefault(), "%.1f km", dist));
                             }
-                        }
                     }
                 });
             }
 
             @Override
-            public void onError(String error) {}
+            public void onError(String error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> showOrderUnavailable());
+            }
         });
+    }
+
+    private boolean hasValidRouteCoordinates() {
+        return !Double.isNaN(pickupLat) && !Double.isNaN(pickupLng)
+                && !Double.isNaN(deliveryLat) && !Double.isNaN(deliveryLng);
+    }
+
+    private void loadDeliveryOtp(String token) {
+        ApiClient.getOrderOtps(token, orderId, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    String otp = response.optString("delivery_otp", "");
+                    boolean canShowOtp = !response.optBoolean("delivered", false)
+                            && !otp.isEmpty() && !"null".equalsIgnoreCase(otp);
+                    if (!canShowOtp || cardTrackingOtp == null) return;
+
+                    cardTrackingOtp.setVisibility(View.VISIBLE);
+                    if (tvTrackingOtpTitle != null) tvTrackingOtpTitle.setText("Receiver OTP");
+                    if (tvTrackingOtpValue != null) {
+                        tvTrackingOtpValue.setText(otp.length() == 6 ? otp.substring(0, 3) + " " + otp.substring(3) : otp);
+                    }
+                    if (tvTrackingOtpSubtitle != null) {
+                        tvTrackingOtpSubtitle.setText("Share this OTP with the receiver to confirm delivery.");
+                    }
+                    if (btnCopyTrackingOtp != null) {
+                        btnCopyTrackingOtp.setOnClickListener(v -> copyOtpToClipboard("Receiver OTP", otp));
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                // The authenticated endpoint deliberately withholds OTPs before arrival or for unauthorized users.
+            }
+        });
+    }
+
+    private void showOrderUnavailable() {
+        if (tvHeaderOrderNum != null) tvHeaderOrderNum.setText("Order unavailable");
+        if (tvStatusBadge != null) tvStatusBadge.setText("UNAVAILABLE");
+        if (tvETA != null) tvETA.setText("--");
+        if (tvDistance != null) tvDistance.setText("--");
+        if (tvPartnerName != null) tvPartnerName.setText("Order details could not be loaded.");
+        if (tvPickupVal != null) tvPickupVal.setText("");
+        if (tvDestVal != null) tvDestVal.setText("");
+        if (cardTrackingOtp != null) cardTrackingOtp.setVisibility(View.GONE);
+        updateTimelineSteps("UNAVAILABLE");
+    }
+
+    private boolean isArrivedAtDestination(String status) {
+        return "ARRIVED_AT_DESTINATION".equalsIgnoreCase(status)
+                || "ARRIVED_DESTINATION".equalsIgnoreCase(status);
     }
 
     private long getRemainingSeconds(String deadlineIso) {
@@ -385,7 +443,7 @@ public class OrderTrackingFragment extends Fragment implements OnMapReadyCallbac
         super.onResume();
         if (mapViewTracking != null) mapViewTracking.onResume();
         pollHandler.removeCallbacks(pollRunnable);
-        pollHandler.post(pollRunnable);
+        if (!orderId.isEmpty()) pollHandler.post(pollRunnable);
     }
 
     @Override

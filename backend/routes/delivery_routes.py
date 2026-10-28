@@ -174,8 +174,7 @@ def arrived_destination():
             "_id": obj_id,
             "assigned_partner": partner_phone,
             "delivered": False,
-            "pickup_verified": True,
-            "status": {"$in": ["PICKED_UP", "IN_TRANSIT"]}
+            "status": {"$in": ["PICKED_UP", "IN_TRANSIT", "ARRIVED_AT_DESTINATION", "ARRIVED_DESTINATION"]}
         },
         {"$set": {
             "status": "ARRIVED_AT_DESTINATION",
