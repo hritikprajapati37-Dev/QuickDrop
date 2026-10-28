@@ -15,7 +15,6 @@ import com.example.quick_drop.utils.ApiClient;
 import com.example.quick_drop.utils.UserSession;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.radiobutton.MaterialRadioButton;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.Locale;
 
@@ -28,6 +27,8 @@ public class PaymentFragment extends Fragment {
     private double bundleDeliveryCharge = 0.0;
     private double bundlePlatformFee = 2.0;
     private double bundleTotalAmount = 0.0;
+    private String bundlePickupAddress = "";
+    private String bundleDeliveryAddress = "";
 
     @Nullable
     @Override
@@ -87,6 +88,14 @@ public class PaymentFragment extends Fragment {
             bundleDeliveryCharge = getArguments().getDouble("delivery_charge", 0.0);
             bundlePlatformFee = getArguments().getDouble("platform_fee", 2.0);
             bundleTotalAmount = getArguments().getDouble("total_amount", 0.0);
+            bundlePickupAddress = getArguments().getString("pickup_address", "");
+            bundleDeliveryAddress = getArguments().getString("delivery_address", "");
+
+            if (!currentOrderId.isEmpty()) {
+                String shortId = currentOrderId;
+                if (shortId.length() > 6) shortId = shortId.substring(shortId.length() - 6);
+                if (tvOrderNumber != null) tvOrderNumber.setText("#" + shortId);
+            }
 
             if (bundleDeliveryCharge > 0.0) {
                 if (tvDeliveryCharge != null) tvDeliveryCharge.setText(String.format(Locale.getDefault(), "₹%.2f", bundleDeliveryCharge));
@@ -123,34 +132,13 @@ public class PaymentFragment extends Fragment {
 
                 @Override
                 public void onError(String error) {
-                    loadLatestOrderPaymentFallback(token);
+                    // Preserve the exact order selected at creation; a list fallback can substitute another order.
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getContext(), "Payment details are temporarily unavailable. Using the confirmed order total.", Toast.LENGTH_LONG).show());
                 }
             });
-        } else {
-            loadLatestOrderPaymentFallback(token);
         }
-    }
-
-    private void loadLatestOrderPaymentFallback(String token) {
-        ApiClient.getOrdersList(token, new ApiClient.ApiCallback() {
-            @Override
-            public void onSuccess(JSONObject response) {
-                if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> {
-                    JSONArray orders = response.optJSONArray("orders");
-                    if (orders != null && orders.length() > 0) {
-                        JSONObject order = orders.optJSONObject(0);
-                        if (order != null) {
-                            currentOrderId = order.optString("order_id", currentOrderId);
-                            bindPaymentDetails(order);
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onError(String error) {}
-        });
     }
 
     private double parseOptDouble(JSONObject obj, String key, double defaultVal) {
@@ -228,7 +216,12 @@ public class PaymentFragment extends Fragment {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), "Payment confirmed & saved to database!", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(v).navigate(R.id.action_paymentFragment_to_paymentSuccess);
+                    Bundle args = new Bundle();
+                    args.putString("order_id", currentOrderId);
+                    args.putDouble("total_amount", bundleTotalAmount);
+                    args.putString("pickup_address", bundlePickupAddress);
+                    args.putString("delivery_address", bundleDeliveryAddress);
+                    Navigation.findNavController(v).navigate(R.id.action_paymentFragment_to_paymentSuccess, args);
                 });
             }
 
