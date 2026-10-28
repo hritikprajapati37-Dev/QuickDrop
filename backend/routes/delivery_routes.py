@@ -103,7 +103,7 @@ def get_partner_active_delivery():
     active_order = db["orders"].find_one({
         "assigned_partner": partner_phone,
         "delivered": False,
-        "status": {"$in": ["ASSIGNED", "ARRIVED_PICKUP", "PICKED_UP", "IN_TRANSIT", "ARRIVED_DESTINATION"]}
+        "status": {"$in": ["ASSIGNED", "ARRIVED_PICKUP", "PICKED_UP", "IN_TRANSIT", "ARRIVED_AT_DESTINATION", "ARRIVED_DESTINATION"]}
     })
     if not active_order:
         return jsonify({"active_delivery": None}), 200
@@ -178,17 +178,25 @@ def arrived_destination():
             "status": {"$in": ["PICKED_UP", "IN_TRANSIT"]}
         },
         {"$set": {
-            "status": "ARRIVED_DESTINATION",
+            "status": "ARRIVED_AT_DESTINATION",
             "arrived_destination_at": now_iso
         }}
     )
     if result.modified_count == 0:
+        existing_order = db["orders"].find_one({
+            "_id": obj_id,
+            "assigned_partner": partner_phone,
+            "delivered": False,
+            "status": {"$in": ["ARRIVED_AT_DESTINATION", "ARRIVED_DESTINATION"]}
+        })
+        if existing_order:
+            return jsonify({"message": "Already recorded arrival at destination", "status": existing_order.get("status")}), 200
         return jsonify({"error": "Order not found or not assigned to partner"}), 400
 
-    if not db["orderhistories"].find_one({"order_id": order_id, "status": "ARRIVED_DESTINATION"}):
-        db["orderhistories"].insert_one({"order_id": order_id, "status": "ARRIVED_DESTINATION", "timestamp": now_iso, "created_at": datetime.utcnow()})
+    if not db["orderhistories"].find_one({"order_id": order_id, "status": "ARRIVED_AT_DESTINATION"}):
+        db["orderhistories"].insert_one({"order_id": order_id, "status": "ARRIVED_AT_DESTINATION", "timestamp": now_iso, "created_at": datetime.utcnow()})
 
-    return jsonify({"message": "Arrived at destination recorded", "status": "ARRIVED_DESTINATION"}), 200
+    return jsonify({"message": "Arrived at destination recorded", "status": "ARRIVED_AT_DESTINATION"}), 200
 
 @delivery_bp.route("/api/delivery/verify-pickup", methods=["POST"], endpoint="verify_pickup")
 @token_required
@@ -228,7 +236,7 @@ def verify_pickup():
         return jsonify({"error": "Pickup OTP has expired"}), 400
 
     stored_hash = order.get("pickup_otp_hash", "")
-    if not verify_secret(submitted_otp, stored_hash) and submitted_otp not in ["1234", "123456"]:
+    if not verify_secret(submitted_otp, stored_hash):
         orders_collection.update_one({"_id": obj_id}, {"$inc": {"pickup_otp_attempts": 1}})
         return jsonify({"error": "Invalid OTP"}), 400
 
@@ -263,8 +271,7 @@ def verify_pickup():
 
     return jsonify({
         "message": "Pickup verified successfully. Delivery OTP generated for receiver handover.",
-        "status": "PICKED_UP",
-        "delivery_otp_demo_only": delivery_otp_plain
+        "status": "PICKED_UP"
     }), 200
 
 @delivery_bp.route("/api/delivery/verify-delivery", methods=["POST"], endpoint="verify_delivery")
@@ -297,8 +304,8 @@ def verify_delivery():
     if not order.get("pickup_verified", False):
         return jsonify({"error": "Cannot complete delivery before pickup verification"}), 400
 
-    if order.get("status") != "ARRIVED_DESTINATION":
-        return jsonify({"error": "Record arrival at destination before verifying delivery OTP"}), 400
+    if order.get("status") not in ("ARRIVED_AT_DESTINATION", "ARRIVED_DESTINATION"):
+        orders_collection.update_one({"_id": obj_id}, {"$set": {"status": "ARRIVED_AT_DESTINATION"}})
 
     if order.get("delivery_otp_attempts", 0) >= 3:
         return jsonify({"error": "Too many failed attempts. Request new OTP."}), 429
@@ -307,14 +314,15 @@ def verify_delivery():
         return jsonify({"error": "Delivery OTP has expired"}), 400
 
     stored_hash = order.get("delivery_otp_hash", "")
-    if not verify_secret(submitted_otp, stored_hash) and submitted_otp not in ["1234", "123456"]:
+    if not verify_secret(submitted_otp, stored_hash):
         orders_collection.update_one({"_id": obj_id}, {"$inc": {"delivery_otp_attempts": 1}})
         return jsonify({"error": "Invalid OTP"}), 400
 
     complete_time_iso = datetime.utcnow().isoformat()
 
     result = orders_collection.update_one(
-        {"_id": obj_id, "assigned_partner": request.user.get("phone"), "delivered": False, "status": "ARRIVED_DESTINATION"},
+        {"_id": obj_id, "assigned_partner": request.user.get("phone"), "delivered": False,
+         "status": {"$in": ["ARRIVED_AT_DESTINATION", "ARRIVED_DESTINATION"]}},
         {
             "$set": {
                 "delivered": True,
@@ -413,7 +421,7 @@ def partner_accept():
     active_delivery = db["orders"].find_one({
         "assigned_partner": partner_phone,
         "delivered": False,
-        "status": {"$in": ["ASSIGNED", "ARRIVED_PICKUP", "PICKED_UP", "IN_TRANSIT", "ARRIVED_DESTINATION"]}
+        "status": {"$in": ["ASSIGNED", "ARRIVED_PICKUP", "PICKED_UP", "IN_TRANSIT", "ARRIVED_AT_DESTINATION", "ARRIVED_DESTINATION"]}
     })
     if active_delivery:
         return jsonify({"error": "You already have an active delivery in progress. Complete it first."}), 400

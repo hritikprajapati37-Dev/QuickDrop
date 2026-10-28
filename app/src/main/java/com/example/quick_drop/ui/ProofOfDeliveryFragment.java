@@ -28,6 +28,7 @@ public class ProofOfDeliveryFragment extends Fragment {
     private TextInputEditText etDeliveryOtp;
     private EditText etDeliveryNotes;
     private MaterialButton btnComplete, btnArrivedDestination, btnCall;
+    private View deliveryOtpCard, handedToCard, deliveryNotesCard;
     private String currentOrderId = "";
     private String receiverPhoneStr = "";
     private String selectedHandedTo = "Recipient";
@@ -48,9 +49,6 @@ public class ProofOfDeliveryFragment extends Fragment {
                 Navigation.findNavController(v).navigateUp());
         }
 
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> 
-            Navigation.findNavController(v).navigateUp());
-
         tvHeaderOrderNum = view.findViewById(R.id.tvHeaderOrderNum);
         tvReceiverName = view.findViewById(R.id.tvReceiverName);
         tvReceiverPhone = view.findViewById(R.id.tvReceiverPhone);
@@ -61,6 +59,9 @@ public class ProofOfDeliveryFragment extends Fragment {
         etDeliveryNotes = view.findViewById(R.id.etDeliveryNotes);
         btnComplete = view.findViewById(R.id.btnComplete);
         btnArrivedDestination = view.findViewById(R.id.btnArrivedDestination);
+        deliveryOtpCard = view.findViewById(R.id.deliveryOtpCard);
+        handedToCard = view.findViewById(R.id.handedToCard);
+        deliveryNotesCard = view.findViewById(R.id.deliveryNotesCard);
 
         btnHandedRecipient = view.findViewById(R.id.btnHandedRecipient);
         btnHandedDoor = view.findViewById(R.id.btnHandedDoor);
@@ -150,8 +151,41 @@ public class ProofOfDeliveryFragment extends Fragment {
                     String itemDesc = order.optString("item_description", "Package");
                     String itemWeight = order.optString("item_weight", "1.0 kg");
                     if (tvSummaryDesc != null) tvSummaryDesc.setText(itemDesc + "  " + itemWeight);
+
+                    String status = order.optString("status", "");
+                    updateDeliveryActions(status);
+                    if (!"ARRIVED_AT_DESTINATION".equalsIgnoreCase(status) && !"ARRIVED_DESTINATION".equalsIgnoreCase(status)) {
+                        markArrivedDestinationSilent();
+                    }
                 });
             }
+
+            @Override
+            public void onError(String error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() ->
+                    Toast.makeText(getContext(), "Unable to load delivery: " + error, Toast.LENGTH_LONG).show());
+            }
+        });
+    }
+
+    private void updateDeliveryActions(String status) {
+        if (btnArrivedDestination != null) {
+            btnArrivedDestination.setVisibility(View.GONE);
+        }
+        if (deliveryOtpCard != null) deliveryOtpCard.setVisibility(View.VISIBLE);
+        if (handedToCard != null) handedToCard.setVisibility(View.VISIBLE);
+        if (deliveryNotesCard != null) deliveryNotesCard.setVisibility(View.VISIBLE);
+        if (btnComplete != null) btnComplete.setVisibility(View.VISIBLE);
+    }
+
+    private void markArrivedDestinationSilent() {
+        String token = UserSession.getToken(requireContext());
+        if (token.isEmpty() || currentOrderId.isEmpty()) return;
+
+        ApiClient.arrivedDestination(token, currentOrderId, new ApiClient.ApiCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {}
 
             @Override
             public void onError(String error) {}
@@ -166,8 +200,10 @@ public class ProofOfDeliveryFragment extends Fragment {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> 
-                    Toast.makeText(getContext(), "Arrived at destination recorded!", Toast.LENGTH_SHORT).show());
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Arrived at destination recorded!", Toast.LENGTH_SHORT).show();
+                    loadOrderData();
+                });
             }
 
             @Override
