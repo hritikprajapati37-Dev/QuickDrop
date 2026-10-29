@@ -50,8 +50,8 @@ public class CreateDeliveryFragment extends Fragment {
     private AutoCompleteTextView actvCategory;
     private TextView tvPickupPrimary, tvPickupSecondary;
     private FusedLocationProviderClient fusedLocationClient;
-    private double currentLat = 12.9716;
-    private double currentLng = 77.5946;
+    private double currentLat = Double.NaN;
+    private double currentLng = Double.NaN;
     private String pickupAddressStr = "";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
 
@@ -220,6 +220,19 @@ public class CreateDeliveryFragment extends Fragment {
                     .fillColor(Color.argb(35, 33, 150, 243))
                     .strokeWidth(3f));
 
+                map.setOnMapLoadedCallback(() -> {
+                    try {
+                        double latKm = 5000.0 / 111320.0;
+                        double lngKm = 5000.0 / (111320.0 * Math.cos(Math.toRadians(pickupLoc.latitude)));
+                        LatLng sw = new LatLng(pickupLoc.latitude - latKm, pickupLoc.longitude - lngKm);
+                        LatLng ne = new LatLng(pickupLoc.latitude + latKm, pickupLoc.longitude + lngKm);
+                        com.google.android.gms.maps.model.LatLngBounds bounds = new com.google.android.gms.maps.model.LatLngBounds(sw, ne);
+                        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 60));
+                    } catch (Exception e) {
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(pickupLoc, 12f));
+                    }
+                });
+
                 map.setOnMapClickListener(latLng -> {
                     map.clear();
                     map.addMarker(new MarkerOptions().position(pickupLoc).title("Pickup Location"));
@@ -282,8 +295,8 @@ public class CreateDeliveryFragment extends Fragment {
                                     if (tvPickupPrimary != null) tvPickupPrimary.setText(pickupAddressStr);
                                     if (tvPickupSecondary != null) tvPickupSecondary.setText("From your previous order");
                                 }
-                                currentLat = latestOrder.optDouble("pickup_lat", 12.9716);
-                                currentLng = latestOrder.optDouble("pickup_lng", 77.5946);
+                                currentLat = latestOrder.optDouble("pickup_lat", Double.NaN);
+                                currentLng = latestOrder.optDouble("pickup_lng", Double.NaN);
                             }
                         }
                     }
@@ -443,7 +456,13 @@ public class CreateDeliveryFragment extends Fragment {
                 deliveryLng = dAddr.getLongitude();
             }
         } catch (Exception e) {
-            // fallback offset
+            // The order cannot be submitted without a resolvable destination.
+        }
+
+        if (!Double.isFinite(pLat) || !Double.isFinite(pLng) ||
+                !Double.isFinite(deliveryLat) || !Double.isFinite(deliveryLng)) {
+            Toast.makeText(getContext(), "Choose real pickup and delivery locations before continuing", Toast.LENGTH_LONG).show();
+            return;
         }
 
         // 3. Compute accurate distance between true pickup and true delivery locations
@@ -502,6 +521,7 @@ public class CreateDeliveryFragment extends Fragment {
                         try {
                             Navigation.findNavController(v).navigate(R.id.action_global_to_login);
                         } catch (Exception ignored) {}
+
                     } else {
                         Toast.makeText(getContext(), "Failed to create order: " + error, Toast.LENGTH_LONG).show();
                     }
