@@ -29,6 +29,7 @@ public class EarningsFragment extends Fragment {
     private TextView tvBalanceValue, tvDeliveriesValue, tvDistanceValue;
     private TextView tabToday, tabWeek, tabMonth;
     private LinearLayout llEarningsHistory;
+    private String currentPeriod = "today";
 
     @Nullable
     @Override
@@ -125,7 +126,7 @@ public class EarningsFragment extends Fragment {
             return;
         }
 
-        ApiClient.getPartnerEarnings(token, new ApiClient.ApiCallback() {
+        ApiClient.getPartnerEarnings(token, currentPeriod, new ApiClient.ApiCallback() {
             @Override
             public void onSuccess(JSONObject response) {
                 if (!isAdded()) return;
@@ -138,6 +139,7 @@ public class EarningsFragment extends Fragment {
 
                     double earnings = response.optDouble("total_earnings", 0.0);
                     int deliveries = response.optInt("completed_deliveries", 0);
+                    double distance = response.optDouble("total_distance_km", deliveries * 3.0);
                     String currency = response.optString("currency", "₹");
 
                     if (tvBalanceValue != null) {
@@ -147,7 +149,7 @@ public class EarningsFragment extends Fragment {
                         tvDeliveriesValue.setText(String.valueOf(deliveries));
                     }
                     if (tvDistanceValue != null) {
-                        tvDistanceValue.setText((deliveries * 3) + " km");
+                        tvDistanceValue.setText(String.format(Locale.getDefault(), "%.1f km", distance));
                     }
 
                     loadEarningsHistory(token);
@@ -187,7 +189,9 @@ public class EarningsFragment extends Fragment {
                                     if (oid.length() > 6) oid = oid.substring(oid.length() - 6);
                                     if (tvId != null) tvId.setText("#" + oid);
                                     if (tvTime != null) tvTime.setText(order.optString("delivery_address", "Completed"));
-                                    if (tvAmt != null) tvAmt.setText("+₹150");
+                                    
+                                    double earning = order.optDouble("partner_earning", order.optDouble("delivery_charge", 150.0));
+                                    if (tvAmt != null) tvAmt.setText(String.format(Locale.getDefault(), "+₹%.0f", earning));
 
                                     llEarningsHistory.addView(itemView);
                                     count++;
@@ -228,12 +232,15 @@ public class EarningsFragment extends Fragment {
         tabMonth.setTextColor(Color.parseColor("#6B7280"));
 
         if (index == 0) {
+            currentPeriod = "today";
             tabToday.setBackgroundResource(R.drawable.shape_pill_white);
             tabToday.setTextColor(getResources().getColor(R.color.vf_primary));
         } else if (index == 1) {
+            currentPeriod = "week";
             tabWeek.setBackgroundResource(R.drawable.shape_pill_white);
             tabWeek.setTextColor(getResources().getColor(R.color.vf_primary));
         } else {
+            currentPeriod = "month";
             tabMonth.setBackgroundResource(R.drawable.shape_pill_white);
             tabMonth.setTextColor(getResources().getColor(R.color.vf_primary));
         }

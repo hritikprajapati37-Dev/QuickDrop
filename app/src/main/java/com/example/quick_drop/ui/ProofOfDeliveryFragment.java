@@ -241,7 +241,9 @@ public class ProofOfDeliveryFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), "Delivery confirmed successfully!", Toast.LENGTH_SHORT).show();
                     try {
-                        Navigation.findNavController(requireView()).navigate(R.id.action_proofOfDelivery_to_completed);
+                        Bundle args = new Bundle();
+                        args.putString("order_id", currentOrderId);
+                        Navigation.findNavController(requireView()).navigate(R.id.action_proofOfDelivery_to_completed, args);
                     } catch (Exception e) {
                         Navigation.findNavController(requireView()).navigateUp();
                     }

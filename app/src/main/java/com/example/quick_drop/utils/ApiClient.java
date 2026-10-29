@@ -603,6 +603,38 @@ public class ApiClient {
         }).start();
     }
 
+    public static void getOrderOtps(String token, String orderId, ApiCallback callback) {
+        new Thread(() -> {
+            String endpoint = "/api/orders/" + orderId + "/otps";
+            try {
+                URL url = new URL(getBaseUrl() + endpoint);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
+
+                int code = conn.getResponseCode();
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream(), "utf-8"));
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                JSONObject resJson = new JSONObject(response.toString());
+                if (code >= 200 && code < 300) {
+                    callback.onSuccess(resJson);
+                } else {
+                    callback.onError(resJson.optString("error", "Failed to fetch order OTPs (HTTP " + code + ")"));
+                }
+            } catch (Exception e) {
+                callback.onError(handleException(e, endpoint));
+            }
+        }).start();
+    }
+
     public static void getAvailableRequests(String token, ApiCallback callback) {
         new Thread(() -> {
             String endpoint = "/api/partner/available";
@@ -856,8 +888,12 @@ public class ApiClient {
     }
 
     public static void getPartnerEarnings(String token, ApiCallback callback) {
+        getPartnerEarnings(token, "today", callback);
+    }
+
+    public static void getPartnerEarnings(String token, String period, ApiCallback callback) {
         new Thread(() -> {
-            String endpoint = "/api/partner/earnings";
+            String endpoint = "/api/partner/earnings?period=" + (period != null ? period : "today");
             try {
                 URL url = new URL(getBaseUrl() + endpoint);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();

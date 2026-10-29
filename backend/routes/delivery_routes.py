@@ -476,12 +476,43 @@ def partner_earnings():
     if db is None:
         return jsonify({"error": "Database not connected"}), 500
     phone = request.user.get("phone")
+    period = request.args.get("period", "today").lower()
+
     completed_orders = list(db["orders"].find({"assigned_partner": phone, "delivered": True}))
-    total_earnings = 0.0
+
+    now = datetime.utcnow()
+    filtered_orders = []
     for o in completed_orders:
+        complete_time_str = o.get("complete_order_time") or o.get("created_at")
+        order_date = now
+        if complete_time_str:
+            try:
+                if isinstance(complete_time_str, str):
+                    order_date = datetime.fromisoformat(complete_time_str.replace("Z", ""))
+            except Exception:
+                pass
+
+        if period == "today":
+            if order_date.date() == now.date():
+                filtered_orders.append(o)
+        elif period == "week":
+            if (now - order_date).days <= 7:
+                filtered_orders.append(o)
+        elif period == "month":
+            if order_date.month == now.month and order_date.year == now.year:
+                filtered_orders.append(o)
+        else:
+            filtered_orders.append(o)
+
+    total_earnings = 0.0
+    total_distance = 0.0
+    for o in filtered_orders:
         total_earnings += float(o.get("partner_earning", o.get("delivery_charge", 150.0)))
+        total_distance += float(o.get("distance_km", 3.0))
+
     return jsonify({
         "total_earnings": total_earnings,
-        "completed_deliveries": len(completed_orders),
+        "completed_deliveries": len(filtered_orders),
+        "total_distance_km": round(total_distance, 1),
         "currency": "₹"
     }), 200
